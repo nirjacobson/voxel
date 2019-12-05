@@ -17,17 +17,6 @@
 
 typedef struct {
     Window* window;
-    
-    char buttons;
-    int x;
-    int y;
-
-    struct {
-        int left;
-        int right;
-        int top;
-        int bottom;
-    } bounds;
 } Mouse;
 
 Mouse* mouse_init(Mouse* m, Window* window);

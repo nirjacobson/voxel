@@ -187,8 +187,6 @@ void voxel_resize(Application* application) {
 
     camera_set_aspect(&application->voxel->camera, (double)application->window->width / application->window->height);
     camera_apply(&application->voxel->camera, &application->voxel->renderer);
-
-    mouse_set_bounds(&application->voxel->mouse);
 }
 
 void voxel_teardown(Application* application) {
