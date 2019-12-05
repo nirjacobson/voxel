@@ -8,30 +8,41 @@
 #include "renderer.h"
 #include "camera.h"
 #include "world.h"
-#include "cursor.h"
 #include "picker.h"
 #include "panel.h"
 #include "picker_panel.h"
+#include "window.h"
+#include "application.h"
 
-typedef struct {
+struct Voxel {
+    Application application;
+    Window window;
+
     Keyboard keyboard;
     Mouse mouse;
 
-    Window window;
-    Cursor cursor;
     Renderer renderer;
 
+    World world;
     Camera camera;
     Picker picker;
 
     PanelManager panelManager;
     PickerPanel pickerPanel;
-} Voxel;
+};
+
+typedef struct Voxel Voxel;
 
 Voxel* voxel_init(Voxel* v);
 void voxel_destroy(Voxel* voxel);
 
 char voxel_process_input(Voxel* voxel);
+void voxel_draw(Voxel* voxel);
+
+void voxel_setup(Application* application);
+void voxel_main(Application* application);
+void voxel_resize(Application* application);
+void voxel_teardown(Application* application);
 
 void voxel_run(Voxel* voxel);
 

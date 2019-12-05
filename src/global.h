@@ -1,7 +1,10 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "GLES2/gl2.h"
+#include <stdlib.h>
+
+#include <GLES3/gl3.h>
+#include <GLFW/glfw3.h>
 
 #define MIN(x, y)    ((x) < (y) ? (x) : (y))
 #define MAX(x, y)    ((x) > (y) ? (x) : (y))

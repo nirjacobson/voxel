@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 
-#include "GLES2/gl2.h"
-
+#include "global.h"
 #include "linked_list.h"
 #include "renderer.h"
 
@@ -32,6 +31,7 @@ typedef struct {
 typedef struct {
     LinkedList quads;
 
+    GLuint vao;
     GLuint vbo;
     GLuint ebo;
 } Mesh;

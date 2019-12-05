@@ -2,7 +2,7 @@ MODULES=global        \
 		panel		  \
 		picker_panel  \
 		picker		  \
-		cursor		  \
+		application	  \
 		b_tree		  \
 		heap		  \
 		chunk_dao	  \
@@ -22,8 +22,8 @@ MODULES=global        \
 		voxel         \
 		main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-CFLAGS=-Wall -I/opt/vc/include `pkg-config --cflags cairo`
-LDFLAGS+=-L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lm  `pkg-config --libs cairo`
+CFLAGS  = -O2 -Wall `pkg-config --cflags gl glfw3 cairo` -g
+LDFLAGS = `pkg-config --libs gl glfw3 cairo` -lm
 EXEC=voxel
 
 all: build ${EXEC}

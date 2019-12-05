@@ -1,9 +1,13 @@
-#version 100
+#version 300 es
 
-varying vec2 TexCoord;
+precision highp float;
+
+in vec2 TexCoord;
 
 uniform sampler2D sampler;
 
+out vec4 fragColor;
+
 void main() {
-  gl_FragColor = texture2D(sampler, TexCoord).bgra;
+  fragColor = texture2D(sampler, TexCoord).bgra;
 }

@@ -3,8 +3,7 @@
 
 #include <math.h>
 
-#include "GLES2/gl2.h"
-
+#include "global.h"
 #include "camera.h"
 #include "world.h"
 

@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "GLES2/gl2.h"
-
 #include "global.h"
 
 GLuint shader_create(const char* path, GLenum shaderType);

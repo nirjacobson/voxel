@@ -17,9 +17,9 @@ Renderer* renderer_init(Renderer* r) {
     glActiveTexture(GL_TEXTURE0);
     renderer_2D_update_sampler(renderer, 0);
 
-
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glClearColor(0.50f, 0.75f, 0.86f, 1.0f);
     glClearDepthf(1);
     glEnable( GL_DEPTH_TEST );
     glEnable( GL_BLEND );

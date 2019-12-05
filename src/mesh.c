@@ -61,6 +61,7 @@ Mesh* mesh_init(Mesh* m) {
 
     linked_list_init(&mesh->quads);
 
+    glGenVertexArrays(1, &mesh->vao);
     glGenBuffers(1, &mesh->vbo);
     glGenBuffers(1, &mesh->ebo);
 
@@ -70,6 +71,7 @@ Mesh* mesh_init(Mesh* m) {
 void mesh_destroy(Mesh* mesh) {
     glDeleteBuffers(1, &mesh->ebo);
     glDeleteBuffers(1, &mesh->vbo);
+    glDeleteVertexArrays(1, &mesh->vao);
 
     linked_list_destroy(&mesh->quads, free);
 }
@@ -115,6 +117,7 @@ void mesh_buffer(Mesh* mesh, char mode) {
 }
 
 void mesh_draw(Mesh* mesh, Renderer* renderer, char mode) {
+    glBindVertexArray(mesh->vao);
     renderer_3D_use(renderer);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
@@ -126,4 +129,8 @@ void mesh_draw(Mesh* mesh, Renderer* renderer, char mode) {
 
     for (int q=0; q<mesh->quads.size; q++)
         glDrawElements(mode == MESH_FILL ? GL_TRIANGLE_STRIP : GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*) (4*q*sizeof(GLushort)));
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

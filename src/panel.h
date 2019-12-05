@@ -4,8 +4,6 @@
 #include <cairo/cairo.h>
 #include <stdlib.h>
 
-#include "GLES2/gl2.h"
-
 #include "global.h"
 #include "linked_list.h"
 #include "renderer.h"
@@ -41,6 +39,7 @@ typedef struct ActionRegion ActionRegion;
 /* Panel */
 
 struct Panel {
+  unsigned int vao;
   unsigned int vbo;
   unsigned int tex;
 

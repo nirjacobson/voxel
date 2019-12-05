@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "GLES2/gl2.h"
 
 #include "global.h"
 

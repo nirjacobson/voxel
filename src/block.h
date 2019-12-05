@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#include "GLES2/gl2.h"
+#include "global.h"
 
 typedef struct {
     uint16_t data;

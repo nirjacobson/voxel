@@ -43,6 +43,7 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
 
   linked_list_init(&panel->actionRegions);
 
+  glGenVertexArrays(1, &panel->vao);
   glGenBuffers(1, &panel->vbo);
   glGenTextures(1, &panel->tex);
 
@@ -63,6 +64,7 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
 void panel_destroy(Panel* panel) {
   glDeleteTextures(1, &panel->tex);
   glDeleteBuffers(1, &panel->vbo);
+  glDeleteVertexArrays(1, &panel->vao);
 
   linked_list_destroy(&panel->actionRegions, free);
 
@@ -137,6 +139,7 @@ void panel_texture(Panel* panel) {
 }
 
 void panel_draw(Panel* panel) {
+  glBindVertexArray(panel->vao);
   renderer_2D_use(panel->manager->renderer);
   glBindBuffer(GL_ARRAY_BUFFER, panel->vbo);
 
@@ -148,8 +151,9 @@ void panel_draw(Panel* panel) {
   panel->drawCallback(panel->owner);
   panel_texture(panel);
   
-  glBindTexture(GL_TEXTURE_2D, panel->tex);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 /* PanelManager */

@@ -1,11 +1,11 @@
-#version 100
+#version 300 es
 
-attribute vec3 position;
-attribute vec2 texcoord;
+in vec3 position;
+in vec2 texcoord;
 
 uniform mat4 projection;
 
-varying vec2 TexCoord;
+out vec2 TexCoord;
 
 void main() {
   vec4 screenPosition = projection * vec4(position, 1.0);
