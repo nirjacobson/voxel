@@ -144,6 +144,15 @@ void voxel_draw(Voxel* voxel) {
     world_draw(&voxel->world, &voxel->camera, &voxel->renderer);
     picker_draw(&voxel->picker, &voxel->renderer);
     panel_manager_draw(&voxel->panelManager);
+
+    struct timeval oldFrameTime = voxel->frameTime;
+    gettimeofday(&voxel->frameTime, NULL);
+
+    struct timeval elapsed;
+    timersub(&voxel->frameTime, &oldFrameTime, &elapsed);
+    long millisElapsed = (elapsed.tv_sec * 1000000 + elapsed.tv_usec) / 1000;
+
+    fps_panel_set_fps(&voxel->fpsPanel, 1000.0 / millisElapsed);
 }
 
 
@@ -163,6 +172,9 @@ void voxel_setup(Application* application) {
     panel_manager_init(&application->voxel->panelManager, &application->voxel->renderer);
     picker_panel_init(&application->voxel->pickerPanel, &application->voxel->panelManager, &application->voxel->picker);
 
+    fps_panel_init(&application->voxel->fpsPanel, &application->voxel->panelManager);
+    fps_panel_set_position(&application->voxel->fpsPanel, 16, application->window->height - 30);
+    
     world_init(&application->voxel->world, "cubes");
     picker_set_world(&application->voxel->picker, &application->voxel->world);
 }
@@ -191,6 +203,7 @@ void voxel_resize(Application* application) {
 
 void voxel_teardown(Application* application) {
     world_destroy(&application->voxel->world);
+    fps_panel_destroy(&application->voxel->fpsPanel);
     picker_panel_destroy(&application->voxel->pickerPanel);
     panel_manager_destroy(&application->voxel->panelManager);
     picker_destroy(&application->voxel->picker);

@@ -20,6 +20,7 @@ MODULES=global        \
 		window        \
 		mouse         \
 		voxel         \
+		fps_panel     \
 		main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 CFLAGS  = -O2 -Wall `pkg-config --cflags gl glfw3 cairo` -g

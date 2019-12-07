@@ -1,6 +1,8 @@
 #ifndef VOXEL_H
 #define VOXEL_H
 
+#include <sys/time.h>
+
 #include "global.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -13,6 +15,7 @@
 #include "picker_panel.h"
 #include "window.h"
 #include "application.h"
+#include "fps_panel.h"
 
 struct Voxel {
     Application application;
@@ -29,6 +32,10 @@ struct Voxel {
 
     PanelManager panelManager;
     PickerPanel pickerPanel;
+
+    FPSPanel fpsPanel;
+
+    struct timeval frameTime;
 };
 
 typedef struct Voxel Voxel;
