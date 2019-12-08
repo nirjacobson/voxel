@@ -14,7 +14,7 @@ sudo apt install libcairo2-dev
 sudo apt install libglfw3-dev    # (Raspberry Pi 4 only)
 ```
 
-## Installation
+## Usage
 
 ```
 git clone https://github.com/nirjacobson/voxel.git
