@@ -38,5 +38,5 @@ The picker tools have the following hotkeys:
 - **C** - Move (cut selection)
   
 The **pencil**, **eraser** and **select** tools support click-and-drag.  
-When placing a selection with the **stamp** or **move** tools, right-click will rotate the target.  
+When placing a selection with the **stamp** or **move** tool, right-click will rotate the target.  
 With the **select** tool, **SHIFT+Click** adds to an existing selection.
