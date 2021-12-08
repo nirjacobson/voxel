@@ -3,12 +3,9 @@
 
 #include <stdio.h>
 
-#include "GLES3/gl3.h"
-
 #include "global.h"
 #include "matrix.h"
 #include "mesh.h"
-#include "renderer.h"
 
 typedef struct {
   float position[3];
