@@ -23,12 +23,10 @@ void window_open(Window* window) {
 
     windowReference = window;
 
-    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-    window->width = mode->width;
-    window->height = mode->height;
+    window->width = 1440;
+    window->height = 900;
     
-    window->glfwWindow = glfwCreateWindow(mode->width, mode->height, "Voxel", glfwGetPrimaryMonitor(), NULL);
+    window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
     if (!window->glfwWindow)
         glfwTerminate();
 
@@ -56,4 +54,3 @@ void window_resize(Window* window, int width, int height) {
 
     window->application->resize(window->application);
 }
-

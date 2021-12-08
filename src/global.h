@@ -12,8 +12,8 @@
 
 #define glCheck() assert(glGetError() == 0)
 
-float X[3];
-float Y[3];
-float Z[3];
+extern float X[3];
+extern float Y[3];
+extern float Z[3];
 
 #endif // GLOBAL_H
