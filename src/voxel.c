@@ -18,6 +18,7 @@ char voxel_process_input(Voxel* voxel) {
     static int mouseX[2];
     static int mouseY[2];
     static char mouseButtons[2];
+    static char f[2];
 
     static int tab = 0;
 
@@ -84,6 +85,12 @@ char voxel_process_input(Voxel* voxel) {
     
     if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_C))
         picker_set_action(&voxel->picker, PICKER_MOVE);
+
+    f[1] = f[0];
+    f[0] = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_F);
+    if (!f[1] && f[0]) {
+        window_toggle_fullscreen(&voxel->window);
+    }
 
     if (mouseX[0] != mouseX[1] || mouseY[0] != mouseY[1]) {
         if (voxel->panelManager.dragging) {
@@ -193,12 +200,16 @@ void voxel_main(Application* application) {
 }
 
 void voxel_resize(Application* application) {
+    glViewport(0, 0, application->window->width, application->window->height);
+
     GLfloat mat[16];
     mat4_orthographic(mat, 0, application->window->width, 0, application->window->height);
     renderer_2D_update_projection(&application->voxel->renderer, mat);
 
     camera_set_aspect(&application->voxel->camera, (double)application->window->width / application->window->height);
     camera_apply(&application->voxel->camera, &application->voxel->renderer);
+
+    fps_panel_set_position(&application->voxel->fpsPanel, 16, application->window->height - 30);
 }
 
 void voxel_teardown(Application* application) {

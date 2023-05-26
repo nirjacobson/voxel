@@ -23,8 +23,8 @@ void window_open(Window* window) {
 
     windowReference = window;
 
-    window->width = 1440;
-    window->height = 900;
+    window->width = WINDOW_DEFAULT_WIDTH;
+    window->height = WINDOW_DEFAULT_HEIGHT;
     
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
     if (!window->glfwWindow)
@@ -53,4 +53,14 @@ void window_resize(Window* window, int width, int height) {
     window->height = height;
 
     window->application->resize(window->application);
+}
+
+void window_toggle_fullscreen(Window* window) {
+    if (glfwGetWindowMonitor(window->glfwWindow) == NULL) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        glfwSetWindowMonitor(window->glfwWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    } else {
+        glfwSetWindowMonitor(window->glfwWindow, NULL, 0, 0, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT, GLFW_DONT_CARE);
+    }
 }
