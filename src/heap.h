@@ -7,7 +7,7 @@
 #include "chunk.h"
 
 typedef struct {
-  unsigned int freeSpacePtr;
+  unsigned long freeSpacePtr;
 } HeapHeader;
 
 typedef struct {
@@ -28,8 +28,8 @@ void heap_init_heap(Heap* heap);
 HeapHeader heap_get_header(Heap* heap);
 void heap_set_header(Heap* heap, HeapHeader* header);
 
-unsigned int heap_insert(Heap* heap, Chunk* chunk);
-void heap_write(Heap* heap, unsigned int address, Chunk* chunk);
-Chunk* heap_get(Heap* heap, unsigned int address);
+unsigned long heap_insert(Heap* heap, Chunk* chunk);
+void heap_write(Heap* heap, unsigned long address, Chunk* chunk);
+Chunk* heap_get(Heap* heap, unsigned long address);
 
 #endif // HEAP_H

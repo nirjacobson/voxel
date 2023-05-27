@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
   ChunkID key;
-  unsigned int value;
+  unsigned long value;
 } BPTreeLeafEntry;
 
 typedef struct {
@@ -46,8 +46,8 @@ void bp_tree_set_header(BPTree* btree, BPTreeHeader* header);
 BPTreeNodeHeader bp_tree_get_node_header(const char* page);
 void bp_tree_set_node_header(char* page, BPTreeNodeHeader* header);
 
-void bp_tree_insert(BPTree* btree, ChunkID* key, unsigned int value);
-char bp_tree_find(BPTree* btree, ChunkID* key, unsigned int* valuePtr);
+void bp_tree_insert(BPTree* btree, ChunkID* key, unsigned long value);
+char bp_tree_find(BPTree* btree, ChunkID* key, unsigned long* valuePtr);
 void bp_tree_print(BPTree* btree);
 
 

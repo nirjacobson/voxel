@@ -15,17 +15,16 @@ void chunk_dao_destroy(ChunkDAO* chunkDAO) {
 }
 
 void chunk_dao_save(ChunkDAO* chunkDAO, ChunkID* chunkID, Chunk* chunk) {
-  unsigned int address;
+  unsigned long address;
   if (bp_tree_find(&chunkDAO->bptree, chunkID, &address)) {
     heap_write(&chunkDAO->heap, address, chunk);
   } else {
-    bp_tree_insert(&chunkDAO->bptree, chunkID,
-      heap_insert(&chunkDAO->heap, chunk));
+    bp_tree_insert(&chunkDAO->bptree, chunkID, heap_insert(&chunkDAO->heap, chunk));
   }
 }
 
 Chunk* chunk_dao_load(ChunkDAO* chunkDAO, ChunkID* chunkID) {
-  unsigned int address;
+  unsigned long address;
   if (bp_tree_find(&chunkDAO->bptree, chunkID, &address)) {
     return heap_get(&chunkDAO->heap, address);
   }

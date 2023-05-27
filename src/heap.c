@@ -37,7 +37,7 @@ void heap_init_heap(Heap* heap) {
   heap_set_header(heap, &header);
 }
 
-void heap_write_at_address(Heap* heap, unsigned int address, Chunk* chunk) {
+void heap_write(Heap* heap, unsigned long address, Chunk* chunk) {
   HeapEntry entry;
   entry.width = chunk->width;
   entry.height = chunk->height;
@@ -60,12 +60,12 @@ void heap_write_at_address(Heap* heap, unsigned int address, Chunk* chunk) {
   free(blocks);
 }
 
-unsigned int heap_insert(Heap* heap, Chunk* chunk) {
+unsigned long heap_insert(Heap* heap, Chunk* chunk) {
   HeapHeader header = heap_get_header(heap);
 
-  unsigned int address = header.freeSpacePtr;
+  unsigned long address = header.freeSpacePtr;
 
-  heap_write_at_address(heap, address, chunk);
+  heap_write(heap, address, chunk);
 
   header.freeSpacePtr += sizeof(HeapEntry) + chunk->width * chunk->height * chunk->length * sizeof(Block);
   heap_set_header(heap, &header);
@@ -73,11 +73,7 @@ unsigned int heap_insert(Heap* heap, Chunk* chunk) {
   return address;
 }
 
-void heap_write(Heap* heap, unsigned int address, Chunk* chunk) {
-  heap_write_at_address(heap, address, chunk);
-}
-
-Chunk* heap_get(Heap* heap, unsigned int address) {
+Chunk* heap_get(Heap* heap, unsigned long address) {
   HeapEntry entry;
   fseek(heap->file, address, SEEK_SET);
   fread(&entry, sizeof(entry), 1, heap->file);
