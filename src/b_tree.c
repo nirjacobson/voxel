@@ -174,7 +174,6 @@ BTreeEntry* b_tree_insert_split_insertion(BTree* btree, unsigned int pageIndex, 
   int middleIndex = (pageHeader.numEntries + 1)/2;
   *entryToInsertUp = allEntries[middleIndex];
   
-  char* leftPage = b_tree_new_node(&allEntries[0], middleIndex, pageHeader.isLeaf, pageHeader.leftPtr);
   char* rightPage = b_tree_new_node(&allEntries[middleIndex+1], pageHeader.numEntries - middleIndex, pageHeader.isLeaf, pageHeader.isLeaf ? 0 : entryToInsertUp->rightPtr);
   
   pageHeader.numEntries = middleIndex;
@@ -184,7 +183,6 @@ BTreeEntry* b_tree_insert_split_insertion(BTree* btree, unsigned int pageIndex, 
   unsigned int rightPageIndex = b_tree_append_page(btree, rightPage);
   entryToInsertUp->rightPtr = rightPageIndex;
 
-  free(leftPage);
   free(rightPage);
 
   return entryToInsertUp;
