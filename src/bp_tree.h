@@ -9,19 +9,19 @@
 #include "chunk.h"
 
 typedef struct {
-  unsigned int freeSpacePtr;
-  unsigned int rootPtr;
+  unsigned long freeSpacePtr;
+  unsigned long rootPtr;
 } BPTreeHeader;
 
 typedef struct {
   unsigned char isLeaf;
-  unsigned int leftPtr;
+  unsigned long leftPtr;
   unsigned int numEntries;
 } BPTreeNodeHeader;
 
 typedef struct {
   ChunkID key;
-  unsigned int rightPtr;
+  unsigned long rightPtr;
 } BPTreeEntry;
 
 typedef struct {
@@ -38,8 +38,8 @@ void bp_tree_destroy(BPTree* btree);
 
 void bp_tree_init_tree(BPTree* btree);
 
-void bp_tree_write_page(BPTree* btree, unsigned int index, const char* page);
-void bp_tree_read_page(BPTree* btree, unsigned int index, char* page);
+void bp_tree_write_page(BPTree* btree, unsigned long address, const char* page);
+void bp_tree_read_page(BPTree* btree, unsigned long address, char* page);
 
 BPTreeHeader bp_tree_get_header(BPTree* btree);
 void bp_tree_set_header(BPTree* btree, BPTreeHeader* header);

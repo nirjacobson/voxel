@@ -33,38 +33,39 @@ void bp_tree_init_tree(BPTree* btree) {
   char page[BP_TREE_PAGE_SIZE];
   memset(page, 0, BP_TREE_PAGE_SIZE);
 
-  BPTreeHeader btreeHeader = { 2, 1 };
+  BPTreeHeader btreeHeader = {
+    .freeSpacePtr = sizeof(BPTreeHeader) + BP_TREE_PAGE_SIZE,
+    .rootPtr = sizeof(BPTreeHeader)
+  };
+
   memcpy(page, &btreeHeader, sizeof(BPTreeHeader));
-  bp_tree_write_page(btree, 0, page);
-  
-  memset(page, 0, BP_TREE_PAGE_SIZE);
 
   BPTreeNodeHeader rootHeader = { 1, 0, 0 };
-  memcpy(page, &rootHeader, sizeof(BPTreeNodeHeader));
-  bp_tree_write_page(btree, 1, page);
+  memcpy(page + sizeof(BPTreeHeader), &rootHeader, sizeof(BPTreeNodeHeader));
+
+  bp_tree_write_page(btree, 0, page);
 }
 
-void bp_tree_write_page(BPTree* btree, unsigned int index, const char* page) {
-  fseek(btree->file, index * BP_TREE_PAGE_SIZE, SEEK_SET);
+void bp_tree_write_page(BPTree* btree, unsigned long address, const char* page) {
+  fseek(btree->file, address, SEEK_SET);
   fwrite(page, BP_TREE_PAGE_SIZE, 1, btree->file);
 }
 
-unsigned int bp_tree_append_page(BPTree* btree, const char* page) {
+unsigned long bp_tree_append_page(BPTree* btree, const char* page) {
   BPTreeHeader btreeHeader = bp_tree_get_header(btree);
-  unsigned int index = btreeHeader.freeSpacePtr;
-  bp_tree_write_page(btree, index, page);
+  unsigned long address = btreeHeader.freeSpacePtr;
+  bp_tree_write_page(btree, address, page);
 
-  btreeHeader.freeSpacePtr++;
+  btreeHeader.freeSpacePtr += BP_TREE_PAGE_SIZE;
   bp_tree_set_header(btree, &btreeHeader);
 
-  return index;
+  return address;
 }
 
-void bp_tree_read_page(BPTree* btree, unsigned int index, char* page) {
-  fseek(btree->file, index * BP_TREE_PAGE_SIZE, SEEK_SET);
+void bp_tree_read_page(BPTree* btree, unsigned long address, char* page) {
+  fseek(btree->file, address, SEEK_SET);
   fread(page, BP_TREE_PAGE_SIZE, 1, btree->file);
 }
-
 
 BPTreeHeader bp_tree_get_header(BPTree* btree) {
   char page[BP_TREE_PAGE_SIZE];
@@ -96,7 +97,7 @@ void bp_tree_set_node_header(char* page, BPTreeNodeHeader* header) {
   memcpy(page, header, sizeof(BPTreeNodeHeader));
 }
 
-char* bp_tree_new_node(BPTreeEntry* entries, unsigned int count, unsigned int leftPtr) {
+char* bp_tree_new_node(BPTreeEntry* entries, unsigned int count, unsigned long leftPtr) {
   char* page = NEW(char, BP_TREE_PAGE_SIZE);
   memset(page, 0, BP_TREE_PAGE_SIZE);
 
@@ -128,7 +129,7 @@ char* bp_tree_new_leaf_node(BPTreeLeafEntry* entries, unsigned int count) {
   return page;
 }
 
-void bp_tree_insert_entry_sorted(BPTree* btree, unsigned int pageIndex, char* page, BPTreeEntry* entryToInsert) {
+void bp_tree_insert_entry_sorted(BPTree* btree, unsigned long address, char* page, BPTreeEntry* entryToInsert) {
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
   BPTreeEntry* allEntries = NEW(BPTreeEntry, pageHeader.numEntries + 1);
   memcpy(allEntries, page+sizeof(BPTreeNodeHeader), pageHeader.numEntries * sizeof(BPTreeEntry));
@@ -148,10 +149,10 @@ void bp_tree_insert_entry_sorted(BPTree* btree, unsigned int pageIndex, char* pa
   memcpy(page + sizeof(BPTreeNodeHeader), allEntries, pageHeader.numEntries * sizeof(BPTreeEntry));
 
   bp_tree_set_node_header(page, &pageHeader);
-  bp_tree_write_page(btree, pageIndex, page);
+  bp_tree_write_page(btree, address, page);
 }
 
-void bp_tree_insert_leaf_entry_sorted(BPTree* btree, unsigned int pageIndex, char* page, BPTreeLeafEntry* entryToInsert) {
+void bp_tree_insert_leaf_entry_sorted(BPTree* btree, unsigned long address, char* page, BPTreeLeafEntry* entryToInsert) {
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
   BPTreeLeafEntry* allEntries = NEW(BPTreeLeafEntry, pageHeader.numEntries + 1);
   memcpy(allEntries, page+sizeof(BPTreeNodeHeader), pageHeader.numEntries * sizeof(BPTreeLeafEntry));
@@ -171,10 +172,10 @@ void bp_tree_insert_leaf_entry_sorted(BPTree* btree, unsigned int pageIndex, cha
   memcpy(page + sizeof(BPTreeNodeHeader), allEntries, pageHeader.numEntries * sizeof(BPTreeLeafEntry));
 
   bp_tree_set_node_header(page, &pageHeader);
-  bp_tree_write_page(btree, pageIndex, page);
+  bp_tree_write_page(btree, address, page);
 }
 
-char bp_tree_insert_leaf_entry_over(BPTree* btree, unsigned int pageIndex, char* page, BPTreeLeafEntry* entryToInsert) {
+char bp_tree_insert_leaf_entry_over(BPTree* btree, unsigned long address, char* page, BPTreeLeafEntry* entryToInsert) {
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
 
   BPTreeLeafEntry entry;
@@ -183,7 +184,7 @@ char bp_tree_insert_leaf_entry_over(BPTree* btree, unsigned int pageIndex, char*
     memcpy(&entry, page+offset, sizeof(BPTreeLeafEntry));
     if (compare_keys(&entryToInsert->key, &entry.key) == 0) {
       ((BPTreeLeafEntry*)(page+offset))->value = entryToInsert->value;
-      bp_tree_write_page(btree, pageIndex, page);
+      bp_tree_write_page(btree, address, page);
 
       return 1;
     }
@@ -192,7 +193,7 @@ char bp_tree_insert_leaf_entry_over(BPTree* btree, unsigned int pageIndex, char*
   return 0;
 }
 
-BPTreeEntry* bp_tree_insert_split_insertion(BPTree* btree, unsigned int pageIndex, char* page, BPTreeEntry* entryToInsert) {
+BPTreeEntry* bp_tree_insert_split_insertion(BPTree* btree, unsigned long address, char* page, BPTreeEntry* entryToInsert) {
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
   BPTreeEntry* allEntries = NEW(BPTreeEntry, pageHeader.numEntries + 1);
   memcpy(allEntries, page+sizeof(BPTreeNodeHeader), pageHeader.numEntries * sizeof(BPTreeEntry));
@@ -216,17 +217,17 @@ BPTreeEntry* bp_tree_insert_split_insertion(BPTree* btree, unsigned int pageInde
   
   pageHeader.numEntries = middleIndex;
   bp_tree_set_node_header(page, &pageHeader);
-  bp_tree_write_page(btree, pageIndex, page);
+  bp_tree_write_page(btree, address, page);
 
-  unsigned int rightPageIndex = bp_tree_append_page(btree, rightPage);
-  entryToInsertUp->rightPtr = rightPageIndex;
+  unsigned long rightPageAddress = bp_tree_append_page(btree, rightPage);
+  entryToInsertUp->rightPtr = rightPageAddress;
 
   free(rightPage);
 
   return entryToInsertUp;
 }
 
-BPTreeEntry* bp_tree_insert_split_leaf_insertion(BPTree* btree, unsigned int pageIndex, char* page, BPTreeLeafEntry* entryToInsert) {
+BPTreeEntry* bp_tree_insert_split_leaf_insertion(BPTree* btree, unsigned long address, char* page, BPTreeLeafEntry* entryToInsert) {
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
   BPTreeLeafEntry* allEntries = NEW(BPTreeLeafEntry, pageHeader.numEntries + 1);
   memcpy(allEntries, page+sizeof(BPTreeNodeHeader), pageHeader.numEntries * sizeof(BPTreeLeafEntry));
@@ -250,7 +251,7 @@ BPTreeEntry* bp_tree_insert_split_leaf_insertion(BPTree* btree, unsigned int pag
   
   pageHeader.numEntries = middleIndex;
   bp_tree_set_node_header(page, &pageHeader);
-  bp_tree_write_page(btree, pageIndex, page);
+  bp_tree_write_page(btree, address, page);
 
   unsigned int rightPageIndex = bp_tree_append_page(btree, rightPage);
   entryToInsertUp->rightPtr = rightPageIndex;
@@ -260,18 +261,18 @@ BPTreeEntry* bp_tree_insert_split_leaf_insertion(BPTree* btree, unsigned int pag
   return entryToInsertUp;
 }
 
-BPTreeEntry* bp_tree_insert_entry_helper(BPTree* btree, unsigned int pageIndex, BPTreeLeafEntry* entryToInsert) {
+BPTreeEntry* bp_tree_insert_entry_helper(BPTree* btree, unsigned long address, BPTreeLeafEntry* entryToInsert) {
   char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(btree, pageIndex, page);
+  bp_tree_read_page(btree, address, page);
 
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
 
   if (pageHeader.isLeaf) {
-    if (!bp_tree_insert_leaf_entry_over(btree, pageIndex, page, entryToInsert)) {
+    if (!bp_tree_insert_leaf_entry_over(btree, address, page, entryToInsert)) {
       if (pageHeader.numEntries == BP_TREE_KEYS_PER_PAGE) {
-        return bp_tree_insert_split_leaf_insertion(btree, pageIndex, page, entryToInsert);
+        return bp_tree_insert_split_leaf_insertion(btree, address, page, entryToInsert);
       } else {
-        bp_tree_insert_leaf_entry_sorted(btree, pageIndex, page, entryToInsert);
+        bp_tree_insert_leaf_entry_sorted(btree, address, page, entryToInsert);
       }
     }
   } else {
@@ -286,9 +287,9 @@ BPTreeEntry* bp_tree_insert_entry_helper(BPTree* btree, unsigned int pageIndex, 
 
         if (entryToInsertUp) {
           if (pageHeader.numEntries == BP_TREE_KEYS_PER_PAGE) {
-            return bp_tree_insert_split_insertion(btree, pageIndex, page, entryToInsertUp);
+            return bp_tree_insert_split_insertion(btree, address, page, entryToInsertUp);
           } else {
-            bp_tree_insert_entry_sorted(btree, pageIndex, page, entryToInsertUp);
+            bp_tree_insert_entry_sorted(btree, address, page, entryToInsertUp);
           }
         }
 
@@ -302,9 +303,9 @@ BPTreeEntry* bp_tree_insert_entry_helper(BPTree* btree, unsigned int pageIndex, 
     
     if (entryToInsertUp) {
       if (pageHeader.numEntries == BP_TREE_KEYS_PER_PAGE) {
-        return bp_tree_insert_split_insertion(btree, pageIndex, page, entryToInsertUp);
+        return bp_tree_insert_split_insertion(btree, address, page, entryToInsertUp);
       } else {
-        bp_tree_insert_entry_sorted(btree, pageIndex, page, entryToInsertUp);
+        bp_tree_insert_entry_sorted(btree, address, page, entryToInsertUp);
       }
     }
   }
@@ -324,16 +325,16 @@ void bp_tree_insert(BPTree* btree, ChunkID* key, unsigned long value) {
   if (entryToInsertUp) {
     char* newRoot = bp_tree_new_node(entryToInsertUp, 1, btreeHeader.rootPtr);
 
-    unsigned int newRootPtr = bp_tree_append_page(btree, newRoot);
+    unsigned long newRootPtr = bp_tree_append_page(btree, newRoot);
     btreeHeader = bp_tree_get_header(btree);
     btreeHeader.rootPtr = newRootPtr;
     bp_tree_set_header(btree, &btreeHeader);
   }
 }
 
-void bp_tree_print_helper(BPTree* btree, unsigned int pageIndex) {
+void bp_tree_print_helper(BPTree* btree, unsigned long address) {
   char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(btree, pageIndex, page);
+  bp_tree_read_page(btree, address, page);
 
   BPTreeNodeHeader nodeHeader = bp_tree_get_node_header(page);
   
@@ -412,9 +413,9 @@ char bp_tree_find_entry_in_leaf_page(const char* page, ChunkID* key, unsigned lo
   return 0;
 }
 
-char bp_tree_find_entry_helper(BPTree* btree, unsigned int pageIndex, ChunkID* key, unsigned long* valuePtr) {
+char bp_tree_find_entry_helper(BPTree* btree, unsigned long address, ChunkID* key, unsigned long* valuePtr) {
   char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(btree, pageIndex, page);
+  bp_tree_read_page(btree, address, page);
 
   BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
 
