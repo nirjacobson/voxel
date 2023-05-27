@@ -1,11 +1,11 @@
 #ifndef CHUNK_DAO_H
 #define CHUNK_DAO_H
 
-#include "b_tree.h"
+#include "bp_tree.h"
 #include "heap.h"
 
 typedef struct {
-  BTree btree;
+  BPTree bptree;
   Heap heap;
 } ChunkDAO;
 

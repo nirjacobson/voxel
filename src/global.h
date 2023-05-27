@@ -8,7 +8,7 @@
 
 #define MIN(x, y)    ((x) < (y) ? (x) : (y))
 #define MAX(x, y)    ((x) > (y) ? (x) : (y))
-#define NEW(type, count)     (type*)malloc(count * sizeof(type));
+#define NEW(type, count)     (type*)malloc((count) * sizeof(type));
 
 #define glCheck() assert(glGetError() == 0)
 

@@ -3,7 +3,7 @@ MODULES=global       \
 		      picker_panel \
 		      picker							\
 		      application  \
-		      b_tree		     \
+		      bp_tree	     \
 		      heap		       \
 		      chunk_dao	   \
 		      world		      \
