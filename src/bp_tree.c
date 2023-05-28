@@ -72,9 +72,8 @@ void bp_tree_read_page(BPTree* btree, unsigned long address, char* page) {
 }
 
 BPTreeHeader bp_tree_get_header(BPTree* btree) {
-  fseek(btree->file, 0, SEEK_SET);
-
   BPTreeHeader header;
+  fseek(btree->file, 0, SEEK_SET);
   fread(&header, sizeof(BPTreeHeader), 1, btree->file);
 
   return header;
