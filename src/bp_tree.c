@@ -14,12 +14,16 @@ BPTree* bp_tree_init(BPTree* bt, const char* name) {
   BPTree* btree = bt ? bt : NEW(BPTree, 1);
 
   char filename[16];
-  sprintf(filename, "%s.idx", name);
+  sprintf(filename, "%s.vxl", name);
   if (access(filename, F_OK) == -1) {
     btree->file = fopen(filename, "w+b");
-    bp_tree_init_tree(btree);
   } else {
     btree->file = fopen(filename, "r+b");
+  }
+
+  fseek(btree->file, 0, SEEK_END);
+  if (ftell(btree->file) < sizeof(BPTreeHeader)) {
+    bp_tree_init_tree(btree);
   }
 
   return btree;

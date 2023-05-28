@@ -4,12 +4,16 @@ Heap* heap_init(Heap* h, const char* name) {
   Heap* heap = h ? h : NEW(Heap, 1);
 
   char filename[16];
-  sprintf(filename, "%s.bin", name);
+  sprintf(filename, "%s.vxl", name);
   if (access(filename, F_OK) == -1) {
     heap->file = fopen(filename, "w+b");
-    heap_init_heap(heap);
   } else {
     heap->file = fopen(filename, "r+b");
+  }
+
+  fseek(heap->file, 0, SEEK_END);
+  if (ftell(heap->file) < sizeof(HeapHeader)) {
+    heap_init_heap(heap);
   }
 
   return heap;
@@ -54,8 +58,7 @@ void heap_write(Heap* heap, unsigned long address, Chunk* chunk) {
     }
   }
   fseek(heap->file, address, SEEK_SET);
-  fwrite(&entry, sizeof(entry), 1, heap->file);
-  fseek(heap->file, address + sizeof(entry), SEEK_SET);
+  fwrite(&entry, sizeof(HeapEntry), 1, heap->file);
   fwrite(blocks, numBlocks*sizeof(Block), 1, heap->file);
   free(blocks);
 }
@@ -76,11 +79,10 @@ unsigned long heap_insert(Heap* heap, Chunk* chunk) {
 Chunk* heap_get(Heap* heap, unsigned long address) {
   HeapEntry entry;
   fseek(heap->file, address, SEEK_SET);
-  fread(&entry, sizeof(entry), 1, heap->file);
+  fread(&entry, sizeof(HeapEntry), 1, heap->file);
   int numBlocks = entry.width * entry.height * entry.length;
 
   Block* blocks = NEW(Block, numBlocks);
-  fseek(heap->file, address + sizeof(entry), SEEK_SET);
   fread(blocks, numBlocks*sizeof(Block), 1, heap->file);
 
   Chunk* chunk = chunk_init(NULL, entry.width, entry.height, entry.length);
