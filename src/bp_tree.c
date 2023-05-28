@@ -72,22 +72,17 @@ void bp_tree_read_page(BPTree* btree, unsigned long address, char* page) {
 }
 
 BPTreeHeader bp_tree_get_header(BPTree* btree) {
-  char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(btree, 0, page);
+  fseek(btree->file, 0, SEEK_SET);
 
   BPTreeHeader header;
-  memcpy(&header, page, sizeof(BPTreeHeader));
+  fread(&header, sizeof(BPTreeHeader), 1, btree->file);
 
   return header;
 }
 
 void bp_tree_set_header(BPTree* btree, BPTreeHeader* header) {
-  char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(btree, 0, page);
-
-  memcpy(page, header, sizeof(BPTreeHeader));
-
-  bp_tree_write_page(btree, 0, page);
+  fseek(btree->file, 0, SEEK_SET);
+  fwrite(header, sizeof(BPTreeHeader), 1, btree->file);
 }
 
 BPTreeNodeHeader bp_tree_get_node_header(const char* page) {
