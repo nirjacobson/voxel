@@ -5,11 +5,10 @@
 
 struct Application;
 struct Window;
-struct Voxel;
 
 typedef void (*ApplicationFn)(struct Application*);
 
-struct Application {
+typedef struct Application {
   struct Window* window;
   
   ApplicationFn setup;
@@ -17,12 +16,10 @@ struct Application {
   ApplicationFn resize;
   ApplicationFn teardown;
 
-  struct Voxel* voxel;
-};
+  void* owner;
+} Application;
 
-typedef struct Application Application;
-
-Application* application_init(Application* a, struct Voxel* voxel, ApplicationFn setup, ApplicationFn main, ApplicationFn resize, ApplicationFn teardown);
+Application* application_init(Application* a, void* owner, ApplicationFn setup, ApplicationFn main, ApplicationFn resize, ApplicationFn teardown);
 
 
 #endif // APPLICATION_H

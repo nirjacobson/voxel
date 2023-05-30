@@ -24,8 +24,9 @@ MODULES=global       \
 		      fps_panel    \
 		      main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags gl glfw3 cairo` -g
-LDFLAGS = `pkg-config --libs gl glfw3 cairo` -lm
+LIBS    = gl glfw3 cairo
+CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags ${LIBS}` -g
+LDFLAGS = `pkg-config --libs ${LIBS}` -lm
 EXEC=voxel
 
 all: build ${EXEC}

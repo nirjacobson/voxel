@@ -165,35 +165,39 @@ void voxel_draw(Voxel* voxel) {
 
 
 void voxel_setup(Application* application) {
-    keyboard_init(&application->voxel->keyboard, application->window);
-    mouse_init(&application->voxel->mouse, application->window);
+    Voxel* voxel = (Voxel*)application->owner;
 
-    renderer_init(&application->voxel->renderer);
-    camera_init(&application->voxel->camera);
+    keyboard_init(&voxel->keyboard, application->window);
+    mouse_init(&voxel->mouse, application->window);
 
-    camera_move(&application->voxel->camera, Y, 2);
+    renderer_init(&voxel->renderer);
+    camera_init(&voxel->camera);
+
+    camera_move(&voxel->camera, Y, 2);
 
     voxel_resize(application);
     
-    picker_init(&application->voxel->picker);
+    picker_init(&voxel->picker);
 
-    panel_manager_init(&application->voxel->panelManager, &application->voxel->renderer);
-    picker_panel_init(&application->voxel->pickerPanel, &application->voxel->panelManager, &application->voxel->picker);
+    panel_manager_init(&voxel->panelManager, &voxel->renderer);
+    picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
 
-    fps_panel_init(&application->voxel->fpsPanel, &application->voxel->panelManager);
-    fps_panel_set_position(&application->voxel->fpsPanel, 16, application->window->height - 30);
+    fps_panel_init(&voxel->fpsPanel, &voxel->panelManager);
+    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
     
-    world_init(&application->voxel->world, "cubes");
-    picker_set_world(&application->voxel->picker, &application->voxel->world);
+    world_init(&voxel->world, "cubes");
+    picker_set_world(&voxel->picker, &voxel->world);
 }
 
 void voxel_main(Application* application) {
+    Voxel* voxel = (Voxel*)application->owner;
+
     while (!glfwWindowShouldClose(application->window->glfwWindow))
     {
-        if (!voxel_process_input(application->voxel))
+        if (!voxel_process_input(voxel))
             break;
 
-        voxel_draw(application->voxel);
+        voxel_draw(voxel);
 
         glfwSwapBuffers(application->window->glfwWindow);
         glfwPollEvents();
@@ -201,25 +205,29 @@ void voxel_main(Application* application) {
 }
 
 void voxel_resize(Application* application) {
+    Voxel* voxel = (Voxel*)application->owner;
+
     glViewport(0, 0, application->window->width, application->window->height);
 
     GLfloat mat[16];
     mat4_orthographic(mat, 0, application->window->width, 0, application->window->height);
-    renderer_2D_update_projection(&application->voxel->renderer, mat);
+    renderer_2D_update_projection(&voxel->renderer, mat);
 
-    camera_set_aspect(&application->voxel->camera, (double)application->window->width / application->window->height);
-    camera_apply(&application->voxel->camera, &application->voxel->renderer);
+    camera_set_aspect(&voxel->camera, (double)application->window->width / application->window->height);
+    camera_apply(&voxel->camera, &voxel->renderer);
 
-    fps_panel_set_position(&application->voxel->fpsPanel, 16, application->window->height - 30);
+    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 }
 
 void voxel_teardown(Application* application) {
-    world_destroy(&application->voxel->world);
-    fps_panel_destroy(&application->voxel->fpsPanel);
-    picker_panel_destroy(&application->voxel->pickerPanel);
-    panel_manager_destroy(&application->voxel->panelManager);
-    picker_destroy(&application->voxel->picker);
-    renderer_destroy(&application->voxel->renderer);
+    Voxel* voxel = (Voxel*)application->owner;
+
+    world_destroy(&voxel->world);
+    fps_panel_destroy(&voxel->fpsPanel);
+    picker_panel_destroy(&voxel->pickerPanel);
+    panel_manager_destroy(&voxel->panelManager);
+    picker_destroy(&voxel->picker);
+    renderer_destroy(&voxel->renderer);
 }
 
 void voxel_run(Voxel* voxel) {
