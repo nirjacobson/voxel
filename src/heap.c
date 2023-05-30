@@ -34,6 +34,7 @@ HeapHeader heap_get_header(Heap* heap) {
 void heap_set_header(Heap* heap, HeapHeader* header) {
   fseek(heap->file, 0, SEEK_SET);
   fwrite(header, sizeof(HeapHeader), 1, heap->file);
+  fflush(heap->file);
 }
 
 void heap_init_heap(Heap* heap) {
@@ -60,6 +61,7 @@ void heap_write(Heap* heap, unsigned long address, Chunk* chunk) {
   fseek(heap->file, address, SEEK_SET);
   fwrite(&entry, sizeof(HeapEntry), 1, heap->file);
   fwrite(blocks, numBlocks*sizeof(Block), 1, heap->file);
+  fflush(heap->file);
   free(blocks);
 }
 
