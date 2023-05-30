@@ -1,5 +1,5 @@
 #include "block.h"
-
+#include "internal/block.h"
 
 char block_is_active(Block* block) {
   return BLOCK_ACTIVE(block->data) != 0;
