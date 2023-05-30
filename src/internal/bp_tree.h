@@ -1,7 +1,9 @@
 #ifndef BP_TREE_INTERNAL_H
 #define BP_TREE_INTERNAL_H
 
-#include "../chunk.h"
+#define BP_TREE_PAGE_SIZE       1024
+#define BP_TREE_KEYS_PER_PAGE   ((BP_TREE_PAGE_SIZE - sizeof(BPTreeNodeHeader))/sizeof(BPTreeEntry))
+
 #include "../bp_tree.h"
 
 typedef struct {
