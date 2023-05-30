@@ -26,6 +26,4 @@ void world_unload_world_chunk(World* world, WorldChunk* worldChunk);
 
 LinkedList* world_draw_list(Camera* camera);
 
-
-
 #endif // WORLD_INTERNAL_H

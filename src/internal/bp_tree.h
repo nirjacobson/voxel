@@ -1,3 +1,6 @@
+#ifndef BP_TREE_INTERNAL_H
+#define BP_TREE_INTERNAL_H
+
 #include "../chunk.h"
 #include "../bp_tree.h"
 
@@ -11,9 +14,6 @@ typedef struct {
   unsigned long leftPtr;
   int numEntries;
 } BPTreeNodeHeader;
-
-#ifndef BP_TREE_INTERNAL_H
-#define BP_TREE_INTERNAL_H
 
 typedef struct {
   ChunkID key;
