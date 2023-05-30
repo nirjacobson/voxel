@@ -1,6 +1,5 @@
 #include "linked_list.h"
-
-#include <stdlib.h>
+#include "internal/linked_list.h"
 
 LinkedList* linked_list_init(LinkedList* l) {
   LinkedList* list = l ? l : NEW(LinkedList, 1);

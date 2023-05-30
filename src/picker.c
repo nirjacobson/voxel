@@ -1,4 +1,5 @@
 #include "picker.h"
+#include "internal/picker.h"
 
 /* Linked list processing callbacks */
 

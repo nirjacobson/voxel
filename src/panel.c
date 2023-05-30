@@ -1,4 +1,5 @@
 #include "panel.h"
+#include "internal/panel.h"
 
 /* Linked list processing callbacks */
 

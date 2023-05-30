@@ -21,7 +21,6 @@ typedef struct {
 
 Mouse* mouse_init(Mouse* m, Window* window);
 
-void mouse_set_bounds(Mouse* mouse);
 char mouse_state(Mouse* mouse, int* x, int* y);
 
 #endif // MOUSE_H

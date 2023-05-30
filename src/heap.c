@@ -1,4 +1,5 @@
 #include "heap.h"
+#include "internal/heap.h"
 
 Heap* heap_init(Heap* h, const char* name) {
   Heap* heap = h ? h : NEW(Heap, 1);

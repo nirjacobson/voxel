@@ -50,7 +50,6 @@ void picker_draw(Picker* picker, Renderer* renderer);
 
 void picker_press(Picker* picker, char modifier1, char modifier2);
 void picker_release(Picker* picker, char modifier1, char modifier2);
-void picker_act(Picker* picker, char modifier1, char modifier2);
 
 void picker_set_action(Picker* picker, char action);
 

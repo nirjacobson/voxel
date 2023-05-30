@@ -1,4 +1,5 @@
 #include "world.h"
+#include "internal/world.h"
 
 /* Linked list processing callbacks */
 

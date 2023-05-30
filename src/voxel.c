@@ -1,4 +1,5 @@
 #include "voxel.h"
+#include "internal/voxel.h"
 
 Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);

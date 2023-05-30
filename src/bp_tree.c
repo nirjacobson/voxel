@@ -1,4 +1,5 @@
 #include "bp_tree.h"
+#include "internal/bp_tree.h"
 
 int compare_keys(ChunkID* keyA, ChunkID* keyB) {
   if (keyA->x == keyB->x) {
@@ -335,6 +336,56 @@ void bp_tree_insert(BPTree* bpTree, ChunkID* key, unsigned long value) {
   }
 }
 
+char bp_tree_find_entry_in_leaf_page(const char* page, ChunkID* key, unsigned long* valuePtr) {
+  BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
+
+  BPTreeLeafEntry entry;
+  BPTreeLeafEntry entryToFind;
+  entryToFind.key = *key;
+  unsigned int offset = sizeof(BPTreeNodeHeader);
+  for (unsigned int i = 0; i < pageHeader.numEntries; i++, offset += sizeof(BPTreeLeafEntry)) {
+    memcpy(&entry, page+offset, sizeof(BPTreeLeafEntry));
+    if(compare_keys(&entryToFind.key, &entry.key) == 0) {
+      *valuePtr = entry.value;
+      return 1;
+    }
+  }
+  
+  return 0;
+}
+
+char bp_tree_find_entry_helper(BPTree* bpTree, unsigned long address, ChunkID* key, unsigned long* valuePtr) {
+  char page[BP_TREE_PAGE_SIZE];
+  bp_tree_read_page(bpTree, address, page);
+
+  BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
+
+  if (pageHeader.isLeaf) {
+    return bp_tree_find_entry_in_leaf_page(page, key, valuePtr);
+  } else {
+      BPTreeEntry entry[2];
+      BPTreeEntry entryToFind;
+      entryToFind.key = *key;
+      unsigned int offset = sizeof(BPTreeNodeHeader);
+      for (unsigned int i = 0; i < pageHeader.numEntries; i++, offset += sizeof(BPTreeEntry)) {
+        entry[1] = entry[0];
+        memcpy(&entry[0], page+offset, sizeof(BPTreeEntry));
+        int comparison = compare_keys(&entryToFind.key, &entry[0].key);
+        if (comparison < 0) {
+          return bp_tree_find_entry_helper(bpTree, i == 0 ? pageHeader.leftPtr : entry[1].rightPtr, key, valuePtr);
+        } else if (comparison == 0) {
+          break;
+        }
+      }
+      return bp_tree_find_entry_helper(bpTree, entry[0].rightPtr, key, valuePtr);
+  }
+}
+
+char bp_tree_find(BPTree* bpTree, ChunkID* key, unsigned long* valuePtr) {
+  BPTreeHeader bpTreeHeader = bp_tree_get_header(bpTree);
+  return bp_tree_find_entry_helper(bpTree, bpTreeHeader.rootPtr, key, valuePtr);
+}
+
 void bp_tree_print_helper(BPTree* bpTree, unsigned long address) {
   char page[BP_TREE_PAGE_SIZE];
   bp_tree_read_page(bpTree, address, page);
@@ -396,54 +447,4 @@ void bp_tree_print(BPTree* bpTree) {
   BPTreeHeader bpTreeHeader = bp_tree_get_header(bpTree);
   bp_tree_print_helper(bpTree, bpTreeHeader.rootPtr);
 
-}
-
-char bp_tree_find_entry_in_leaf_page(const char* page, ChunkID* key, unsigned long* valuePtr) {
-  BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
-
-  BPTreeLeafEntry entry;
-  BPTreeLeafEntry entryToFind;
-  entryToFind.key = *key;
-  unsigned int offset = sizeof(BPTreeNodeHeader);
-  for (unsigned int i = 0; i < pageHeader.numEntries; i++, offset += sizeof(BPTreeLeafEntry)) {
-    memcpy(&entry, page+offset, sizeof(BPTreeLeafEntry));
-    if(compare_keys(&entryToFind.key, &entry.key) == 0) {
-      *valuePtr = entry.value;
-      return 1;
-    }
-  }
-  
-  return 0;
-}
-
-char bp_tree_find_entry_helper(BPTree* bpTree, unsigned long address, ChunkID* key, unsigned long* valuePtr) {
-  char page[BP_TREE_PAGE_SIZE];
-  bp_tree_read_page(bpTree, address, page);
-
-  BPTreeNodeHeader pageHeader = bp_tree_get_node_header(page);
-
-  if (pageHeader.isLeaf) {
-    return bp_tree_find_entry_in_leaf_page(page, key, valuePtr);
-  } else {
-      BPTreeEntry entry[2];
-      BPTreeEntry entryToFind;
-      entryToFind.key = *key;
-      unsigned int offset = sizeof(BPTreeNodeHeader);
-      for (unsigned int i = 0; i < pageHeader.numEntries; i++, offset += sizeof(BPTreeEntry)) {
-        entry[1] = entry[0];
-        memcpy(&entry[0], page+offset, sizeof(BPTreeEntry));
-        int comparison = compare_keys(&entryToFind.key, &entry[0].key);
-        if (comparison < 0) {
-          return bp_tree_find_entry_helper(bpTree, i == 0 ? pageHeader.leftPtr : entry[1].rightPtr, key, valuePtr);
-        } else if (comparison == 0) {
-          break;
-        }
-      }
-      return bp_tree_find_entry_helper(bpTree, entry[0].rightPtr, key, valuePtr);
-  }
-}
-
-char bp_tree_find(BPTree* bpTree, ChunkID* key, unsigned long* valuePtr) {
-  BPTreeHeader bpTreeHeader = bp_tree_get_header(bpTree);
-  return bp_tree_find_entry_helper(bpTree, bpTreeHeader.rootPtr, key, valuePtr);
 }

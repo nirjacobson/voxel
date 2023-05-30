@@ -1,135 +1,5 @@
 #include "matrix.h"
 
-float* mat4_identity(float* mat4d) {
-    float* mat4i = mat4d ? mat4d : NEW(float, 16);
-
-    for (unsigned i=0; i<16; i++)
-        mat4i[i] = (i % 5 == 0) ? 1.0 : 0.0;
-
-    return mat4i;
-}
-
-float* mat4_translate(float* mat4d, float* mat4s, float* vec3) {
-    float* mat4t = mat4_identity(NULL);
-
-    for (unsigned i=0; i<3; i++)
-        mat4t[12+i] = vec3[i];
-
-    if (mat4s)
-        mat4_multiply(mat4t, mat4s, mat4t);
-    
-    if (mat4d) {
-        memcpy(mat4d, mat4t, 16*sizeof(float));
-        free(mat4t);
-    } else {
-        mat4d = mat4t;
-    }
-
-    return mat4d;
-}
-
-float* mat4_rotate(float* mat4d, float* mat4s, float radians, float* vec3) {
-    float* mat4r = mat4_identity(NULL);
-
-    float u = vec3[0];
-    float v = vec3[1];
-    float w = vec3[2];
-
-    float vec3l = sqrt( pow(u,2) + pow(v,2) + pow(w,2) );
-    if (vec3l != 1.0) {
-        u /= vec3l;
-        v /= vec3l;
-        w /= vec3l;
-    }
-
-    mat4r[0] = pow(u, 2) + (pow(v, 2)+pow(w, 2))*cos(radians);
-    mat4r[1] = (u * v * (1-cos(radians))) + (w*sin(radians));
-    mat4r[2] = (u * w * (1-cos(radians))) - (v*sin(radians));
-    mat4r[3] = 0;
-
-    mat4r[4] = (u * v * (1-cos(radians))) - (w*sin(radians));
-    mat4r[5] = pow(v, 2) + (pow(u, 2)+pow(w, 2))*cos(radians);
-    mat4r[6] = (v * w * (1-cos(radians))) + (u*sin(radians));
-    mat4r[7] = 0;
-
-    mat4r[8] = (u * w * (1-cos(radians))) + (v*sin(radians));
-    mat4r[9] = (v * w * (1-cos(radians))) - (u*sin(radians));
-    mat4r[10] = pow(w, 2) + (pow(u, 2)+pow(v, 2))*cos(radians);
-    mat4r[11] = 0;
-
-    mat4r[12] = 0;
-    mat4r[13] = 0;
-    mat4r[14] = 0;
-    mat4r[15] = 1;
-
-    if (mat4s)
-        mat4_multiply(mat4r, mat4s, mat4r);
-    
-    if (mat4d) {
-        memcpy(mat4d, mat4r, 16*sizeof(float));
-        free(mat4r);
-    } else {
-        mat4d = mat4r;
-    }
-
-    return mat4d;
-}
-
-float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
-    float* mat4m = NEW(float, 16);
-
-    for (unsigned i=0; i<4; i++)
-        for (unsigned j=0; j<4; j++)
-            mat4m[i*4+j] = mat4a[i*4+0]*mat4b[0+j] + mat4a[i*4+1]*mat4b[4+j] + mat4a[i*4+2]*mat4b[8+j]  + mat4a[i*4+3]*mat4b[12+j];
-    
-    if (mat4d) {
-        memcpy(mat4d, mat4m, 16*sizeof(float));
-        free(mat4m);
-    } else {
-        mat4d = mat4m;
-    }
-
-    return mat4d;
-}
-
-float* mat4_perspective(float* mat4d, double fov, double aspect, double near, double far) {
-    float yc = 1 / tan(fov/2.0 * M_PI/180.0);
-    float xc = yc / aspect;
-    float zc = (near + far) / (near - far);
-    float za = (2*far*near) / (near - far);
-
-    float* mat4p = mat4_identity(mat4d);
-
-    mat4p[0]  = xc;
-    mat4p[5]  = yc;
-    mat4p[10] = zc;
-    mat4p[11] = -1;
-    mat4p[14] = za;
-
-    return mat4p;
-}
-
-float* mat4_orthographic(float* mat4d, double left, double right, double top, double bottom) {
-    float xc = 2.0 / (right - left);
-    float xt = -(2.0 * left + right - left) / (right - left);
-    float yc = -2.0 / (bottom - top);
-    float yt =  (2.0 * top + bottom - top) / (bottom - top);
-    float zc = 1;
-    float zt = 0;
-
-    float* mat4p = mat4_identity(mat4d);
-
-    mat4p[0]  = xc;
-    mat4p[5]  = yc;
-    mat4p[10] = zc;
-
-    mat4p[12] = xt;
-    mat4p[13] = yt;
-    mat4p[14] = zt;
-
-    return mat4p;
-}
-
 float mat2_determinate(float* mat2s) {
     return (mat2s[0] * mat2s[3]) - (mat2s[1] * mat2s[2]);
 }
@@ -317,6 +187,136 @@ float mat4_determinate(float* mat4s) {
     float det = mat4s[0]*vec[0] - mat4s[1]*vec[1] + mat4s[2]*vec[2] - mat4s[3]*vec[3];
 
     return det;
+}
+
+float* mat4_identity(float* mat4d) {
+    float* mat4i = mat4d ? mat4d : NEW(float, 16);
+
+    for (unsigned i=0; i<16; i++)
+        mat4i[i] = (i % 5 == 0) ? 1.0 : 0.0;
+
+    return mat4i;
+}
+
+float* mat4_translate(float* mat4d, float* mat4s, float* vec3) {
+    float* mat4t = mat4_identity(NULL);
+
+    for (unsigned i=0; i<3; i++)
+        mat4t[12+i] = vec3[i];
+
+    if (mat4s)
+        mat4_multiply(mat4t, mat4s, mat4t);
+    
+    if (mat4d) {
+        memcpy(mat4d, mat4t, 16*sizeof(float));
+        free(mat4t);
+    } else {
+        mat4d = mat4t;
+    }
+
+    return mat4d;
+}
+
+float* mat4_rotate(float* mat4d, float* mat4s, float radians, float* vec3) {
+    float* mat4r = mat4_identity(NULL);
+
+    float u = vec3[0];
+    float v = vec3[1];
+    float w = vec3[2];
+
+    float vec3l = sqrt( pow(u,2) + pow(v,2) + pow(w,2) );
+    if (vec3l != 1.0) {
+        u /= vec3l;
+        v /= vec3l;
+        w /= vec3l;
+    }
+
+    mat4r[0] = pow(u, 2) + (pow(v, 2)+pow(w, 2))*cos(radians);
+    mat4r[1] = (u * v * (1-cos(radians))) + (w*sin(radians));
+    mat4r[2] = (u * w * (1-cos(radians))) - (v*sin(radians));
+    mat4r[3] = 0;
+
+    mat4r[4] = (u * v * (1-cos(radians))) - (w*sin(radians));
+    mat4r[5] = pow(v, 2) + (pow(u, 2)+pow(w, 2))*cos(radians);
+    mat4r[6] = (v * w * (1-cos(radians))) + (u*sin(radians));
+    mat4r[7] = 0;
+
+    mat4r[8] = (u * w * (1-cos(radians))) + (v*sin(radians));
+    mat4r[9] = (v * w * (1-cos(radians))) - (u*sin(radians));
+    mat4r[10] = pow(w, 2) + (pow(u, 2)+pow(v, 2))*cos(radians);
+    mat4r[11] = 0;
+
+    mat4r[12] = 0;
+    mat4r[13] = 0;
+    mat4r[14] = 0;
+    mat4r[15] = 1;
+
+    if (mat4s)
+        mat4_multiply(mat4r, mat4s, mat4r);
+    
+    if (mat4d) {
+        memcpy(mat4d, mat4r, 16*sizeof(float));
+        free(mat4r);
+    } else {
+        mat4d = mat4r;
+    }
+
+    return mat4d;
+}
+
+float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
+    float* mat4m = NEW(float, 16);
+
+    for (unsigned i=0; i<4; i++)
+        for (unsigned j=0; j<4; j++)
+            mat4m[i*4+j] = mat4a[i*4+0]*mat4b[0+j] + mat4a[i*4+1]*mat4b[4+j] + mat4a[i*4+2]*mat4b[8+j]  + mat4a[i*4+3]*mat4b[12+j];
+    
+    if (mat4d) {
+        memcpy(mat4d, mat4m, 16*sizeof(float));
+        free(mat4m);
+    } else {
+        mat4d = mat4m;
+    }
+
+    return mat4d;
+}
+
+float* mat4_perspective(float* mat4d, double fov, double aspect, double near, double far) {
+    float yc = 1 / tan(fov/2.0 * M_PI/180.0);
+    float xc = yc / aspect;
+    float zc = (near + far) / (near - far);
+    float za = (2*far*near) / (near - far);
+
+    float* mat4p = mat4_identity(mat4d);
+
+    mat4p[0]  = xc;
+    mat4p[5]  = yc;
+    mat4p[10] = zc;
+    mat4p[11] = -1;
+    mat4p[14] = za;
+
+    return mat4p;
+}
+
+float* mat4_orthographic(float* mat4d, double left, double right, double top, double bottom) {
+    float xc = 2.0 / (right - left);
+    float xt = -(2.0 * left + right - left) / (right - left);
+    float yc = -2.0 / (bottom - top);
+    float yt =  (2.0 * top + bottom - top) / (bottom - top);
+    float zc = 1;
+    float zt = 0;
+
+    float* mat4p = mat4_identity(mat4d);
+
+    mat4p[0]  = xc;
+    mat4p[5]  = yc;
+    mat4p[10] = zc;
+
+    mat4p[12] = xt;
+    mat4p[13] = yt;
+    mat4p[14] = zt;
+
+    return mat4p;
 }
 
 float* vec3_add(float* vec3d, float* vec3a, float* vec3b) {

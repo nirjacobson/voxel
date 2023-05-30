@@ -27,7 +27,6 @@ typedef struct Window Window;
 Window* window_init(Window* w, Application* application);
 void window_open(Window* window);
 void window_destroy(Window* window);
-void window_resize(Window* window, int width, int height);
 void window_toggle_fullscreen(Window* window);
 
 #endif // WINDOW_H

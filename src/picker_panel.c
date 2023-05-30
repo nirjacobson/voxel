@@ -1,4 +1,5 @@
 #include "picker_panel.h"
+#include "internal/picker_panel.h"
 
 /* Action region callbacks */
 

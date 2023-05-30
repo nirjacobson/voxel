@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "internal/mesh.h"
 
 /* Helpers */
 

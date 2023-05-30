@@ -27,7 +27,6 @@ typedef struct {
     GLint unifrm_projection;
 
     GLint unifrm_color;
-    GLint unifrm_fog_color;
     GLint unifrm_ambient;
     GLint unifrm_sun_position;
 } ShaderProgram3D;

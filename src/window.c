@@ -1,4 +1,5 @@
 #include "window.h"
+#include "internal/window.h"
 
 Window* windowReference;
 

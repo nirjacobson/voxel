@@ -39,8 +39,6 @@ typedef struct {
 Mesh* mesh_init(Mesh* m);
 void mesh_destroy(Mesh* mesh);
 
-void mesh_ortn_to_normal(char orientation, float* nvec);
-
 void mesh_add_quad(Mesh* mesh, Quad* quad);
 void mesh_calc_normals(Mesh* mesh);
 

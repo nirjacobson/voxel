@@ -1,4 +1,5 @@
 #include "chunk.h"
+#include "internal/chunk.h"
 
 /* Linked list processing callbacks */
 
@@ -259,14 +260,3 @@ void chunk_draw(Chunk* chunk, Renderer* renderer, float* position) {
     renderer_3D_update_world_position(renderer, position);
     linked_list_foreach(&chunk->meshes, mesh_list_node_draw, renderer);
 }
-
-void chunk_block_set_active(Chunk* chunk, int x, int y, int z, char active) {
-    Block* block = &chunk->blocks[x][y][z];
-    block_set_active(block, active);
-}
-
-void chunk_block_set_color(Chunk* chunk, int x, int y, int z, uint16_t color) {
-    Block* block = &chunk->blocks[x][y][z];
-    block_set_color(block, color);
-}
-
