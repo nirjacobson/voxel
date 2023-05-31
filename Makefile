@@ -14,6 +14,9 @@ EXEC=voxel
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
+format:
+	astyle -rnNCS *.{c,h}
+
 build/%.o : build/ src/%.c
 	gcc -c $(word 2, $^) -o $@ ${CFLAGS}
 

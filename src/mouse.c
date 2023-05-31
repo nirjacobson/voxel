@@ -15,11 +15,11 @@ char mouse_state(Mouse* mouse, int* x, int* y) {
     glfwGetCursorPos(mouse->window->glfwWindow, &xd, &yd);
     *x = (int)xd;
     *y = (int)yd;
-    
+
     char buttons = glfwGetMouseButton(mouse->window->glfwWindow, GLFW_MOUSE_BUTTON_LEFT);
     buttons <<= 1;
     buttons |= glfwGetMouseButton(mouse->window->glfwWindow, GLFW_MOUSE_BUTTON_RIGHT);
-    
+
     return buttons;
 }
 

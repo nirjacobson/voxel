@@ -15,11 +15,11 @@ struct Window;
 struct Voxel;
 
 struct Window {
-  GLFWwindow* glfwWindow;
-  int width;
-  int height;
+    GLFWwindow* glfwWindow;
+    int width;
+    int height;
 
-  Application* application;
+    Application* application;
 };
 
 typedef struct Window Window;

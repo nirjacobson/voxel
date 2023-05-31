@@ -5,7 +5,7 @@ Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);
 
     application_init(&voxel->application, voxel, voxel_setup, voxel_main, voxel_resize, voxel_teardown);
-    
+
     window_init(&voxel->window, &voxel->application);
 
     return voxel;
@@ -47,7 +47,7 @@ char voxel_process_input(Voxel* voxel) {
         // ...
     }
 
-    return 1; 
+    return 1;
 }
 
 void voxel_draw(Voxel* voxel) {
