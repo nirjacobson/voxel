@@ -23,8 +23,6 @@ Ground* ground_init(Ground* g, int length) {
     memcpy(quad->vertices[1].position, frontLeft, sizeof(frontLeft));
     memcpy(quad->vertices[2].position, backRight, sizeof(backRight));
     memcpy(quad->vertices[3].position, frontRight, sizeof(frontRight));
-    for (int i = 0; i < 4; i++)
-        quad->vt_order[i] = i;
     
     quad->orientation = TOP;
 

@@ -183,34 +183,40 @@ void chunk_mesh(Chunk* chunk) {
 
                       for (k=0; k<4; k++) {
                           for (l=0; l<3; l++) {
-                              switch (k) {
-                                  case 0:
-                                      quad->vertices[k].position[l] = (float)x[l];
-                                      break;
-                                  case 1:
-                                      quad->vertices[k].position[l] = (float)x[l]+du[l];
-                                      break;
-                                  case 2:
-                                      quad->vertices[k].position[l] = (float)x[l]+dv[l];
-                                      break;
-                                  case 3:
-                                      quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
-                                  default:
-                                      break;
+                              if (b) {
+                                  switch (k) {
+                                      case 0:
+                                          quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
+                                          break;
+                                      case 1:
+                                          quad->vertices[k].position[l] = (float)x[l]+dv[l];
+                                          break;
+                                      case 2:
+                                          quad->vertices[k].position[l] = (float)x[l]+du[l];
+                                          break;
+                                      case 3:
+                                          quad->vertices[k].position[l] = (float)x[l];
+                                      default:
+                                          break;
+                                  }
+                              } else {
+                                  switch (k) {
+                                      case 0:
+                                          quad->vertices[k].position[l] = (float)x[l]+du[l];
+                                          break;
+                                      case 1:
+                                          quad->vertices[k].position[l] = (float)x[l];
+                                          break;
+                                      case 2:
+                                          quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
+                                          break;
+                                      case 3:
+                                          quad->vertices[k].position[l] = (float)x[l]+dv[l];
+                                      default:
+                                          break;
+                                  }
                               }
                           }
-                      }
-                      
-                      if (b) {
-                          quad->vt_order[0] = 3;
-                          quad->vt_order[1] = 2;
-                          quad->vt_order[2] = 1;
-                          quad->vt_order[3] = 0;
-                      } else {
-                          quad->vt_order[0] = 1;
-                          quad->vt_order[1] = 0;
-                          quad->vt_order[2] = 3;
-                          quad->vt_order[3] = 2;
                       }
 
                       quad->orientation = side;

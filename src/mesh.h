@@ -24,7 +24,6 @@ typedef struct {
 
 typedef struct {
     Vertex vertices[4];
-    GLuint vt_order[4];
     char orientation;
 } Quad;
 

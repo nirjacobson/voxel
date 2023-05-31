@@ -97,10 +97,10 @@ void mesh_buffer(Mesh* mesh, char mode) {
                 vertex_data[q*24+v*6+3+n] = quad->vertices[v].normal_v[n];
 
             int order[] = {
-                quad->vt_order[0],
-                quad->vt_order[1],
-                mode == MESH_FILL ? quad->vt_order[2] : quad->vt_order[3],
-                mode == MESH_FILL ? quad->vt_order[3] : quad->vt_order[2],
+                0,
+                1,
+                mode == MESH_FILL ? 2 : 3,
+                mode == MESH_FILL ? 3 : 2,
             };
 
             elements[q*4+v] = q*4 + order[v];

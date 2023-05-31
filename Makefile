@@ -29,15 +29,13 @@ CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags ${LIBS}` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lm
 EXEC=voxel
 
-all: build ${EXEC}
-
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
-build/%.o : src/%.c
-	gcc -c $< -o $@ ${CFLAGS}
+build/%.o : build/ src/%.c
+	gcc -c $(word 2, $^) -o $@ ${CFLAGS}
 
-build:
+build/:
 	mkdir build
 
 clean:

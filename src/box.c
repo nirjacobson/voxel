@@ -120,10 +120,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(leftQuad->vertices[2].position, zero, up);
   vec3_add(leftQuad->vertices[2].position, leftQuad->vertices[2].position, forward);
   vec3_add(leftQuad->vertices[3].position, zero, forward);
-  leftQuad->vt_order[0] = 0;
-  leftQuad->vt_order[1] = 1;
-  leftQuad->vt_order[2] = 2;
-  leftQuad->vt_order[3] = 3;
   leftQuad->orientation = WEST;
   mesh_add_quad(mesh, leftQuad);
     
@@ -133,10 +129,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(rightQuad->vertices[1].position, leftQuad->vertices[3].position, right);
   vec3_add(rightQuad->vertices[2].position, leftQuad->vertices[0].position, right);
   vec3_add(rightQuad->vertices[3].position, leftQuad->vertices[1].position, right);
-  rightQuad->vt_order[0] = 0;
-  rightQuad->vt_order[1] = 1;
-  rightQuad->vt_order[2] = 2;
-  rightQuad->vt_order[3] = 3;
   rightQuad->orientation = EAST;
   mesh_add_quad(mesh, rightQuad);
     
@@ -145,10 +137,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(backQuad->vertices[1].position, rightQuad->vertices[3].position, zero);
   vec3_add(backQuad->vertices[2].position, leftQuad->vertices[0].position, zero);
   vec3_add(backQuad->vertices[3].position, leftQuad->vertices[1].position, zero);
-  backQuad->vt_order[0] = 0;
-  backQuad->vt_order[1] = 1;
-  backQuad->vt_order[2] = 2;
-  backQuad->vt_order[3] = 3;
   backQuad->orientation = NORTH;
   mesh_add_quad(mesh, backQuad);
     
@@ -158,10 +146,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(frontQuad->vertices[1].position, backQuad->vertices[3].position, forward);
   vec3_add(frontQuad->vertices[2].position, backQuad->vertices[0].position, forward);
   vec3_add(frontQuad->vertices[3].position, backQuad->vertices[1].position, forward);
-  frontQuad->vt_order[0] = 0;
-  frontQuad->vt_order[1] = 1;
-  frontQuad->vt_order[2] = 2;
-  frontQuad->vt_order[3] = 3;
   frontQuad->orientation = SOUTH;
   mesh_add_quad(mesh, frontQuad);
     
@@ -170,10 +154,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(bottomQuad->vertices[1].position, leftQuad->vertices[1].position, zero);
   vec3_add(bottomQuad->vertices[2].position, rightQuad->vertices[1].position, zero);
   vec3_add(bottomQuad->vertices[3].position, rightQuad->vertices[3].position, zero);
-  bottomQuad->vt_order[0] = 0;
-  bottomQuad->vt_order[1] = 1;
-  bottomQuad->vt_order[2] = 2;
-  bottomQuad->vt_order[3] = 3;
   bottomQuad->orientation = BOTTOM;
   mesh_add_quad(mesh, bottomQuad);
     
@@ -183,10 +163,6 @@ Mesh* box_mesh(Box* box) {
   vec3_add(topQuad->vertices[1].position, bottomQuad->vertices[0].position, up);
   vec3_add(topQuad->vertices[2].position, bottomQuad->vertices[3].position, up);
   vec3_add(topQuad->vertices[3].position, bottomQuad->vertices[2].position, up);
-  topQuad->vt_order[0] = 0;
-  topQuad->vt_order[1] = 1;
-  topQuad->vt_order[2] = 2;
-  topQuad->vt_order[3] = 3;
   topQuad->orientation = TOP;
   mesh_add_quad(mesh, topQuad);
 
