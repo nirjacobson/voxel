@@ -1,8 +1,6 @@
 MODULES = global       \
           application  \
           window       \
-          keyboard     \
-          mouse        \
           voxel        \
           main
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)

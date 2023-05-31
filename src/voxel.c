@@ -21,16 +21,16 @@ char voxel_process_input(Voxel* voxel) {
     static char mouseButtons[2];
     static char f[2];
 
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_ESCAPE))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_ESCAPE))
         return 0;
 
     mouseX[1] = mouseX[0];
     mouseY[1] = mouseY[0];
     mouseButtons[1] = mouseButtons[0];
-    mouseButtons[0] = mouse_state(&voxel->mouse, &mouseX[0], &mouseY[0]);
+    mouseButtons[0] = window_mouse_state(&voxel->window, &mouseX[0], &mouseY[0]);
 
     f[1] = f[0];
-    f[0] = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_F);
+    f[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_F);
     if (!f[1] && f[0]) {
         window_toggle_fullscreen(&voxel->window);
     }
@@ -39,11 +39,11 @@ char voxel_process_input(Voxel* voxel) {
         // ...
     }
 
-    if ((mouseButtons[0] & BUTTON_LEFT) != (mouseButtons[1] & BUTTON_LEFT)) {
+    if ((mouseButtons[0] & MOUSE_BUTTON_LEFT) != (mouseButtons[1] & MOUSE_BUTTON_LEFT)) {
         // ...
     }
 
-    if ((mouseButtons[0] & BUTTON_RIGHT) != (mouseButtons[1] & BUTTON_RIGHT)) {
+    if ((mouseButtons[0] & MOUSE_BUTTON_RIGHT) != (mouseButtons[1] & MOUSE_BUTTON_RIGHT)) {
         // ...
     }
 
@@ -56,13 +56,8 @@ void voxel_draw(Voxel* voxel) {
 
 
 void voxel_setup(Application* application) {
-    Voxel* voxel = (Voxel*)application->owner;
-
     glClearColor(0.50f, 0.75f, 0.86f, 1.0f);
     glClearDepthf(1);
-
-    keyboard_init(&voxel->keyboard, application->window);
-    mouse_init(&voxel->mouse, application->window);
 }
 
 void voxel_main(Application* application) {

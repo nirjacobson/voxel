@@ -6,18 +6,11 @@
 #include "global.h"
 #include "application.h"
 #include "window.h"
-#include "keyboard.h"
-#include "mouse.h"
 
-struct Voxel {
+typedef struct {
     Application application;
     Window window;
-
-    Keyboard keyboard;
-    Mouse mouse;
-};
-
-typedef struct Voxel Voxel;
+} Voxel;
 
 Voxel* voxel_init(Voxel* v);
 void voxel_destroy(Voxel* voxel);
