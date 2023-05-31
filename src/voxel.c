@@ -58,6 +58,9 @@ void voxel_draw(Voxel* voxel) {
 void voxel_setup(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
+    glClearColor(0.50f, 0.75f, 0.86f, 1.0f);
+    glClearDepthf(1);
+
     keyboard_init(&voxel->keyboard, application->window);
     mouse_init(&voxel->mouse, application->window);
 }
