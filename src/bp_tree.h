@@ -2,6 +2,8 @@
 #define BP_TREE_H
 
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "chunk.h"
 

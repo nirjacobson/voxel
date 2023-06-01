@@ -3,9 +3,6 @@
 
 #include "../panel.h"
 
-void panel_texture(Panel* panel);
-void panel_draw(Panel* panel);
-
 /* Linked list processing callbacks */
 
 char coords_over_action_region(void* coordsPtr, void* actionRegionPtr);

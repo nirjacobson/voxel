@@ -54,17 +54,6 @@ void camera_set_aspect(Camera* camera, double aspect) {
     camera->aspect = aspect;
 }
 
-void camera_apply(Camera* camera, Renderer* renderer) {
-    float mat[16];
-    mat4_multiply(mat, camera->mat_view, camera->mat_model);
-    mat4_inverse(mat, mat);
-    renderer_3D_update_camera(renderer, mat);
-    
-    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
-    mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
-    renderer_3D_update_projection(renderer, camera->mat_proj);
-}
-
 Box* camera_aabb(Camera* camera) {
     Box* frustum_bb = box_init(NULL);
 

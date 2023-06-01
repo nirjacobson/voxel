@@ -117,21 +117,3 @@ void mesh_buffer(Mesh* mesh, char mode) {
     free(vertex_data);
 }
 
-void mesh_draw(Mesh* mesh, Renderer* renderer, char mode) {
-    glBindVertexArray(mesh->vao);
-    renderer_3D_use(renderer);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
-
-    glEnableVertexAttribArray(renderer->shaderProgram3D.attrib_position);
-    glVertexAttribPointer(renderer->shaderProgram3D.attrib_position, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
-    glEnableVertexAttribArray(renderer->shaderProgram3D.attrib_normal);
-    glVertexAttribPointer(renderer->shaderProgram3D.attrib_normal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-
-    for (int q=0; q<mesh->quads.size; q++)
-        glDrawElements(mode == MESH_FILL ? GL_TRIANGLE_STRIP : GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*) (4*q*sizeof(GLushort)));
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}

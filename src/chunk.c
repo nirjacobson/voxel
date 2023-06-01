@@ -23,15 +23,6 @@ void prepare_mesh(void* ptr, void* rendererPtr) {
     mesh_buffer(mesh, MESH_FILL);
 }
 
-void draw_mesh(void* ptr, void* renderer) {
-    Mesh* mesh = (Mesh*)ptr;
-
-    float color[3];
-    block_color_rgb(mesh->color, color);
-    renderer_3D_update_color(renderer, color[0], color[1], color[2]);
-    mesh_draw(mesh, renderer, MESH_FILL);
-}
-
 /* Chunk */
 
 Chunk* chunk_init(Chunk* c, int width, int height, int length) {
@@ -260,7 +251,3 @@ void chunk_mesh(Chunk* chunk) {
   linked_list_foreach(&chunk->meshes, prepare_mesh, NULL);
 }
 
-void chunk_draw(Chunk* chunk, Renderer* renderer, float* position) {
-    renderer_3D_update_world_position(renderer, position);
-    linked_list_foreach(&chunk->meshes, draw_mesh, renderer);
-}

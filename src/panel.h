@@ -6,7 +6,6 @@
 
 #include "global.h"
 #include "linked_list.h"
-#include "renderer.h"
 #include "window.h"
 
 struct Panel;
@@ -62,21 +61,19 @@ void panel_action(Panel* panel, char action, unsigned int x, unsigned int y);
 void panel_set_position(Panel* panel, int x, int y);
 void panel_translate(Panel* panel, int x, int y);
 
+void panel_texture(Panel* panel);
+
 /* PanelManager */
 
 typedef struct PanelManager {
-  Renderer* renderer;
-
   LinkedList panels;
   Panel* active_panel;
   char dragging;
 } PanelManager;
 
-PanelManager* panel_manager_init(PanelManager* pm, Renderer* renderer);
+PanelManager* panel_manager_init(PanelManager* pm);
 void panel_manager_destroy(PanelManager* panelManager);
 void panel_manager_add_panel(PanelManager* panelManager, Panel* panel);
 Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsigned int y);
-
-void panel_manager_draw(PanelManager* panelManager);
 
 #endif // PANEL_H

@@ -36,14 +36,3 @@ Ground* ground_init(Ground* g, int length) {
 void ground_destroy(Ground* ground) {
     mesh_destroy(&ground->mesh);
 }
-
-void ground_draw(Ground* ground, Camera* camera, Renderer* renderer) {
-    float worldPosition[] = {
-        camera->mat_view[12],
-        0,
-        camera->mat_view[14],
-    };
-    renderer_3D_update_world_position(renderer, worldPosition);
-    renderer_3D_update_color(renderer, 192, 192, 192);
-    mesh_draw(&ground->mesh, renderer, MESH_FILL);
-}

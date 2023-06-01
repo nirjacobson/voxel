@@ -19,11 +19,6 @@ char coords_over_panel(void* coordsPtr, void* panelPtr) {
          (coords[1] >= panel->position[1]) && (coords[1] < (panel->position[1] + panel->height));
 }
 
-void draw_panel(void* panelPtr, void* unusued) {
-  Panel* panel = (Panel*)panelPtr;
-  panel_draw(panel);
-}
-
 /* Panel */
 
 Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManager* manager, unsigned int width, unsigned int height) {
@@ -139,30 +134,10 @@ void panel_texture(Panel* panel) {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, panel->width, panel->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 }
 
-void panel_draw(Panel* panel) {
-  glBindVertexArray(panel->vao);
-  renderer_2D_use(panel->manager->renderer);
-  glBindBuffer(GL_ARRAY_BUFFER, panel->vbo);
-
-  glEnableVertexAttribArray(panel->manager->renderer->shaderProgram2D.attrib_position);
-  glVertexAttribPointer(panel->manager->renderer->shaderProgram2D.attrib_position, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 0);
-  glEnableVertexAttribArray(panel->manager->renderer->shaderProgram2D.attrib_texcoord);
-  glVertexAttribPointer(panel->manager->renderer->shaderProgram2D.attrib_texcoord, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-
-  panel->drawCallback(panel->owner);
-  panel_texture(panel);
-  
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 /* PanelManager */
 
-PanelManager* panel_manager_init(PanelManager* pm, Renderer* renderer) {
+PanelManager* panel_manager_init(PanelManager* pm) {
   PanelManager* panelManager = pm ? pm : NEW(PanelManager, 1);
-
-  panelManager->renderer = renderer;
 
   linked_list_init(&panelManager->panels);
 
@@ -188,6 +163,3 @@ Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsi
   return node ? node->data : NULL;
 }
 
-void panel_manager_draw(PanelManager* panelManager) {
-  linked_list_foreach(&panelManager->panels, draw_panel, NULL);
-}

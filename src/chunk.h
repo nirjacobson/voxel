@@ -26,6 +26,5 @@ Chunk* chunk_init(Chunk* c, int width, int height, int length);
 void chunk_destroy(Chunk* chunk);
 
 void chunk_mesh(Chunk* chunk);
-void chunk_draw(Chunk* chunk, Renderer* renderer, float* position);
 
 #endif // CHUNK_H

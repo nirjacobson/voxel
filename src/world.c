@@ -43,18 +43,6 @@ void destroy_world_chunk(void* worldChunkPtr) {
   free(worldChunk);
 }
 
-void draw_world_chunk(void* worldChunkPtr, void* rendererPtr) {
-  WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
-  Renderer* renderer = (Renderer*)rendererPtr;
-  GLfloat position[3] = {
-    worldChunk->id.x * WORLD_CHUNK_LENGTH,
-    worldChunk->id.y * WORLD_CHUNK_LENGTH,
-    worldChunk->id.z * WORLD_CHUNK_LENGTH
-  };
-  if (worldChunk->chunk->meshes.size)
-    chunk_draw(worldChunk->chunk, renderer, position);
-}
-
 int compare_chunk_ids(ChunkID* chunkIDA, ChunkID* chunkIDB) {
   if (chunkIDA->x == chunkIDB->x) {
     if (chunkIDA->y == chunkIDB->y) {
@@ -142,55 +130,6 @@ LinkedList* world_draw_list(Camera* camera) {
   }
 
   return drawList;
-}
-
-void world_draw(World* world, Camera* camera, Renderer* renderer) {
-  LinkedList* drawList = world_draw_list(camera);
-  LinkedList chunksToUnload;
-  LinkedList chunksToLoad;
-
-  linked_list_init(&chunksToUnload);
-  linked_list_init(&chunksToLoad);
-
-  LinkedListNode* drawListNode = drawList->head;
-  LinkedListNode* chunksListNode = world->chunks.head;
-
-  while (drawListNode || chunksListNode) {
-    if (!drawListNode) {
-      WorldChunk* worldChunk = (WorldChunk*)chunksListNode->data;
-      linked_list_insert(&chunksToUnload, worldChunk);
-      chunksListNode = chunksListNode->next;
-    } else if (!chunksListNode) {
-      ChunkID* drawListChunkID = (ChunkID*)drawListNode->data;
-      linked_list_insert(&chunksToLoad, drawListChunkID);
-      drawListNode = drawListNode->next;
-    } else {
-      ChunkID* drawListChunkID = (ChunkID*)drawListNode->data;
-      WorldChunk* worldChunk = (WorldChunk*)chunksListNode->data;
-      int comparison = compare_chunk_ids(drawListChunkID, &worldChunk->id);
-
-      if (comparison < 0) {
-        linked_list_insert(&chunksToLoad, drawListChunkID);
-        drawListNode = drawListNode->next;
-      } else if (comparison == 0) {
-        drawListNode = drawListNode->next;
-        chunksListNode = chunksListNode->next;
-      } else {
-        linked_list_insert(&chunksToUnload, worldChunk);
-        chunksListNode = chunksListNode->next;
-      }
-    }
-  }
-  
-  linked_list_foreach(&chunksToUnload, unload_world_chunk, world);
-  linked_list_foreach(&chunksToLoad, load_world_chunk, world);
-
-  ground_draw(&world->ground, camera, renderer);
-
-  linked_list_foreach(&world->chunks, draw_world_chunk, renderer);
-
-  linked_list_destroy(&chunksToLoad, NULL);
-  linked_list_destroy(&chunksToUnload, NULL);
 }
 
 Chunk* world_load_world_chunk(World* world, ChunkID* chunkID) {
@@ -420,4 +359,49 @@ void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation) {
       }
     }
   }
+}
+
+void world_update(World* world, Camera* camera) {
+  LinkedList* drawList = world_draw_list(camera);
+  LinkedList chunksToUnload;
+  LinkedList chunksToLoad;
+
+  linked_list_init(&chunksToUnload);
+  linked_list_init(&chunksToLoad);
+
+  LinkedListNode* drawListNode = drawList->head;
+  LinkedListNode* chunksListNode = world->chunks.head;
+
+  while (drawListNode || chunksListNode) {
+    if (!drawListNode) {
+      WorldChunk* worldChunk = (WorldChunk*)chunksListNode->data;
+      linked_list_insert(&chunksToUnload, worldChunk);
+      chunksListNode = chunksListNode->next;
+    } else if (!chunksListNode) {
+      ChunkID* drawListChunkID = (ChunkID*)drawListNode->data;
+      linked_list_insert(&chunksToLoad, drawListChunkID);
+      drawListNode = drawListNode->next;
+    } else {
+      ChunkID* drawListChunkID = (ChunkID*)drawListNode->data;
+      WorldChunk* worldChunk = (WorldChunk*)chunksListNode->data;
+      int comparison = compare_chunk_ids(drawListChunkID, &worldChunk->id);
+
+      if (comparison < 0) {
+        linked_list_insert(&chunksToLoad, drawListChunkID);
+        drawListNode = drawListNode->next;
+      } else if (comparison == 0) {
+        drawListNode = drawListNode->next;
+        chunksListNode = chunksListNode->next;
+      } else {
+        linked_list_insert(&chunksToUnload, worldChunk);
+        chunksListNode = chunksListNode->next;
+      }
+    }
+  }
+
+  linked_list_foreach(&chunksToUnload, unload_world_chunk, world);
+  linked_list_foreach(&chunksToLoad, load_world_chunk, world);
+
+  linked_list_destroy(&chunksToLoad, NULL);
+  linked_list_destroy(&chunksToUnload, NULL);
 }

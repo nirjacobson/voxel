@@ -1,8 +1,6 @@
 #ifndef PICKER_H
 #define PICKER_H
 
-#include <math.h>
-
 #include "global.h"
 #include "camera.h"
 #include "world.h"
@@ -46,7 +44,6 @@ typedef struct {
 void picker_init(Picker* p);
 void picker_destroy(Picker* picker);
 void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouseY);
-void picker_draw(Picker* picker, Renderer* renderer);
 
 void picker_press(Picker* picker, char modifier1, char modifier2);
 void picker_release(Picker* picker, char modifier1, char modifier2);

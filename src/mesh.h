@@ -5,7 +5,6 @@
 
 #include "global.h"
 #include "linked_list.h"
-#include "renderer.h"
 
 #define NORTH           0
 #define SOUTH           1
@@ -43,6 +42,5 @@ void mesh_add_quad(Mesh* mesh, Quad* quad);
 void mesh_calc_normals(Mesh* mesh);
 
 void mesh_buffer(Mesh* mesh, char mode);
-void mesh_draw(Mesh* mesh, Renderer* renderer, char mode);
 
 #endif // MESH_H

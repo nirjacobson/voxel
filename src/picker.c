@@ -227,54 +227,6 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
 
 }
 
-void picker_draw(Picker* picker, Renderer* renderer) {
-    GLfloat mat[16];
-    GLfloat vec[3];
-
-    if (picker->selection.present) {
-        mat4_rotate(mat, NULL, (M_PI/2) * picker->selection.rotation, Y);
-        switch (picker->selection.rotation) {
-            case 0:
-                break;
-            case 1:
-                vec[0] = 0;
-                vec[1] = 0;
-                vec[2] = picker->selection.box.width;
-                mat4_translate(mat, mat, vec);
-                break;
-            case 2:
-                vec[0] = picker->selection.box.width;
-                vec[1] = 0;
-                vec[2] = picker->selection.box.length;
-                mat4_translate(mat, mat, vec);
-                break;
-            case 3:
-                vec[0] = picker->selection.box.length;
-                vec[1] = 0;
-                vec[2] = 0;
-                mat4_translate(mat, mat, vec);
-                break;
-            default:
-                break;
-        }
-        renderer_3D_update_model(renderer, mat);
-        renderer_3D_update_world_position(renderer, picker->selection.box.position);
-        renderer_3D_update_color(renderer, 0,255,255);
-        mesh_draw(picker->selection.mesh, renderer, MESH_LINE);
-    }
-
-    if (picker->selection.model) {
-        chunk_draw(picker->selection.model, renderer, picker->box.position);
-    } else {
-        renderer_3D_update_world_position(renderer, picker->box.position);
-        renderer_3D_update_color(renderer, 255,255,0);
-        mesh_draw(picker->mesh, renderer, MESH_LINE);
-    }
-
-    mat4_identity(mat);
-    renderer_3D_update_model(renderer, mat);
-}
-
 void picker_set_world(Picker* picker, World* world) {
     picker->world = world;
 }

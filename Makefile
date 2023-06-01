@@ -36,6 +36,9 @@ build/%.o : build/ src/%.c
 build/:
 	mkdir build
 
+format:
+	astyle -rnNCS *.{c,h}
+
 clean:
 	rm -rf build
 	rm ${EXEC}

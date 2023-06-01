@@ -55,7 +55,7 @@ char voxel_process_input(Voxel* voxel) {
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
         camera_rotate(&voxel->camera, Y, -0.05);
         
-    camera_apply(&voxel->camera, &voxel->renderer);
+    renderer_3D_apply_camera(&voxel->renderer, &voxel->camera);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
@@ -147,11 +147,10 @@ char voxel_process_input(Voxel* voxel) {
 }
 
 void voxel_draw(Voxel* voxel) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    world_draw(&voxel->world, &voxel->camera, &voxel->renderer);
-    picker_draw(&voxel->picker, &voxel->renderer);
-    panel_manager_draw(&voxel->panelManager);
+    renderer_clear(&voxel->renderer);
+    renderer_render_world(&voxel->renderer, &voxel->world, &voxel->camera);
+    renderer_render_picker(&voxel->renderer, &voxel->picker);
+    renderer_render_panels(&voxel->renderer, &voxel->panelManager.panels);
 
     struct timeval oldFrameTime = voxel->frameTime;
     gettimeofday(&voxel->frameTime, NULL);
@@ -176,7 +175,7 @@ void voxel_setup(Application* application) {
     
     picker_init(&voxel->picker);
 
-    panel_manager_init(&voxel->panelManager, &voxel->renderer);
+    panel_manager_init(&voxel->panelManager);
     picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
 
     fps_panel_init(&voxel->fpsPanel, &voxel->panelManager);
@@ -211,7 +210,7 @@ void voxel_resize(Application* application) {
     renderer_2D_update_projection(&voxel->renderer, mat);
 
     camera_set_aspect(&voxel->camera, (double)application->window->width / application->window->height);
-    camera_apply(&voxel->camera, &voxel->renderer);
+    renderer_3D_apply_camera(&voxel->renderer, &voxel->camera);
 
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 }
