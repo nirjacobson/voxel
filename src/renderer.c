@@ -2,50 +2,50 @@
 #include "internal/renderer.h"
 
 void render_mesh(void* ptr, void* rendererPtr) {
-  Mesh* mesh = (Mesh*)ptr;
-  Renderer* renderer = (Renderer*)rendererPtr;
+    Mesh* mesh = (Mesh*)ptr;
+    Renderer* renderer = (Renderer*)rendererPtr;
 
-  float color[3];
-  block_color_rgb(mesh->color, color);
-  renderer_3D_update_color(renderer, color[0], color[1], color[2]);
-  renderer_render_mesh(renderer, mesh, MESH_FILL);
+    float color[3];
+    block_color_rgb(mesh->color, color);
+    renderer_3D_update_color(renderer, color[0], color[1], color[2]);
+    renderer_render_mesh(renderer, mesh, MESH_FILL);
 }
 
 void render_world_chunk(void* worldChunkPtr, void* rendererPtr) {
-  WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
-  Renderer* renderer = (Renderer*)rendererPtr;
-  GLfloat position[3] = {
-    worldChunk->id.x * WORLD_CHUNK_LENGTH,
-    worldChunk->id.y * WORLD_CHUNK_LENGTH,
-    worldChunk->id.z * WORLD_CHUNK_LENGTH
-  };
+    WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
+    Renderer* renderer = (Renderer*)rendererPtr;
+    GLfloat position[3] = {
+        worldChunk->id.x * WORLD_CHUNK_LENGTH,
+        worldChunk->id.y * WORLD_CHUNK_LENGTH,
+        worldChunk->id.z * WORLD_CHUNK_LENGTH
+    };
 
-  if (worldChunk->chunk->meshes.size)
-    renderer_render_chunk(renderer, worldChunk->chunk, position);
+    if (worldChunk->chunk->meshes.size)
+        renderer_render_chunk(renderer, worldChunk->chunk, position);
 }
 
 void render_panel(void* panelPtr, void* rendererPtr) {
-  Panel* panel = (Panel*)panelPtr;
-  Renderer* renderer = (Renderer*)rendererPtr;
-  renderer_render_panel(renderer, panel);
+    Panel* panel = (Panel*)panelPtr;
+    Renderer* renderer = (Renderer*)rendererPtr;
+    renderer_render_panel(renderer, panel);
 }
 
 void renderer_render_panel(Renderer* renderer, Panel* panel) {
-  glBindVertexArray(panel->vao);
-  renderer_2D_use(renderer);
-  glBindBuffer(GL_ARRAY_BUFFER, panel->vbo);
+    glBindVertexArray(panel->vao);
+    renderer_2D_use(renderer);
+    glBindBuffer(GL_ARRAY_BUFFER, panel->vbo);
 
-  glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_position);
-  glVertexAttribPointer(renderer->shaderProgram2D.attrib_position, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 0);
-  glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_texcoord);
-  glVertexAttribPointer(renderer->shaderProgram2D.attrib_texcoord, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_position);
+    glVertexAttribPointer(renderer->shaderProgram2D.attrib_position, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 0);
+    glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_texcoord);
+    glVertexAttribPointer(renderer->shaderProgram2D.attrib_texcoord, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
 
-  panel->drawCallback(panel->owner);
-  panel_texture(panel);
+    panel->drawCallback(panel->owner);
+    panel_texture(panel);
 
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 Renderer* renderer_init(Renderer* r) {
@@ -73,7 +73,7 @@ Renderer* renderer_init(Renderer* r) {
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glLineWidth(2);
-    
+
     return renderer;
 }
 
@@ -87,38 +87,38 @@ void renderer_clear(Renderer* renderer) {
 }
 
 void renderer_3D_update_world_position(Renderer* renderer, float* position) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_world_position(&renderer->shaderProgram3D, position);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_world_position(&renderer->shaderProgram3D, position);
 }
 
 void renderer_3D_update_model(Renderer* renderer, float* mat4) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_model(&renderer->shaderProgram3D, mat4);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_model(&renderer->shaderProgram3D, mat4);
 }
 
 void renderer_3D_update_camera(Renderer* renderer, float* mat4) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_camera(&renderer->shaderProgram3D, mat4);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_camera(&renderer->shaderProgram3D, mat4);
 }
 
 void renderer_3D_update_projection(Renderer* renderer, float* mat4) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_projection(&renderer->shaderProgram3D, mat4);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_projection(&renderer->shaderProgram3D, mat4);
 }
 
 void renderer_3D_update_color(Renderer* renderer, float r, float g, float b) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_color(&renderer->shaderProgram3D, r, g, b);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_color(&renderer->shaderProgram3D, r, g, b);
 }
 
 void renderer_3D_update_ambient(Renderer* renderer, float a) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_ambient(&renderer->shaderProgram3D, a);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_ambient(&renderer->shaderProgram3D, a);
 }
 
 void renderer_3D_update_sun_position(Renderer* renderer, float* position) {
-  shader_program_3D_use(&renderer->shaderProgram3D);
-  shader_program_3D_update_sun_position(&renderer->shaderProgram3D, position);
+    shader_program_3D_use(&renderer->shaderProgram3D);
+    shader_program_3D_update_sun_position(&renderer->shaderProgram3D, position);
 }
 
 void renderer_3D_apply_camera(Renderer* renderer, Camera* camera) {
@@ -137,13 +137,13 @@ void renderer_3D_use(Renderer* renderer) {
 }
 
 void renderer_2D_update_projection(Renderer* renderer, float* mat4) {
-  shader_program_2D_use(&renderer->shaderProgram2D);
-  shader_program_2D_update_projection(&renderer->shaderProgram2D, mat4);
+    shader_program_2D_use(&renderer->shaderProgram2D);
+    shader_program_2D_update_projection(&renderer->shaderProgram2D, mat4);
 }
 
 void renderer_2D_update_sampler(Renderer* renderer, GLint sampler) {
-  shader_program_2D_use(&renderer->shaderProgram2D);
-  shader_program_2D_update_sampler(&renderer->shaderProgram2D, sampler);
+    shader_program_2D_use(&renderer->shaderProgram2D);
+    shader_program_2D_update_sampler(&renderer->shaderProgram2D, sampler);
 }
 
 void renderer_2D_use(Renderer* renderer) {
@@ -186,15 +186,15 @@ void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
 }
 
 void renderer_render_world(Renderer* renderer, World* world, Camera* camera) {
-  world_update(world, camera);
+    world_update(world, camera);
 
-  renderer_render_ground(renderer, &world->ground, camera);
+    renderer_render_ground(renderer, &world->ground, camera);
 
-  linked_list_foreach(&world->chunks, render_world_chunk, renderer);
+    linked_list_foreach(&world->chunks, render_world_chunk, renderer);
 }
 
 void renderer_render_picker(Renderer* renderer, Picker* picker) {
-  GLfloat mat[16];
+    GLfloat mat[16];
     GLfloat vec[3];
 
     if (picker->selection.present) {

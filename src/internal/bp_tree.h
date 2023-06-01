@@ -7,24 +7,24 @@
 #include "../bp_tree.h"
 
 typedef struct {
-  unsigned long freeSpacePtr;
-  unsigned long rootPtr;
+    unsigned long freeSpacePtr;
+    unsigned long rootPtr;
 } BPTreeHeader;
 
 typedef struct {
-  unsigned char isLeaf;
-  unsigned long leftPtr;
-  int numEntries;
+    unsigned char isLeaf;
+    unsigned long leftPtr;
+    int numEntries;
 } BPTreeNodeHeader;
 
 typedef struct {
-  ChunkID key;
-  unsigned long rightPtr;
+    ChunkID key;
+    unsigned long rightPtr;
 } BPTreeEntry;
 
 typedef struct {
-  ChunkID key;
-  unsigned long value;
+    ChunkID key;
+    unsigned long value;
 } BPTreeLeafEntry;
 
 int compare_keys(ChunkID* keyA, ChunkID* keyB);

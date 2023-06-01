@@ -8,7 +8,7 @@
 #include "chunk.h"
 
 typedef struct {
-  FILE* file;
+    FILE* file;
 } BPTree;
 
 BPTree* bp_tree_init(BPTree* bt, const char* name);

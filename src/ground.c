@@ -9,10 +9,10 @@ Ground* ground_init(Ground* g, int length) {
 
     float backLeft[] = {
         -length/2, 0, -length/2
-    };
+        };
     float frontLeft[] = {
         -length/2, 0, length/2
-    };
+        };
     float backRight[] = {
         length/2, 0, -length/2
     };
@@ -23,7 +23,7 @@ Ground* ground_init(Ground* g, int length) {
     memcpy(quad->vertices[1].position, frontLeft, sizeof(frontLeft));
     memcpy(quad->vertices[2].position, backRight, sizeof(backRight));
     memcpy(quad->vertices[3].position, frontRight, sizeof(frontRight));
-    
+
     quad->orientation = TOP;
 
     mesh_add_quad(&ground->mesh, quad);

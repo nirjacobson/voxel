@@ -7,7 +7,7 @@
 #include "chunk.h"
 
 typedef struct {
-  FILE* file;
+    FILE* file;
 } Heap;
 
 Heap* heap_init(Heap* h, const char* name);

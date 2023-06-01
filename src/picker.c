@@ -47,7 +47,7 @@ void picker_press(Picker* picker, char modifier1, char modifier2) {
 Box picker_merge_selections(Box* selectionA, Box* selectionB) {
     Box merged;
     box_init(&merged);
-    
+
     merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
     merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);
     merged.position[2] = MIN(selectionA->position[2], selectionB->position[2]);
@@ -95,7 +95,7 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
             for (int x = 0; x < picker->box.width; x++) {
                 for (int y = 0; y < picker->box.height; y++) {
                     for (int z = 0; z < picker->box.length; z++) {
-                        int location[3] = { 
+                        int location[3] = {
                             picker->box.position[0] + x,
                             picker->box.position[1] + y,
                             picker->box.position[2] + z
@@ -120,7 +120,7 @@ void picker_release(Picker* picker, char modifier1, char modifier2) {
     picker->dragging = 0;
 
     picker_act(picker, modifier1, modifier2);
-    
+
     memcpy(picker->positionStart, picker->positionEnd, 3*sizeof(int));
     memcpy(picker->box.position, picker->positionEnd, 3*sizeof(int));
 
@@ -140,8 +140,8 @@ void picker_set_action(Picker* picker, char action) {
 
     if (action == PICKER_STAMP || action == PICKER_MOVE) {
         picker->selection.model = action == PICKER_STAMP
-            ? world_copy_chunk(picker->world, &picker->selection.box)
-            : world_cut_chunk(picker->world, &picker->selection.box);
+                                  ? world_copy_chunk(picker->world, &picker->selection.box)
+                                  : world_cut_chunk(picker->world, &picker->selection.box);
         chunk_mesh(picker->selection.model);
         picker->mode = PICKER_ADJACENT;
     }  else {
@@ -215,7 +215,7 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
     picker->box.width = abs(picker->positionEnd[0] - picker->positionStart[0]) + 1;
     picker->box.height = abs(picker->positionEnd[1] - picker->positionStart[1]) + 1;
     picker->box.length = abs(picker->positionEnd[2] - picker->positionStart[2]) + 1;
-    
+
     mesh_destroy(picker->mesh);
     picker->mesh = box_mesh(&picker->box);
 

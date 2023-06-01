@@ -8,15 +8,15 @@
 #include "mesh.h"
 
 typedef struct {
-  float position[3];
+    float position[3];
 
-  float forward[3];
-  float up[3];
-  float right[3];
+    float forward[3];
+    float up[3];
+    float right[3];
 
-  float width;
-  float height;
-  float length;
+    float width;
+    float height;
+    float length;
 } Box;
 
 Box* box_init(Box* b);

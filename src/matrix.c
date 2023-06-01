@@ -8,7 +8,7 @@ float* mat3_sub(float* mat2d, float* mat3s, unsigned int i) {
     float* mat2 = mat2d ? mat2d : NEW(float, 4);
 
     int indices[4] = {4, 5, 7, 8};
-    
+
     unsigned int c = i / 3;
     for (unsigned int x=0; x<c; x++) {
         indices[x*2+0] -= 3;
@@ -34,7 +34,7 @@ float* mat3_transpose(float* mat3d, float* mat3s) {
     for (unsigned i=0; i<3; i++)
         for (unsigned j=0; j<3; j++)
             mat3t[i*3+j] = mat3s[j*3+i];
-    
+
     if (mat3d) {
         memcpy(mat3d, mat3t, 9*sizeof(float));
         free(mat3t);
@@ -96,7 +96,7 @@ float* mat4_sub(float* mat3d, float* mat4s, unsigned int i) {
     float* mat3 = mat3d ? mat3d : NEW(float, 9);
 
     int indices[9] = {5, 6, 7, 9, 10, 11, 13, 14, 15};
-    
+
     unsigned int c = i / 4;
     for (unsigned int x=0; x<c; x++) {
         indices[x*3+0] -= 4;
@@ -124,7 +124,7 @@ float* mat4_transpose(float* mat4d, float* mat4s) {
     for (unsigned i=0; i<4; i++)
         for (unsigned j=0; j<4; j++)
             mat4t[i*4+j] = mat4s[j*4+i];
-    
+
     if (mat4d) {
         memcpy(mat4d, mat4t, 16*sizeof(float));
         free(mat4t);
@@ -146,7 +146,7 @@ float* mat4_inverse(float* mat4d, float* mat4s) {
     }
 
     float det = mat4s[0]*mat4m[0] - mat4s[1]*mat4m[1] + mat4s[2]*mat4m[2] - mat4s[3]*mat4m[3];
-    
+
     // Cofactors
     for (unsigned i=0; i<16; i++) {
         if ((i / 4) % 2 == 1)
@@ -206,7 +206,7 @@ float* mat4_translate(float* mat4d, float* mat4s, float* vec3) {
 
     if (mat4s)
         mat4_multiply(mat4t, mat4s, mat4t);
-    
+
     if (mat4d) {
         memcpy(mat4d, mat4t, 16*sizeof(float));
         free(mat4t);
@@ -253,7 +253,7 @@ float* mat4_rotate(float* mat4d, float* mat4s, float radians, float* vec3) {
 
     if (mat4s)
         mat4_multiply(mat4r, mat4s, mat4r);
-    
+
     if (mat4d) {
         memcpy(mat4d, mat4r, 16*sizeof(float));
         free(mat4r);
@@ -270,7 +270,7 @@ float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
     for (unsigned i=0; i<4; i++)
         for (unsigned j=0; j<4; j++)
             mat4m[i*4+j] = mat4a[0+j]*mat4b[i*4+0] + mat4a[4+j]*mat4b[i*4+1] + mat4a[8+j]*mat4b[i*4+2]  + mat4a[12+j]*mat4b[i*4+3];
-    
+
     if (mat4d) {
         memcpy(mat4d, mat4m, 16*sizeof(float));
         free(mat4m);

@@ -16,29 +16,29 @@
 #define   PICKER_MOVE           8
 
 typedef struct {
-  Box box;
-  Mesh* mesh;
-  Chunk* model;
-  char rotation;
-  char present;
+    Box box;
+    Mesh* mesh;
+    Chunk* model;
+    char rotation;
+    char present;
 } Selection;
 
 typedef struct {
-  World* world;
-  
-  GLfloat ray[4];
+    World* world;
 
-  int positionStart[3];
-  int positionEnd[3];
-  Box box;
-  Mesh* mesh;
-  Selection selection;
+    GLfloat ray[4];
 
-  char dragging;
-  char mode;
-  char action;
+    int positionStart[3];
+    int positionEnd[3];
+    Box box;
+    Mesh* mesh;
+    Selection selection;
 
-  uint16_t color;
+    char dragging;
+    char mode;
+    char action;
+
+    uint16_t color;
 } Picker;
 
 void picker_init(Picker* p);

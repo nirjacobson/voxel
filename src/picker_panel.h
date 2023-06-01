@@ -5,23 +5,23 @@
 #include "picker.h"
 
 typedef struct {
-  Panel panel;
+    Panel panel;
 
-  cairo_surface_t* background_surface;
-  cairo_surface_t* pencil_button_surface_natural;
-  cairo_surface_t* pencil_button_surface_selected;
-  cairo_surface_t* eraser_button_surface_natural;
-  cairo_surface_t* eraser_button_surface_selected;
-  cairo_surface_t* dropper_button_surface_natural;
-  cairo_surface_t* dropper_button_surface_selected;
-  cairo_surface_t* select_button_surface_natural;
-  cairo_surface_t* select_button_surface_selected;
-  cairo_surface_t* stamp_button_surface_natural;
-  cairo_surface_t* stamp_button_surface_selected;
-  cairo_surface_t* move_button_surface_natural;
-  cairo_surface_t* move_button_surface_selected;
+    cairo_surface_t* background_surface;
+    cairo_surface_t* pencil_button_surface_natural;
+    cairo_surface_t* pencil_button_surface_selected;
+    cairo_surface_t* eraser_button_surface_natural;
+    cairo_surface_t* eraser_button_surface_selected;
+    cairo_surface_t* dropper_button_surface_natural;
+    cairo_surface_t* dropper_button_surface_selected;
+    cairo_surface_t* select_button_surface_natural;
+    cairo_surface_t* select_button_surface_selected;
+    cairo_surface_t* stamp_button_surface_natural;
+    cairo_surface_t* stamp_button_surface_selected;
+    cairo_surface_t* move_button_surface_natural;
+    cairo_surface_t* move_button_surface_selected;
 
-  Picker* picker;
+    Picker* picker;
 } PickerPanel;
 
 PickerPanel* picker_panel_init(PickerPanel* td, PanelManager* panelManager, Picker* picker);

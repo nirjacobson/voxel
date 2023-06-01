@@ -5,8 +5,8 @@
 #include "heap.h"
 
 typedef struct {
-  BPTree bptree;
-  Heap heap;
+    BPTree bptree;
+    Heap heap;
 } ChunkDAO;
 
 ChunkDAO* chunk_dao_init(ChunkDAO* cd, const char* worldName);

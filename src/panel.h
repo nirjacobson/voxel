@@ -15,41 +15,41 @@ struct ActionRegion;
 /* ActionRegion */
 
 typedef struct {
-  void* owner;
-  struct Panel* panel;
-  struct ActionRegion* actionRegion;
-  unsigned int x;
-  unsigned int y;
+    void* owner;
+    struct Panel* panel;
+    struct ActionRegion* actionRegion;
+    unsigned int x;
+    unsigned int y;
 } ActionRegionArgs;
 
 typedef struct ActionRegion {
-  unsigned int position[2];
-  unsigned int width;
-  unsigned int height;
+    unsigned int position[2];
+    unsigned int width;
+    unsigned int height;
 
-  void (*action_press)(ActionRegionArgs*);
-  void (*action_release)(ActionRegionArgs*);
+    void (*action_press)(ActionRegionArgs*);
+    void (*action_release)(ActionRegionArgs*);
 } ActionRegion;
 
 /* Panel */
 
 typedef struct Panel {
-  unsigned int vao;
-  unsigned int vbo;
-  unsigned int tex;
+    unsigned int vao;
+    unsigned int vbo;
+    unsigned int tex;
 
-  cairo_surface_t *surface;
-  cairo_t *cr;
+    cairo_surface_t *surface;
+    cairo_t *cr;
 
-  void* owner;
-  void (*drawCallback)(void*);
-  struct PanelManager* manager;
+    void* owner;
+    void (*drawCallback)(void*);
+    struct PanelManager* manager;
 
-  unsigned int position[2];
-  unsigned int width;
-  unsigned int height;
+    unsigned int position[2];
+    unsigned int width;
+    unsigned int height;
 
-  LinkedList actionRegions;
+    LinkedList actionRegions;
 } Panel;
 
 Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
@@ -66,9 +66,9 @@ void panel_texture(Panel* panel);
 /* PanelManager */
 
 typedef struct PanelManager {
-  LinkedList panels;
-  Panel* active_panel;
-  char dragging;
+    LinkedList panels;
+    Panel* active_panel;
+    char dragging;
 } PanelManager;
 
 PanelManager* panel_manager_init(PanelManager* pm);

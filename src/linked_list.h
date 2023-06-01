@@ -4,15 +4,15 @@
 #include "global.h"
 
 typedef struct LinkedListNode {
-  void* data;
-  struct LinkedListNode* prev;
-  struct LinkedListNode* next;
+    void* data;
+    struct LinkedListNode* prev;
+    struct LinkedListNode* next;
 } LinkedListNode;
 
 typedef struct {
-  struct LinkedListNode* head;
-  struct LinkedListNode* tail;
-  int size;
+    struct LinkedListNode* head;
+    struct LinkedListNode* tail;
+    int size;
 } LinkedList;
 
 LinkedList* linked_list_init(LinkedList* l);

@@ -4,13 +4,13 @@
 #include "../heap.h"
 
 typedef struct {
-  unsigned long freeSpacePtr;
+    unsigned long freeSpacePtr;
 } HeapHeader;
 
 typedef struct {
-  int width;
-  int height;
-  int length;
+    int width;
+    int height;
+    int length;
 } HeapEntry;
 
 void heap_init_heap(Heap* heap);

@@ -19,7 +19,7 @@ void fps_panel_set_fps(FPSPanel* fpsPanel, double fps) {
 
 void fps_panel_draw(void* fpsPanelPtr) {
     FPSPanel* fpsPanel = (FPSPanel*)fpsPanelPtr;
-    
+
     char fpsStr[12];
     sprintf(fpsStr, "%.2f FPS", fpsPanel->fps);
 

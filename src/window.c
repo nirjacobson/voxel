@@ -8,14 +8,14 @@ void resize(GLFWwindow* glfwWindow, int width, int height) {
 }
 
 Window* window_init(Window* w, Application* application) {
-  Window* window = w ? w : NEW(Window, 1);
-  window->width = 0;
-  window->height = 0;
-  
-  window->application = application;
-  application->window = window;
+    Window* window = w ? w : NEW(Window, 1);
+    window->width = 0;
+    window->height = 0;
 
-  return window;
+    window->application = application;
+    application->window = window;
+
+    return window;
 }
 
 void window_open(Window* window) {
@@ -26,7 +26,7 @@ void window_open(Window* window) {
 
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
-    
+
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
     if (!window->glfwWindow)
         glfwTerminate();
@@ -71,11 +71,11 @@ char window_mouse_state(Window* window, int* x, int* y) {
     glfwGetCursorPos(window->glfwWindow, &xd, &yd);
     *x = (int)xd;
     *y = (int)yd;
-    
+
     char buttons = glfwGetMouseButton(window->glfwWindow, GLFW_MOUSE_BUTTON_LEFT);
     buttons <<= 1;
     buttons |= glfwGetMouseButton(window->glfwWindow, GLFW_MOUSE_BUTTON_RIGHT);
-    
+
     return buttons;
 }
 

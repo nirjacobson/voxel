@@ -6,18 +6,18 @@
 #include "linked_list.h"
 
 typedef struct {
-  int x;
-  int y;
-  int z;
+    int x;
+    int y;
+    int z;
 } ChunkID;
 
 typedef struct {
-  Block*** blocks;
-  LinkedList meshes;
-  int width;
-  int height;
-  int length;
-  char dirty;
+    Block*** blocks;
+    LinkedList meshes;
+    int width;
+    int height;
+    int length;
+    char dirty;
 } Chunk;
 
 /* Chunk */

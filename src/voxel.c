@@ -5,7 +5,7 @@ Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);
 
     application_init(&voxel->application, voxel, voxel_setup, voxel_main, voxel_resize, voxel_teardown);
-    
+
     window_init(&voxel->window, &voxel->application);
 
     return voxel;
@@ -33,28 +33,28 @@ char voxel_process_input(Voxel* voxel) {
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_W))
         camera_move(&voxel->camera, voxel->camera.forward, 0.5);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_A))
         camera_move(&voxel->camera, voxel->camera.right, -0.5);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_S))
         camera_move(&voxel->camera, voxel->camera.forward, -0.5);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_D))
         camera_move(&voxel->camera, voxel->camera.right, 0.5);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_UP))
         camera_rotate(&voxel->camera, voxel->camera.right, 0.05);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
         camera_rotate(&voxel->camera, Y, 0.05);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
         camera_rotate(&voxel->camera, voxel->camera.right, -0.05);
-    
+
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
         camera_rotate(&voxel->camera, Y, -0.05);
-        
+
     renderer_3D_apply_camera(&voxel->renderer, &voxel->camera);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
@@ -68,22 +68,22 @@ char voxel_process_input(Voxel* voxel) {
     } else {
         tab = 0;
     }
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_1))
         picker_set_action(&voxel->picker, PICKER_SET);
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_2))
         picker_set_action(&voxel->picker, PICKER_CLEAR);
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_Q))
         picker_set_action(&voxel->picker, PICKER_EYEDROPPER);
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_Z))
         picker_set_action(&voxel->picker, PICKER_SELECT);
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_X))
         picker_set_action(&voxel->picker, PICKER_STAMP);
-    
+
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_C))
         picker_set_action(&voxel->picker, PICKER_MOVE);
 
@@ -143,7 +143,7 @@ char voxel_process_input(Voxel* voxel) {
         }
     }
 
-    return 1; 
+    return 1;
 }
 
 void voxel_draw(Voxel* voxel) {
@@ -172,7 +172,7 @@ void voxel_setup(Application* application) {
     camera_move(&voxel->camera, Y, 2);
 
     voxel_resize(application);
-    
+
     picker_init(&voxel->picker);
 
     panel_manager_init(&voxel->panelManager);
@@ -180,7 +180,7 @@ void voxel_setup(Application* application) {
 
     fps_panel_init(&voxel->fpsPanel, &voxel->panelManager);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
-    
+
     world_init(&voxel->world, "cubes");
     picker_set_world(&voxel->picker, &voxel->world);
 }
