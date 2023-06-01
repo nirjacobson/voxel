@@ -3,16 +3,11 @@
 
 #include "../chunk.h"
 
-typedef struct {
-    uint16_t color;
-    Mesh mesh;
-} MeshListNode;
-
 /* Linked list processing callbacks */
 
-void mesh_list_node_mesh_destroy(void* node);
-char mesh_list_nodes_equal(void* nodeA, void* nodeB) ;
-void mesh_list_node_prepare(void* node, void* rendererPtr);
-void mesh_list_node_draw(void* node, void* renderer);
+void destroy_mesh(void* ptr);
+char meshes_are_equal(void* ptrA, void* ptrB);
+void prepare_mesh(void* node, void* rendererPtr);
+void draw_mesh(void* node, void* renderer);
 
 #endif // CHUNK_INTERNAL_H

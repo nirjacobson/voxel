@@ -28,6 +28,7 @@ typedef struct {
 } Quad;
 
 typedef struct {
+    uint16_t color;
     LinkedList quads;
 
     GLuint vao;

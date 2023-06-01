@@ -3,32 +3,33 @@
 
 /* Linked list processing callbacks */
 
-void mesh_list_node_mesh_destroy(void* node) {
-    MeshListNode* meshListNode = (MeshListNode*)node;
-    mesh_destroy(&meshListNode->mesh);
+void destroy_mesh(void* ptr) {
+    Mesh* mesh = (Mesh*)ptr;
+    mesh_destroy(mesh);
+    free(mesh);
 }
 
-char mesh_list_nodes_equal(void* nodeA, void* nodeB) {
-    MeshListNode* meshListNodeA = (MeshListNode*)nodeA;
-    MeshListNode* meshListNodeB = (MeshListNode*)nodeB;
+char meshes_are_equal(void* ptrA, void* ptrB) {
+    Mesh* meshA = (Mesh*)ptrA;
+    Mesh* meshB = (Mesh*)ptrB;
 
-    return meshListNodeA->color == meshListNodeB->color;
+    return meshA->color == meshB->color;
 }
 
-void mesh_list_node_prepare(void* node, void* unused) {
-    MeshListNode* meshListNode = (MeshListNode*)node;
+void prepare_mesh(void* ptr, void* rendererPtr) {
+    Mesh* mesh = (Mesh*)ptr;
 
-    mesh_calc_normals(&meshListNode->mesh);
-    mesh_buffer(&meshListNode->mesh, MESH_FILL);
+    mesh_calc_normals(mesh);
+    mesh_buffer(mesh, MESH_FILL);
 }
 
-void mesh_list_node_draw(void* node, void* renderer) {
-    MeshListNode* meshListNode = (MeshListNode*)node;
+void draw_mesh(void* ptr, void* renderer) {
+    Mesh* mesh = (Mesh*)ptr;
 
     float color[3];
-    block_color_rgb(meshListNode->color, color);
+    block_color_rgb(mesh->color, color);
     renderer_3D_update_color(renderer, color[0], color[1], color[2]);
-    mesh_draw(&meshListNode->mesh, renderer, MESH_FILL);
+    mesh_draw(mesh, renderer, MESH_FILL);
 }
 
 /* Chunk */
@@ -70,11 +71,11 @@ void chunk_destroy(Chunk* chunk) {
     }
     free(chunk->blocks);
 
-    linked_list_destroy(&chunk->meshes, mesh_list_node_mesh_destroy);
+    linked_list_destroy(&chunk->meshes, destroy_mesh);
 }
 
 void chunk_mesh(Chunk* chunk) {
-    linked_list_destroy(&chunk->meshes, mesh_list_node_mesh_destroy);
+    linked_list_destroy(&chunk->meshes, destroy_mesh);
     linked_list_init(&chunk->meshes);
     
     int b, d, i, j, k, l, w, h, u, v, n;
@@ -221,19 +222,17 @@ void chunk_mesh(Chunk* chunk) {
 
                       quad->orientation = side;
 
-                      MeshListNode* meshListNode;
-                      MeshListNode* newMeshListNode = NEW(MeshListNode, 1);
-                      newMeshListNode->color = mask[n];
-                      LinkedListNode* existingNode = linked_list_find(&chunk->meshes, newMeshListNode, mesh_list_nodes_equal);
+                      Mesh* mesh = NEW(Mesh, 1);
+                      mesh->color = mask[n];
+                      LinkedListNode* existingNode = linked_list_find(&chunk->meshes, mesh, meshes_are_equal);
                       if (existingNode == NULL) {
-                          mesh_init(&newMeshListNode->mesh);
-                          linked_list_insert(&chunk->meshes, newMeshListNode);
-                          meshListNode = newMeshListNode;
+                          mesh_init(mesh);
+                          linked_list_insert(&chunk->meshes, mesh);
                       } else {
-                          free(newMeshListNode);
-                          meshListNode = (MeshListNode*)existingNode->data;
+                          free(mesh);
+                          mesh = (Mesh*)existingNode->data;
                       }
-                      mesh_add_quad(&meshListNode->mesh, quad);
+                      mesh_add_quad(mesh, quad);
 
                       for (l = 0; l < h; l++) {
                           for (k = 0; k < w; k++) {
@@ -258,11 +257,10 @@ void chunk_mesh(Chunk* chunk) {
       }
   }
 
-  linked_list_foreach(&chunk->meshes, mesh_list_node_prepare, NULL);
+  linked_list_foreach(&chunk->meshes, prepare_mesh, NULL);
 }
-
 
 void chunk_draw(Chunk* chunk, Renderer* renderer, float* position) {
     renderer_3D_update_world_position(renderer, position);
-    linked_list_foreach(&chunk->meshes, mesh_list_node_draw, renderer);
+    linked_list_foreach(&chunk->meshes, draw_mesh, renderer);
 }
