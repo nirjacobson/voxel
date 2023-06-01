@@ -34,7 +34,7 @@ void camera_rotate(Camera* camera, float* axis, float radians) {
     float mat[16];
 
     mat4_rotate(mat, NULL, radians, axis);
-    mat4_multiply(camera->mat_model, camera->mat_model, mat);
+    mat4_multiply(camera->mat_model, mat, camera->mat_model);
 
     vec3_transform(camera->forward, mat, camera->forward);
     vec3_transform(camera->up, mat, camera->up);
@@ -56,7 +56,7 @@ void camera_set_aspect(Camera* camera, double aspect) {
 
 void camera_apply(Camera* camera, Renderer* renderer) {
     float mat[16];
-    mat4_multiply(mat, camera->mat_model, camera->mat_view);
+    mat4_multiply(mat, camera->mat_view, camera->mat_model);
     mat4_inverse(mat, mat);
     renderer_3D_update_camera(renderer, mat);
     

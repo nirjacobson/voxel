@@ -269,7 +269,7 @@ float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
 
     for (unsigned i=0; i<4; i++)
         for (unsigned j=0; j<4; j++)
-            mat4m[i*4+j] = mat4a[i*4+0]*mat4b[0+j] + mat4a[i*4+1]*mat4b[4+j] + mat4a[i*4+2]*mat4b[8+j]  + mat4a[i*4+3]*mat4b[12+j];
+            mat4m[i*4+j] = mat4a[0+j]*mat4b[i*4+0] + mat4a[4+j]*mat4b[i*4+1] + mat4a[8+j]*mat4b[i*4+2]  + mat4a[12+j]*mat4b[i*4+3];
     
     if (mat4d) {
         memcpy(mat4d, mat4m, 16*sizeof(float));
