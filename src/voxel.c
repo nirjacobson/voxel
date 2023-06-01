@@ -23,41 +23,41 @@ char voxel_process_input(Voxel* voxel) {
 
     static int tab = 0;
 
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_ESCAPE))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_ESCAPE))
         return 0;
 
     mouseX[1] = mouseX[0];
     mouseY[1] = mouseY[0];
     mouseButtons[1] = mouseButtons[0];
-    mouseButtons[0] = mouse_state(&voxel->mouse, &mouseX[0], &mouseY[0]);
+    mouseButtons[0] = window_mouse_state(&voxel->window, &mouseX[0], &mouseY[0]);
 
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_W))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_W))
         camera_move(&voxel->camera, voxel->camera.forward, 0.5);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_A))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_A))
         camera_move(&voxel->camera, voxel->camera.right, -0.5);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_S))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_S))
         camera_move(&voxel->camera, voxel->camera.forward, -0.5);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_D))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_D))
         camera_move(&voxel->camera, voxel->camera.right, 0.5);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_UP))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_UP))
         camera_rotate(&voxel->camera, voxel->camera.right, 0.05);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_LEFT))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
         camera_rotate(&voxel->camera, Y, 0.05);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_DOWN))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
         camera_rotate(&voxel->camera, voxel->camera.right, -0.05);
     
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_RIGHT))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
         camera_rotate(&voxel->camera, Y, -0.05);
         
     camera_apply(&voxel->camera, &voxel->renderer);
 
-    if (keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_TAB)) {
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
             tab = 1;
             voxel->picker.mode = voxel->picker.mode == PICKER_ONTO ? PICKER_ADJACENT : PICKER_ONTO;
@@ -69,26 +69,26 @@ char voxel_process_input(Voxel* voxel) {
         tab = 0;
     }
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_1))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_1))
         picker_set_action(&voxel->picker, PICKER_SET);
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_2))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_2))
         picker_set_action(&voxel->picker, PICKER_CLEAR);
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_Q))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Q))
         picker_set_action(&voxel->picker, PICKER_EYEDROPPER);
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_Z))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Z))
         picker_set_action(&voxel->picker, PICKER_SELECT);
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_X))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_X))
         picker_set_action(&voxel->picker, PICKER_STAMP);
     
-    if(keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_C))
+    if(window_key_is_pressed(&voxel->window, GLFW_KEY_C))
         picker_set_action(&voxel->picker, PICKER_MOVE);
 
     f[1] = f[0];
-    f[0] = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_F);
+    f[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_F);
     if (!f[1] && f[0]) {
         window_toggle_fullscreen(&voxel->window);
     }
@@ -117,12 +117,12 @@ char voxel_process_input(Voxel* voxel) {
             GLuint action = (mouseButtons[0] & BUTTON_LEFT) ? MOUSE_PRESS : MOUSE_RELEASE;
             panel_action(panel, action, mouseX[0] - panel->position[0], mouseY[0] - panel->position[1]);
         } else if (mouseButtons[0] & BUTTON_LEFT) {
-            char modifier1 = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_LEFT_SHIFT);
-            char modifier2 = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_LEFT_SUPER);
+            char modifier1 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT);
+            char modifier2 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SUPER);
             picker_press(&voxel->picker, modifier1, modifier2);
         } else {
-            char modifier1 = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_LEFT_SHIFT);
-            char modifier2 = keyboard_key_is_pressed(&voxel->keyboard, GLFW_KEY_LEFT_SUPER);
+            char modifier1 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT);
+            char modifier2 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SUPER);
             picker_release(&voxel->picker, modifier1, modifier2);
         }
     }
@@ -166,9 +166,6 @@ void voxel_draw(Voxel* voxel) {
 
 void voxel_setup(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
-
-    keyboard_init(&voxel->keyboard, application->window);
-    mouse_init(&voxel->mouse, application->window);
 
     renderer_init(&voxel->renderer);
     camera_init(&voxel->camera);

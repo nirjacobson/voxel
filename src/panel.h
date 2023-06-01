@@ -7,7 +7,7 @@
 #include "global.h"
 #include "linked_list.h"
 #include "renderer.h"
-#include "mouse.h"
+#include "window.h"
 
 struct Panel;
 struct PanelManager;

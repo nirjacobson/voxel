@@ -4,8 +4,6 @@
 #include <sys/time.h>
 
 #include "global.h"
-#include "keyboard.h"
-#include "mouse.h"
 #include "window.h"
 #include "renderer.h"
 #include "camera.h"
@@ -20,9 +18,6 @@
 struct Voxel {
     Application application;
     Window window;
-
-    Keyboard keyboard;
-    Mouse mouse;
 
     Renderer renderer;
 

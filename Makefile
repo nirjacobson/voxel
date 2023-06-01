@@ -17,9 +17,7 @@ MODULES=global       \
 		      linked_list  \
 		      shader       \
 		      matrix       \
-		      keyboard     \
 		      window       \
-		      mouse        \
 		      voxel        \
 		      fps_panel    \
 		      main
