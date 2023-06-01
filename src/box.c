@@ -26,7 +26,7 @@ Box* box_init(Box* b) {
     return box;
 }
 
-Box* box_aabb(Box* box) {
+Box* box_aabb(Box* boxd, Box* boxs) {
     float box_vertices[24];
 
     for (int i = 0; i < 24; i++) {
@@ -37,11 +37,11 @@ Box* box_aabb(Box* box) {
     float up[3];
     float right[3];
 
-    vec3_scale(forward, box->forward, box->length);
-    vec3_scale(up, box->up, box->height);
-    vec3_scale(right, box->right, box->width);
+    vec3_scale(forward, boxs->forward, boxs->length);
+    vec3_scale(up, boxs->up, boxs->height);
+    vec3_scale(right, boxs->right, boxs->width);
 
-    vec3_add(&box_vertices[0], &box_vertices[0], box->position);
+    vec3_add(&box_vertices[0], &box_vertices[0], boxs->position);
     vec3_add(&box_vertices[3], &box_vertices[0], forward);
     vec3_add(&box_vertices[6], &box_vertices[0], right);
     vec3_add(&box_vertices[9], &box_vertices[6], forward);
@@ -80,7 +80,7 @@ Box* box_aabb(Box* box) {
             z[1] = box_vertices[3*i+2];
     }
 
-    Box* aabb = box_init(NULL);
+    Box* aabb = box_init(boxd);
 
     aabb->position[0] = x[0];
     aabb->position[1] = y[0];

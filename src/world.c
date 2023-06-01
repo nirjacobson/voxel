@@ -81,12 +81,13 @@ void world_destroy(World* world) {
 }
 
 LinkedList* world_draw_list(Camera* camera) {
-    Box* aabb = camera_aabb(camera);
+    Box aabb;
+    camera_aabb(&aabb, camera);
 
     ChunkID chunkIDStart, chunkIDEnd;
-    chunkIDStart.x = floor(aabb->position[0] / WORLD_CHUNK_LENGTH);
-    chunkIDStart.y = floor(aabb->position[1] / WORLD_CHUNK_LENGTH);
-    chunkIDStart.z = floor(aabb->position[2] / WORLD_CHUNK_LENGTH);
+    chunkIDStart.x = floor(aabb.position[0] / WORLD_CHUNK_LENGTH);
+    chunkIDStart.y = floor(aabb.position[1] / WORLD_CHUNK_LENGTH);
+    chunkIDStart.z = floor(aabb.position[2] / WORLD_CHUNK_LENGTH);
     memcpy(&chunkIDEnd, &chunkIDStart, sizeof(ChunkID));
 
     int block_position[3] = { chunkIDStart.x * WORLD_CHUNK_LENGTH,
@@ -95,22 +96,22 @@ LinkedList* world_draw_list(Camera* camera) {
                             };
     GLfloat vec[3];
 
-    vec3_scale(vec, aabb->right, aabb->width);
-    vec3_add(vec, aabb->position, vec);
+    vec3_scale(vec, aabb.right, aabb.width);
+    vec3_add(vec, aabb.position, vec);
     while (block_position[0] < vec[0]) {
         chunkIDEnd.x++;
         block_position[0] += WORLD_CHUNK_LENGTH;
     }
 
-    vec3_scale(vec, aabb->up, aabb->height);
-    vec3_add(vec, aabb->position, vec);
+    vec3_scale(vec, aabb.up, aabb.height);
+    vec3_add(vec, aabb.position, vec);
     while (block_position[1] < vec[1]) {
         chunkIDEnd.y++;
         block_position[1] += WORLD_CHUNK_LENGTH;
     }
 
-    vec3_scale(vec, aabb->forward, aabb->length);
-    vec3_add(vec, aabb->position, vec);
+    vec3_scale(vec, aabb.forward, aabb.length);
+    vec3_add(vec, aabb.position, vec);
     while (block_position[2] < vec[2]) {
         chunkIDEnd.z++;
         block_position[2] += WORLD_CHUNK_LENGTH;

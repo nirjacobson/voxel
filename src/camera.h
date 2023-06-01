@@ -29,6 +29,6 @@ void camera_rotate(Camera* camera, float* axis, float radians);
 void camera_move(Camera* camera, float* direction, float amount);
 void camera_set_aspect(Camera* camera, double aspect);
 
-Box* camera_aabb();
+Box* camera_aabb(Box* box, Camera* camera);
 
 #endif // CAMERA_H

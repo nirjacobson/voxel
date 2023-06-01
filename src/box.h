@@ -21,7 +21,7 @@ typedef struct {
 
 Box* box_init(Box* b);
 
-Box* box_aabb(Box* box);
+Box* box_aabb(Box* boxd, Box* boxs);
 
 Mesh* box_mesh(Box* box);
 
