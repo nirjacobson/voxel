@@ -1,5 +1,5 @@
 #include "fps_panel.h"
-
+#include "internal/fps_panel.h"
 
 FPSPanel* fps_panel_init(FPSPanel* p, PanelManager* panelManager) {
     FPSPanel* fpsPanel = p ? p : NEW(FPSPanel, 1);
