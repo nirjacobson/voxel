@@ -93,8 +93,8 @@ Box* box_aabb(Box* boxd, Box* boxs) {
     return aabb;
 }
 
-Mesh* box_mesh(Box* box) {
-    Mesh* mesh = mesh_init(NULL);
+Mesh* box_mesh(Mesh* m, Box* box) {
+    Mesh* mesh = mesh_init(m);
 
     Quad* leftQuad;
     Quad* topQuad;

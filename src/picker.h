@@ -17,7 +17,7 @@
 
 typedef struct {
     Box box;
-    Mesh* mesh;
+    Mesh mesh;
     Chunk* model;
     char rotation;
     char present;
@@ -31,7 +31,7 @@ typedef struct {
     int positionStart[3];
     int positionEnd[3];
     Box box;
-    Mesh* mesh;
+    Mesh mesh;
     Selection selection;
 
     char dragging;

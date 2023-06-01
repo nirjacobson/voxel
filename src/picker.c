@@ -17,10 +17,9 @@ void picker_init(Picker* p) {
     Picker* picker = p ? p : NEW(Picker, 1);
 
     box_init(&picker->box);
-    picker->mesh = box_mesh(&picker->box);
-    linked_list_foreach(&picker->mesh->quads, scale_vertices_up, NULL);
+    box_mesh(&picker->mesh, &picker->box);
+    linked_list_foreach(&picker->mesh.quads, scale_vertices_up, NULL);
 
-    picker->selection.mesh = NULL;
     picker->selection.model = NULL;
     picker->selection.rotation = 0;
     picker->selection.present = 0;
@@ -33,7 +32,7 @@ void picker_init(Picker* p) {
 }
 
 void picker_destroy(Picker* picker) {
-    mesh_destroy(picker->mesh);
+    mesh_destroy(&picker->mesh);
 }
 
 void picker_mode(Picker* picker, char mode) {
@@ -78,7 +77,7 @@ Box picker_merge_selections(Box* selectionA, Box* selectionB) {
 void picker_act(Picker* picker, char modifier1, char modifier2) {
     if (picker->action == PICKER_SELECT) {
         picker->selection.box = modifier1 ? picker_merge_selections(&picker->selection.box, &picker->box) : picker->box;
-        picker->selection.mesh = box_mesh(&picker->selection.box);
+        box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
         picker->selection.rotation = 0;
     } else if (picker->action == PICKER_STAMP || picker->action == PICKER_MOVE) {
@@ -131,8 +130,8 @@ void picker_release(Picker* picker, char modifier1, char modifier2) {
     picker->box.height = 1;
     picker->box.length = 1;
 
-    mesh_destroy(picker->mesh);
-    picker->mesh = box_mesh(&picker->box);
+    mesh_destroy(&picker->mesh);
+    box_mesh(&picker->mesh, &picker->box);
 }
 
 void picker_set_action(Picker* picker, char action) {
@@ -216,12 +215,12 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
     picker->box.height = abs(picker->positionEnd[1] - picker->positionStart[1]) + 1;
     picker->box.length = abs(picker->positionEnd[2] - picker->positionStart[2]) + 1;
 
-    mesh_destroy(picker->mesh);
-    picker->mesh = box_mesh(&picker->box);
+    mesh_destroy(&picker->mesh);
+    box_mesh(&picker->mesh, &picker->box);
 
     if (picker->selection.model) {
         memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(GLfloat));
-        picker->selection.mesh = box_mesh(&picker->selection.box);
+        box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
     }
 

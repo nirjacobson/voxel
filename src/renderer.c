@@ -226,7 +226,7 @@ void renderer_render_picker(Renderer* renderer, Picker* picker) {
         renderer_3D_update_model(renderer, mat);
         renderer_3D_update_world_position(renderer, picker->selection.box.position);
         renderer_3D_update_color(renderer, 0,255,255);
-        renderer_render_mesh(renderer, picker->selection.mesh, MESH_LINE);
+        renderer_render_mesh(renderer, &picker->selection.mesh, MESH_LINE);
     }
 
     if (picker->selection.model) {
@@ -234,7 +234,7 @@ void renderer_render_picker(Renderer* renderer, Picker* picker) {
     } else {
         renderer_3D_update_world_position(renderer, picker->box.position);
         renderer_3D_update_color(renderer, 255,255,0);
-        renderer_render_mesh(renderer, picker->mesh, MESH_LINE);
+        renderer_render_mesh(renderer, &picker->mesh, MESH_LINE);
     }
 
     mat4_identity(mat);
