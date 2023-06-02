@@ -195,8 +195,6 @@ void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
 }
 
 void renderer_render_world(Renderer* renderer, World* world, Camera* camera) {
-    world_update(world, camera);
-
     renderer_render_ground(renderer, &world->ground, camera);
 
     linked_list_foreach(&world->chunks, render_world_chunk, renderer);

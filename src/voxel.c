@@ -147,6 +147,8 @@ char voxel_process_input(Voxel* voxel) {
 }
 
 void voxel_draw(Voxel* voxel) {
+    world_update(&voxel->world, &voxel->camera);
+
     renderer_clear(&voxel->renderer);
     renderer_render_world(&voxel->renderer, &voxel->world, &voxel->camera);
     renderer_render_picker(&voxel->renderer, &voxel->picker);
