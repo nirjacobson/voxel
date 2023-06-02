@@ -8,12 +8,8 @@
 #include "renderer.h"
 #include "camera.h"
 #include "world.h"
-#include "picker.h"
-#include "panel.h"
-#include "picker_panel.h"
 #include "window.h"
 #include "application.h"
-#include "fps_panel.h"
 
 struct Voxel {
     Application application;
@@ -23,12 +19,6 @@ struct Voxel {
 
     World world;
     Camera camera;
-    Picker picker;
-
-    PanelManager panelManager;
-    PickerPanel pickerPanel;
-
-    FPSPanel fpsPanel;
 
     struct timeval frameTime;
 };
