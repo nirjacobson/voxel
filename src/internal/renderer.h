@@ -1,6 +1,8 @@
 #ifndef RENDERER_INTERNAL_H
 #define RENDERER_INTERNAL_H
 
+#include <GLES3/gl3.h>
+
 #include "../renderer.h"
 
 void renderer_3D_update_model(Renderer* renderer, float* mat4);

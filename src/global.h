@@ -3,9 +3,6 @@
 
 #include <stdlib.h>
 
-#include <GLES3/gl3.h>
-#include <GLFW/glfw3.h>
-
 #define NEW(type, count)     (type*)malloc((count) * sizeof(type));
 
 extern float X[3];
