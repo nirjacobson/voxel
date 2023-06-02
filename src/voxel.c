@@ -61,6 +61,18 @@ char voxel_process_input(Voxel* voxel) {
         window_toggle_fullscreen(&voxel->window);
     }
 
+    if (mouseX[0] != mouseX[1] || mouseY[0] != mouseY[1]) {
+        // ...
+    }
+
+    if ((mouseButtons[0] & MOUSE_BUTTON_LEFT) != (mouseButtons[1] & MOUSE_BUTTON_LEFT)) {
+        // ...
+    }
+
+    if ((mouseButtons[0] & MOUSE_BUTTON_RIGHT) != (mouseButtons[1] & MOUSE_BUTTON_RIGHT)) {
+        // ...
+    }
+
     return 1;
 }
 
