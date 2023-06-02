@@ -11,6 +11,8 @@
 
 #include <assert.h>
 
+#include <GLFW/glfw3.h>
+
 #include "global.h"
 #include "application.h"
 
