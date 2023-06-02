@@ -2,7 +2,6 @@
 #define RENDERER_INTERNAL_H
 
 #include "../renderer.h"
-#include "../panel.h"
 
 void renderer_3D_update_model(Renderer* renderer, float* mat4);
 void renderer_3D_update_camera(Renderer* renderer, float* mat4);
