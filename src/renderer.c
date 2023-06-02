@@ -86,6 +86,15 @@ void renderer_clear(Renderer* renderer) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
+    glViewport(0, 0, width, height);
+
+    GLfloat mat[16];
+    mat4_orthographic(mat, 0, width, 0, height);
+    renderer_2D_update_projection(renderer, mat);
+    renderer_apply_camera(renderer, camera);
+}
+
 void renderer_3D_update_world_position(Renderer* renderer, float* position) {
     shader_program_3D_use(&renderer->shaderProgram3D);
     shader_program_3D_update_world_position(&renderer->shaderProgram3D, position);
@@ -121,7 +130,7 @@ void renderer_3D_update_sun_position(Renderer* renderer, float* position) {
     shader_program_3D_update_sun_position(&renderer->shaderProgram3D, position);
 }
 
-void renderer_3D_apply_camera(Renderer* renderer, Camera* camera) {
+void renderer_apply_camera(Renderer* renderer, Camera* camera) {
     float mat[16];
     mat4_multiply(mat, camera->mat_view, camera->mat_model);
     mat4_inverse(mat, mat);

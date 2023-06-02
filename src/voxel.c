@@ -55,7 +55,7 @@ char voxel_process_input(Voxel* voxel) {
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
         camera_rotate(&voxel->camera, Y, -0.05);
 
-    renderer_3D_apply_camera(&voxel->renderer, &voxel->camera);
+    renderer_apply_camera(&voxel->renderer, &voxel->camera);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
@@ -203,16 +203,10 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    glViewport(0, 0, application->window->width, application->window->height);
-
-    GLfloat mat[16];
-    mat4_orthographic(mat, 0, application->window->width, 0, application->window->height);
-    renderer_2D_update_projection(&voxel->renderer, mat);
-
     camera_set_aspect(&voxel->camera, (double)application->window->width / application->window->height);
-    renderer_3D_apply_camera(&voxel->renderer, &voxel->camera);
-
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+
+    renderer_resize(&voxel->renderer, application->window->width, application->window->height, &voxel->camera);
 }
 
 void voxel_teardown(Application* application) {
