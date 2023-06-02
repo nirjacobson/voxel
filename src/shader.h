@@ -7,10 +7,6 @@
 
 #include "global.h"
 
-GLuint shader_create(const char* path, GLenum shaderType);
-GLuint shader_create_program(GLuint vertex_shader, GLuint fragment_shader);
-
-
 /* ShaderProgram3D */
 
 typedef struct {
