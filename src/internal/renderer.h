@@ -2,6 +2,10 @@
 #define RENDERER_INTERNAL_H
 
 #include "../renderer.h"
+
+#include "../ground.h"
+#include "../chunk.h"
+#include "../mesh.h"
 #include "../panel.h"
 
 void renderer_3D_update_model(Renderer* renderer, float* mat4);

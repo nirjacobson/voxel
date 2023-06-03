@@ -7,12 +7,8 @@
 #include "matrix.h"
 
 #include "camera.h"
-#include "ground.h"
-#include "chunk.h"
-#include "mesh.h"
 #include "world.h"
 #include "picker.h"
-#include "panel.h"
 
 typedef struct {
     ShaderProgram3D shaderProgram3D;
