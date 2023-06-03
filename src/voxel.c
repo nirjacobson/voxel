@@ -124,7 +124,6 @@ void voxel_setup(Application* application) {
     worldChunk->chunk = chunk;
 
     linked_list_insert(&voxel->world.chunks, worldChunk);
-
 }
 
 void voxel_main(Application* application) {
