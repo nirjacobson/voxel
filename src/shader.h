@@ -2,7 +2,8 @@
 #define SHADER_H
 
 #include <stdio.h>
-#include <stdlib.h>
+
+#include <GLES3/gl3.h>
 
 #include "global.h"
 
@@ -41,29 +42,5 @@ void shader_program_3D_update_ambient(ShaderProgram3D* shaderProgram3D, float a)
 void shader_program_3D_update_sun_position(ShaderProgram3D* shaderProgram3D, float* position);
 
 void shader_program_3D_use(ShaderProgram3D* shaderProgram3D);
-
-/* ShaderProgram2D */
-
-typedef struct {
-    GLuint shader_vert;
-    GLuint shader_frag;
-    GLuint shader_prog;
-
-    GLint attrib_position;
-    GLint attrib_texcoord;
-
-    GLint unifrm_projection;
-
-    GLint unifrm_sampler;
-} ShaderProgram2D;
-
-ShaderProgram2D* shader_program_2D_init(ShaderProgram2D* s);
-void shader_program_2D_destroy(ShaderProgram2D* shaderProgram2D);
-
-void shader_program_2D_update_projection(ShaderProgram2D* shaderProgram2D, float* mat4);
-void shader_program_2D_update_sampler(ShaderProgram2D* shaderProgram2D, GLint sampler);
-
-void shader_program_2D_use(ShaderProgram2D* shaderProgram2D);
-
 
 #endif // SHADER_H

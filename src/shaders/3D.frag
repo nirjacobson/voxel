@@ -15,6 +15,6 @@ void main()
 {
     vec3 sun_direction = normalize(sun_position - Position);
     float diff = max(dot(Normal, sun_direction), 0.0);
-    
+
     fragColor = vec4(color*(ambient+diff), 1.0);
 }

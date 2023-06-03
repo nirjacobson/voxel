@@ -3,14 +3,7 @@
 
 #include <stdlib.h>
 
-#include <GLES3/gl3.h>
-#include <GLFW/glfw3.h>
-
-#define MIN(x, y)    ((x) < (y) ? (x) : (y))
-#define MAX(x, y)    ((x) > (y) ? (x) : (y))
 #define NEW(type, count)     (type*)malloc((count) * sizeof(type));
-
-#define glCheck() assert(glGetError() == 0)
 
 extern float X[3];
 extern float Y[3];
