@@ -90,7 +90,7 @@ Chunk* heap_get(Heap* heap, unsigned long address) {
 
     Chunk* chunk = chunk_init(NULL, entry.width, entry.height, entry.length);
 
-    for (int i = 0; i < entry.width * entry.height * entry.length; i++) {
+    for (int i = 0; i < numBlocks; i++) {
         unsigned int x = i / (entry.height * entry.length);
         unsigned int y = (i % (entry.height * entry.length)) / entry.length;
         unsigned int z = (i % (entry.height * entry.length)) % entry.length;
