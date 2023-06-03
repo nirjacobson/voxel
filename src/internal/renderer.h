@@ -5,6 +5,9 @@
 
 #include "../renderer.h"
 
+#include "../ground.h"
+#include "../mesh.h"
+
 void renderer_3D_update_model(Renderer* renderer, float* mat4);
 void renderer_3D_update_camera(Renderer* renderer, float* mat4);
 void renderer_3D_update_projection(Renderer* renderer, float* mat4);
