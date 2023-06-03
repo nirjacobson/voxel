@@ -7,9 +7,6 @@
 #include "matrix.h"
 
 #include "camera.h"
-#include "ground.h"
-#include "chunk.h"
-#include "mesh.h"
 #include "world.h"
 
 typedef struct {
