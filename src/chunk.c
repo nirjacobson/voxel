@@ -32,8 +32,6 @@ Chunk* chunk_init(Chunk* c, int width, int height, int length) {
     chunk->height = height;
     chunk->length = length;
 
-    chunk->dirty = 0;
-
     linked_list_init(&chunk->meshes);
 
     chunk->blocks = NEW(Block**, width);
