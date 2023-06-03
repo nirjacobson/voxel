@@ -90,17 +90,6 @@ void renderer_3D_use(Renderer* renderer) {
     shader_program_3D_use(&renderer->shaderProgram3D);
 }
 
-void renderer_render_ground(Renderer* renderer, Ground* ground, Camera* camera) {
-    float worldPosition[] = {
-        camera->mat_view[12],
-        0,
-        camera->mat_view[14],
-    };
-    renderer_3D_update_world_position(renderer, worldPosition);
-    renderer_3D_update_color(renderer, 192, 192, 192);
-    renderer_render_mesh(renderer, &ground->mesh, MESH_FILL);
-}
-
 void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
     glBindVertexArray(mesh->vao);
     renderer_3D_use(renderer);
@@ -118,6 +107,17 @@ void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void renderer_render_ground(Renderer* renderer, Ground* ground, Camera* camera) {
+    float worldPosition[] = {
+        camera->mat_view[12],
+        0,
+        camera->mat_view[14],
+    };
+    renderer_3D_update_world_position(renderer, worldPosition);
+    renderer_3D_update_color(renderer, 192, 192, 192);
+    renderer_render_mesh(renderer, &ground->mesh, MESH_FILL);
 }
 
 void renderer_render_world(Renderer* renderer, World* world, Camera* camera) {
