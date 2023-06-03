@@ -111,12 +111,16 @@ void chunk_mesh(Chunk* chunk) {
                 for (x[u] = 0; x[u] < lim[u]; x[u]++) {
 
                     for (x[v] = 0; x[v] < lim[v]; x[v]++) {
-                        face  = (x[d] >= 0) ? block_is_active(&chunk->blocks[x[0]][x[1]][x[2]]) ? block_color(&chunk->blocks[x[0]][x[1]][x[2]])
+                        face  = (x[d] >= 0)
+                            ? block_is_active(&chunk->blocks[x[0]][x[1]][x[2]])
+                                ? block_color(&chunk->blocks[x[0]][x[1]][x[2]])
                                 : -1
-                                : -1;
-                        face1 = (x[d] <  lim[d] - 1) ? block_is_active(&chunk->blocks[x[0]+q[0]][x[1]+q[1]][x[2]+q[2]]) ? block_color(&chunk->blocks[x[0]+q[0]][x[1]+q[1]][x[2]+q[2]])
+                            : -1;
+                        face1 = (x[d] < (lim[d] - 1))
+                            ? block_is_active(&chunk->blocks[x[0]+q[0]][x[1]+q[1]][x[2]+q[2]])
+                                ? block_color(&chunk->blocks[x[0]+q[0]][x[1]+q[1]][x[2]+q[2]])
                                 : -1
-                                : -1;
+                            : -1;
 
                         if (face == face1 || (!b && face != (uint16_t)-1) || (b && face1 != (uint16_t)-1)) {
                             mask[n++] = -1;
