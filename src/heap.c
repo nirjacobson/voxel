@@ -89,9 +89,6 @@ Chunk* heap_get(Heap* heap, unsigned long address) {
     fread(blocks, numBlocks*sizeof(Block), 1, heap->file);
 
     Chunk* chunk = chunk_init(NULL, entry.width, entry.height, entry.length);
-    chunk->width = entry.width;
-    chunk->height = entry.height;
-    chunk->length = entry.length;
 
     for (int i = 0; i < entry.width * entry.height * entry.length; i++) {
         unsigned int x = i / (entry.height * entry.length);

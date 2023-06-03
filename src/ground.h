@@ -1,6 +1,8 @@
 #ifndef GROUND_H
 #define GROUND_H
 
+#include <string.h>
+
 #include "global.h"
 #include "mesh.h"
 
