@@ -133,13 +133,13 @@ void chunk_mesh(Chunk* chunk) {
                 x[d]++;
 
                 if (d == 0) {
-                    side = b ? EAST   : WEST;
+                    side = b ? EAST  : WEST;
                 }
                 else if (d == 1) {
-                    side = b ? TOP    : BOTTOM;
+                    side = b ? TOP   : BOTTOM;
                 }
                 else if (d == 2) {
-                    side = b ? SOUTH  : NORTH;
+                    side = b ? SOUTH : NORTH;
                 }
 
                 n = 0;
