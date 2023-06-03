@@ -3,7 +3,6 @@
 
 #include "global.h"
 #include "mesh.h"
-#include "camera.h"
 
 typedef struct {
     Mesh mesh;
