@@ -156,11 +156,14 @@ void picker_set_action(Picker* picker, char action) {
 void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouseY) {
     picker->ray[0] = mouseX;
     picker->ray[1] = mouseY;
-    picker->ray[2] =  -1;
+    picker->ray[2] =   1;
     picker->ray[3] = 1.0;
 
+    // undivide by W
+    vec4_scale(picker->ray, picker->ray, camera->near);
+
     vec4_transform(picker->ray, camera->mat_proj_inv, picker->ray);
-    picker->ray[2] = -1;
+    picker->ray[2] = -camera->near; // for accuracy
     picker->ray[3] =  0;
 
     vec4_transform(picker->ray, camera->mat_model, picker->ray);

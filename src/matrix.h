@@ -32,5 +32,6 @@ float* vec3_transform(float* vec3d, float* mat4, float* vec3s);
 float* vec3_normalize(float* vec3d, float* vec3s);
 
 float* vec4_transform(float* vec4d, float* mat4, float* vec4s);
+float* vec4_scale(float* vec4d, float* vec4s, float m);
 
 #endif // MATRIX_H

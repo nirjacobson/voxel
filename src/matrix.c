@@ -387,3 +387,14 @@ float* vec4_transform(float* vec4d, float* mat4, float* vec4s) {
 
     return vec4d;
 }
+
+float* vec4_scale(float* vec4d, float* vec4s, float m) {
+    memcpy(vec4d, vec4s, 4*sizeof(float));
+
+    vec4d[0] = vec4d[0] * m;
+    vec4d[1] = vec4d[1] * m;
+    vec4d[2] = vec4d[2] * m;
+    vec4d[3] = vec4d[3] * m;
+
+    return vec4d;
+}
