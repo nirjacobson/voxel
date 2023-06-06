@@ -25,11 +25,11 @@ ${EXEC}: ${OBJECTS}
 format:
 	astyle -rnNCS *.{c,h}
 
-build/%.o : build/ src/%.c
-	gcc -c $(word 2, $^) -o $@ ${CFLAGS}
-
 build/:
 	mkdir -p build
+
+build/%.o : src/%.c | build/
+	gcc -c $< -o $@ ${CFLAGS}
 
 clean:
 	rm -rf build
