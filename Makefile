@@ -30,11 +30,11 @@ EXEC=voxel
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
-build/%.o : build/ src/%.c
-	gcc -c $(word 2, $^) -o $@ ${CFLAGS}
-
 build/:
-	mkdir build
+	mkdir -p build
+
+build/%.o : src/%.c | build/
+	gcc -c $< -o $@ ${CFLAGS}
 
 format:
 	astyle -rnNCS *.{c,h}
