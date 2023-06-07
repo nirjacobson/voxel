@@ -36,7 +36,6 @@ void window_open(Window* window);
 void window_destroy(Window* window);
 void window_toggle_fullscreen(Window* window);
 char window_key_is_pressed(Window* window, int key);
-
 char window_mouse_state(Window* window, int* x, int* y);
 
 #endif // WINDOW_H

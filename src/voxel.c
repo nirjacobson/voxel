@@ -75,18 +75,6 @@ char voxel_process_input(Voxel* voxel) {
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_2))
         picker_set_action(&voxel->picker, PICKER_CLEAR);
 
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Q))
-        picker_set_action(&voxel->picker, PICKER_EYEDROPPER);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Z))
-        picker_set_action(&voxel->picker, PICKER_SELECT);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_X))
-        picker_set_action(&voxel->picker, PICKER_STAMP);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_C))
-        picker_set_action(&voxel->picker, PICKER_MOVE);
-
     f[1] = f[0];
     f[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_F);
     if (!f[1] && f[0]) {
@@ -94,29 +82,13 @@ char voxel_process_input(Voxel* voxel) {
     }
 
     if (mouseX[0] != mouseX[1] || mouseY[0] != mouseY[1]) {
-        if (voxel->panelManager.dragging) {
-            panel_translate(voxel->panelManager.active_panel, mouseX[0] - mouseX[1], mouseY[0] - mouseY[1]);
-        } else {
-            Panel* panel = panel_manager_find_panel(&voxel->panelManager, mouseX[0], mouseY[0]);
-            if (!panel) {
-                float nx = (2.0 * ((float)mouseX[0])/voxel->window.width) - 1;
-                float ny = (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height) - 1;
-                picker_update(&voxel->picker, &voxel->camera, nx, ny);
-            }
-        }
+        float nx = (2.0 * ((float)mouseX[0])/voxel->window.width) - 1;
+        float ny = (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height) - 1;
+        picker_update(&voxel->picker, &voxel->camera, nx, ny);
     }
 
     if ((mouseButtons[0] & MOUSE_BUTTON_LEFT) != (mouseButtons[1] & MOUSE_BUTTON_LEFT)) {
-        if (!(mouseButtons[0] & MOUSE_BUTTON_LEFT)) {
-            voxel->panelManager.dragging = 0;
-        }
-
-        Panel* panel = panel_manager_find_panel(&voxel->panelManager, mouseX[0], mouseY[0]);
-
-        if (panel) {
-            GLuint action = (mouseButtons[0] & MOUSE_BUTTON_LEFT) ? MOUSE_PRESS : MOUSE_RELEASE;
-            panel_action(panel, action, mouseX[0] - panel->position[0], mouseY[0] - panel->position[1]);
-        } else if (mouseButtons[0] & MOUSE_BUTTON_LEFT) {
+        if (mouseButtons[0] & MOUSE_BUTTON_LEFT) {
             char modifier1 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT);
             char modifier2 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SUPER);
             picker_press(&voxel->picker, modifier1, modifier2);

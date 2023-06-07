@@ -3,12 +3,38 @@
 
 /* Linked list processing callbacks */
 
+char chunk_id_equals_world_chunk(void* chunkIDPtr, void* worldChunkPtr) {
+    ChunkID* chunkID = (ChunkID*)chunkIDPtr;
+    WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
+
+    return chunkID->x == worldChunk->id.x &&
+           chunkID->y == worldChunk->id.y &&
+           chunkID->z == worldChunk->id.z;
+}
+
 void destroy_world_chunk(void* worldChunkPtr) {
     WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
 
     chunk_destroy(worldChunk->chunk);
     free(worldChunk->chunk);
     free(worldChunk);
+}
+
+int compare_chunk_ids(ChunkID* chunkIDA, ChunkID* chunkIDB) {
+    if (chunkIDA->x == chunkIDB->x) {
+        if (chunkIDA->y == chunkIDB->y) {
+            return chunkIDA->z - chunkIDB->z;
+        }
+        return chunkIDA->y - chunkIDB->y;
+    }
+    return chunkIDA->x - chunkIDB->x;
+}
+
+int compare_world_chunks(void* worldChunkAPtr, void* worldChunkBPtr) {
+    WorldChunk* worldChunkA = (WorldChunk*)worldChunkAPtr;
+    WorldChunk* worldChunkB = (WorldChunk*)worldChunkBPtr;
+
+    return compare_chunk_ids(&worldChunkA->id, &worldChunkB->id);
 }
 
 /* World */
@@ -104,7 +130,6 @@ void world_block_set_active(World* world, int* location, char active) {
 
     Block* block = &chunk->blocks[block_position[0]][block_position[1]][block_position[2]];
     block_set_active(block, active);
-    chunk->dirty = 1;
     chunk_mesh(chunk);
 }
 
@@ -148,6 +173,5 @@ void world_block_set_color(World* world, int* location, uint16_t color) {
 
     Block* block = &chunk->blocks[block_position[0]][block_position[1]][block_position[2]];
     block_set_color(block, color);
-    chunk->dirty = 1;
     chunk_mesh(chunk);
 }
