@@ -1,5 +1,6 @@
 MODULES = global       \
           picker       \
+          box          \
           application  \
           linked_list  \
           world        \
