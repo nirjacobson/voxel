@@ -36,11 +36,6 @@ Renderer* renderer_init(Renderer* r) {
     float sunPosition[] = { 100, 100, 100 };
     renderer_3D_update_sun_position(renderer, sunPosition);
 
-    shader_program_2D_init(&renderer->shaderProgram2D);
-
-    glActiveTexture(GL_TEXTURE0);
-    renderer_2D_update_sampler(renderer, 0);
-
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glClearColor(0.50f, 0.75f, 0.86f, 1.0f);
@@ -54,7 +49,6 @@ Renderer* renderer_init(Renderer* r) {
 }
 
 void renderer_destroy(Renderer* renderer) {
-    shader_program_2D_destroy(&renderer->shaderProgram2D);
     shader_program_3D_destroy(&renderer->shaderProgram3D);
 }
 

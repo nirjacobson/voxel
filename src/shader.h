@@ -2,7 +2,8 @@
 #define SHADER_H
 
 #include <stdio.h>
-#include <stdlib.h>
+
+#include <GLES3/gl3.h>
 
 #include "global.h"
 

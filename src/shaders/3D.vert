@@ -17,9 +17,9 @@ void main()
     mat4 view = mat4(1.0);
     view[3] = vec4(worldPosition, 1.0);
     vec4 worldPosition = view * model * vec4(position, 1.0);
-        
+
     vec4 rotatedNormal = vec4(mat3(model) * normal, 1.0);
-    
+
     vec4 screenPosition = projection * camera * worldPosition;
 
     gl_Position = screenPosition;

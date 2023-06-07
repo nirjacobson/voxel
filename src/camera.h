@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "box.h"
+#include "global.h"
+#include "matrix.h"
 
 typedef struct {
     double fov;
@@ -28,7 +29,5 @@ Camera* camera_init(Camera* c);
 void camera_rotate(Camera* camera, float* axis, float radians);
 void camera_move(Camera* camera, float* direction, float amount);
 void camera_set_aspect(Camera* camera, double aspect);
-
-Box* camera_aabb(Box* box, Camera* camera);
 
 #endif // CAMERA_H

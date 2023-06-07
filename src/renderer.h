@@ -22,6 +22,5 @@ void renderer_resize(Renderer* renderer, int width, int height, Camera* camera);
 void renderer_apply_camera(Renderer* renderer, Camera* camera);
 void renderer_render_world(Renderer* renderer, World* world, Camera* camera);
 void renderer_render_picker(Renderer* renderer, Picker* picker);
-void renderer_render_panels(Renderer* renderer, LinkedList* panels);
 
 #endif // RENDERER_H
