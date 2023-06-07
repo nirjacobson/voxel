@@ -1,14 +1,8 @@
 MODULES=global       \
-		      panel		      \
-		      picker_panel \
 		      picker							\
 		      application  \
-		      bp_tree	     \
-		      heap		       \
-		      chunk_dao	   \
 		      world		      \
 		      ground		     \
-		      box          \
 		      camera       \
 		      block        \
 		      chunk        \
@@ -19,7 +13,6 @@ MODULES=global       \
 		      matrix       \
 		      window       \
 		      voxel        \
-		      fps_panel    \
 		      main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS    = gl glfw3 cairo

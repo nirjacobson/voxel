@@ -12,7 +12,6 @@
 
 typedef struct {
     ShaderProgram3D shaderProgram3D;
-    ShaderProgram2D shaderProgram2D;
 } Renderer;
 
 Renderer* renderer_init(Renderer* r);

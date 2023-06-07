@@ -24,30 +24,6 @@ void render_world_chunk(void* worldChunkPtr, void* rendererPtr) {
         renderer_render_chunk(renderer, worldChunk->chunk, position);
 }
 
-void render_panel(void* panelPtr, void* rendererPtr) {
-    Panel* panel = (Panel*)panelPtr;
-    Renderer* renderer = (Renderer*)rendererPtr;
-    renderer_render_panel(renderer, panel);
-}
-
-void renderer_render_panel(Renderer* renderer, Panel* panel) {
-    glBindVertexArray(panel->vao);
-    renderer_2D_use(renderer);
-    glBindBuffer(GL_ARRAY_BUFFER, panel->vbo);
-
-    glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_position);
-    glVertexAttribPointer(renderer->shaderProgram2D.attrib_position, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 0);
-    glEnableVertexAttribArray(renderer->shaderProgram2D.attrib_texcoord);
-    glVertexAttribPointer(renderer->shaderProgram2D.attrib_texcoord, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-
-    panel->drawCallback(panel->owner);
-    panel_texture(panel);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 Renderer* renderer_init(Renderer* r) {
     Renderer* renderer = r ? r : NEW(Renderer, 1);
 
@@ -89,9 +65,6 @@ void renderer_clear(Renderer* renderer) {
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
     glViewport(0, 0, width, height);
 
-    GLfloat mat[16];
-    mat4_orthographic(mat, 0, width, 0, height);
-    renderer_2D_update_projection(renderer, mat);
     renderer_apply_camera(renderer, camera);
 }
 
@@ -143,20 +116,6 @@ void renderer_apply_camera(Renderer* renderer, Camera* camera) {
 
 void renderer_3D_use(Renderer* renderer) {
     shader_program_3D_use(&renderer->shaderProgram3D);
-}
-
-void renderer_2D_update_projection(Renderer* renderer, float* mat4) {
-    shader_program_2D_use(&renderer->shaderProgram2D);
-    shader_program_2D_update_projection(&renderer->shaderProgram2D, mat4);
-}
-
-void renderer_2D_update_sampler(Renderer* renderer, GLint sampler) {
-    shader_program_2D_use(&renderer->shaderProgram2D);
-    shader_program_2D_update_sampler(&renderer->shaderProgram2D, sampler);
-}
-
-void renderer_2D_use(Renderer* renderer) {
-    shader_program_2D_use(&renderer->shaderProgram2D);
 }
 
 void renderer_render_chunk(Renderer* renderer, Chunk* chunk, float* position) {
@@ -246,9 +205,4 @@ void renderer_render_picker(Renderer* renderer, Picker* picker) {
 
     mat4_identity(mat);
     renderer_3D_update_model(renderer, mat);
-}
-
-
-void renderer_render_panels(Renderer* renderer, LinkedList* panels) {
-    linked_list_foreach(panels, render_panel, renderer);
 }
