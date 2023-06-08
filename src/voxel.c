@@ -156,8 +156,7 @@ void voxel_setup(Application* application) {
 
     linked_list_insert(&voxel->world.chunks, worldChunk);
 
-    picker_init(&voxel->picker);
-    picker_set_world(&voxel->picker, &voxel->world);
+    picker_init(&voxel->picker, &voxel->world);
 }
 
 void voxel_main(Application* application) {

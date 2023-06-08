@@ -13,8 +13,9 @@ void scale_vertices_up(void* ptr, void* unused) {
 
 /* Picker */
 
-void picker_init(Picker* p) {
+void picker_init(Picker* p, World* world) {
     Picker* picker = p ? p : NEW(Picker, 1);
+    picker->world = world;
 
     box_init(&picker->box);
     box_mesh(&picker->mesh, &picker->box);
@@ -29,61 +30,6 @@ void picker_init(Picker* p) {
 
 void picker_destroy(Picker* picker) {
     mesh_destroy(&picker->mesh);
-}
-
-void picker_mode(Picker* picker, char mode) {
-    picker->mode = mode;
-}
-
-void picker_press(Picker* picker, char modifier1, char modifier2) {
-    picker->dragging = 1;
-}
-
-void picker_act(Picker* picker, char modifier1, char modifier2) {
-    if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-        for (int x = 0; x < picker->box.width; x++) {
-            for (int y = 0; y < picker->box.height; y++) {
-                for (int z = 0; z < picker->box.length; z++) {
-                    int location[3] = {
-                        picker->box.position[0] + x,
-                        picker->box.position[1] + y,
-                        picker->box.position[2] + z
-                    };
-                    switch (picker->action) {
-                        case PICKER_CLEAR:
-                            world_block_set_active(picker->world, location, 0);
-                            break;
-                        case PICKER_SET:
-                            world_block_set_color(picker->world, location, picker->color);
-                            world_block_set_active(picker->world, location, 1);
-                            break;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void picker_release(Picker* picker, char modifier1, char modifier2) {
-    picker->dragging = 0;
-
-    picker_act(picker, modifier1, modifier2);
-
-    memcpy(picker->positionStart, picker->positionEnd, 3*sizeof(int));
-
-    picker->box.position[0] = picker->positionEnd[0];
-    picker->box.position[1] = picker->positionEnd[1];
-    picker->box.position[2] = picker->positionEnd[2];
-    picker->box.width = 1;
-    picker->box.height = 1;
-    picker->box.length = 1;
-
-    mesh_destroy(&picker->mesh);
-    box_mesh(&picker->mesh, &picker->box);
-}
-
-void picker_set_action(Picker* picker, char action) {
-    picker->action = action;
 }
 
 void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
@@ -155,7 +101,53 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     box_mesh(&picker->mesh, &picker->box);
 }
 
-void picker_set_world(Picker* picker, World* world) {
-    picker->world = world;
+void picker_press(Picker* picker, char modifier1, char modifier2) {
+    picker->dragging = 1;
 }
 
+void picker_release(Picker* picker, char modifier1, char modifier2) {
+    picker->dragging = 0;
+
+    picker_act(picker, modifier1, modifier2);
+
+    memcpy(picker->positionStart, picker->positionEnd, 3*sizeof(int));
+
+    picker->box.position[0] = picker->positionEnd[0];
+    picker->box.position[1] = picker->positionEnd[1];
+    picker->box.position[2] = picker->positionEnd[2];
+    picker->box.width = 1;
+    picker->box.height = 1;
+    picker->box.length = 1;
+
+    mesh_destroy(&picker->mesh);
+    box_mesh(&picker->mesh, &picker->box);
+}
+
+void picker_act(Picker* picker, char modifier1, char modifier2) {
+    if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
+        for (int x = 0; x < picker->box.width; x++) {
+            for (int y = 0; y < picker->box.height; y++) {
+                for (int z = 0; z < picker->box.length; z++) {
+                    int location[3] = {
+                        picker->box.position[0] + x,
+                        picker->box.position[1] + y,
+                        picker->box.position[2] + z
+                    };
+                    switch (picker->action) {
+                        case PICKER_CLEAR:
+                            world_block_set_active(picker->world, location, 0);
+                            break;
+                        case PICKER_SET:
+                            world_block_set_color(picker->world, location, picker->color);
+                            world_block_set_active(picker->world, location, 1);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void picker_set_action(Picker* picker, char action) {
+    picker->action = action;
+}
