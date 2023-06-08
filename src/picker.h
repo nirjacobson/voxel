@@ -15,10 +15,9 @@
 typedef struct {
     World* world;
 
-    GLfloat ray[4];
-
     int positionStart[3];
     int positionEnd[3];
+    
     Box box;
     Mesh mesh;
 
