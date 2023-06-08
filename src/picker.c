@@ -104,15 +104,15 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     vec4_transform(ray, camera->mat_view, ray);
 
     vec3_normalize(ray, ray);
+    vec3_scale(ray, ray, 0.2);
 
     float ray_point[3];
+    memcpy(ray_point, camera->position, 3*sizeof(float));
+
+    Block* block;
     int block_location[3];
     int block_location_adjacent[3];
-    memcpy(ray_point, camera->position, 3*sizeof(float));
-    vec3_scale(ray, ray, 0.2);
-    Block* block;
-    int i;
-    for (i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         memcpy(block_location_adjacent, block_location, 3*sizeof(int));
         block_location[0] = floor(ray_point[0]);
         block_location[1] = floor(ray_point[1]);
