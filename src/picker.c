@@ -86,8 +86,8 @@ void picker_set_action(Picker* picker, char action) {
     picker->action = action;
 }
 
-void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouseY) {
-    GLfloat ray[4];
+void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
+    float ray[4];
     ray[0] = mouseX;
     ray[1] = mouseY;
     ray[2] =   1;
@@ -105,10 +105,10 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
 
     vec3_normalize(ray, ray);
 
-    GLfloat ray_point[3];
+    float ray_point[3];
     int block_location[3];
     int block_location_adjacent[3];
-    memcpy(ray_point, camera->position, 3*sizeof(GLfloat));
+    memcpy(ray_point, camera->position, 3*sizeof(float));
     vec3_scale(ray, ray, 0.2);
     Block* block;
     int i;

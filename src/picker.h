@@ -17,7 +17,7 @@ typedef struct {
 
     int positionStart[3];
     int positionEnd[3];
-    
+
     Box box;
     Mesh mesh;
 
@@ -30,7 +30,7 @@ typedef struct {
 
 void picker_init(Picker* p);
 void picker_destroy(Picker* picker);
-void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouseY);
+void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY);
 
 void picker_press(Picker* picker, char modifier1, char modifier2);
 void picker_release(Picker* picker, char modifier1, char modifier2);
