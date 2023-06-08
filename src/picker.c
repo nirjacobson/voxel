@@ -36,7 +36,7 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     float ray[4];
     ray[0] = mouseX;
     ray[1] = mouseY;
-    ray[2] =   1;
+    ray[2] =  -1;
     ray[3] = 1.0;
 
     // undivide by W
