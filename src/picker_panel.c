@@ -12,7 +12,7 @@ void picker_panel_titlebar_release(ActionRegionArgs* args) {
 }
 
 void picker_panel_bluebar_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
 
     BLOCK_COLOR_SET_BLUE(pickerPanel->picker->color, args->x / 15);
     picker_panel_draw_bluebar(pickerPanel);
@@ -20,7 +20,7 @@ void picker_panel_bluebar_press(ActionRegionArgs* args) {
 }
 
 void picker_panel_palette_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
 
     BLOCK_COLOR_SET_RED(pickerPanel->picker->color, 7 - (args->y / 15));
     BLOCK_COLOR_SET_GREEN(pickerPanel->picker->color, args->x / 15);
@@ -28,37 +28,37 @@ void picker_panel_palette_press(ActionRegionArgs* args) {
 }
 
 void picker_panel_pencil_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_SET);
     picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_eraser_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_CLEAR);
     picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_dropper_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_EYEDROPPER);
     picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_select_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_SELECT);
     picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_stamp_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_STAMP);
     picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_move_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->owner;
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_MOVE);
     picker_panel_draw_buttons(pickerPanel);
 }

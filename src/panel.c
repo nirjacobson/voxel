@@ -81,7 +81,6 @@ void panel_action(Panel* panel, char action, unsigned int x, unsigned int y) {
     if (node) {
         ActionRegion* actionRegion = (ActionRegion*)node->data;
         ActionRegionArgs args = {
-            panel->owner,
             panel,
             actionRegion,
             x - actionRegion->position[0],

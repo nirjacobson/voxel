@@ -15,7 +15,6 @@ struct ActionRegion;
 /* ActionRegion */
 
 typedef struct {
-    void* owner;
     struct Panel* panel;
     struct ActionRegion* actionRegion;
     unsigned int x;
