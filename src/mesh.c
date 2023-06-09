@@ -62,7 +62,6 @@ Mesh* mesh_init(Mesh* m) {
 
     linked_list_init(&mesh->quads);
 
-    glGenVertexArrays(1, &mesh->vao);
     glGenBuffers(1, &mesh->vbo);
     glGenBuffers(1, &mesh->ebo);
 
@@ -72,7 +71,6 @@ Mesh* mesh_init(Mesh* m) {
 void mesh_destroy(Mesh* mesh) {
     glDeleteBuffers(1, &mesh->ebo);
     glDeleteBuffers(1, &mesh->vbo);
-    glDeleteVertexArrays(1, &mesh->vao);
 
     linked_list_destroy(&mesh->quads, free);
 }
