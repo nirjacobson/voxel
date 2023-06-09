@@ -34,7 +34,6 @@ typedef struct ActionRegion {
 /* Panel */
 
 typedef struct Panel {
-    unsigned int vao;
     unsigned int vbo;
     unsigned int tex;
 

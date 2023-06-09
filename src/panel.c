@@ -39,7 +39,6 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
 
     linked_list_init(&panel->actionRegions);
 
-    glGenVertexArrays(1, &panel->vao);
     glGenBuffers(1, &panel->vbo);
     glGenTextures(1, &panel->tex);
 
@@ -60,7 +59,6 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
 void panel_destroy(Panel* panel) {
     glDeleteTextures(1, &panel->tex);
     glDeleteBuffers(1, &panel->vbo);
-    glDeleteVertexArrays(1, &panel->vao);
 
     linked_list_destroy(&panel->actionRegions, free);
 
