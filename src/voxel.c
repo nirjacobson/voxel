@@ -130,11 +130,14 @@ void voxel_draw(Voxel* voxel) {
     struct timeval oldFrameTime = voxel->frameTime;
     gettimeofday(&voxel->frameTime, NULL);
 
-    struct timeval elapsed;
-    timersub(&voxel->frameTime, &oldFrameTime, &elapsed);
-    long millisElapsed = (elapsed.tv_sec * 1000000 + elapsed.tv_usec) / 1000;
+    static int i = 0;
+    if ((i = (i + 1) % 10) == 0) {
+        struct timeval elapsed;
+        timersub(&voxel->frameTime, &oldFrameTime, &elapsed);
+        long millisElapsed = (elapsed.tv_sec * 1000000 + elapsed.tv_usec) / 1000;
 
-    fps_panel_set_fps(&voxel->fpsPanel, 1000.0 / millisElapsed);
+        fps_panel_set_fps(&voxel->fpsPanel, 1000.0 / millisElapsed);
+    }
 }
 
 
