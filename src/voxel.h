@@ -4,18 +4,16 @@
 #include <sys/time.h>
 
 #include "global.h"
+#include "application.h"
 #include "window.h"
 #include "renderer.h"
 #include "camera.h"
 #include "world.h"
 #include "picker.h"
 #include "panel.h"
-#include "picker_panel.h"
-#include "window.h"
-#include "application.h"
 #include "fps_panel.h"
 
-struct Voxel {
+typedef struct {
     Application application;
     Window window;
 
@@ -26,14 +24,10 @@ struct Voxel {
     Picker picker;
 
     PanelManager panelManager;
-    PickerPanel pickerPanel;
-
     FPSPanel fpsPanel;
 
     struct timeval frameTime;
-};
-
-typedef struct Voxel Voxel;
+} Voxel;
 
 Voxel* voxel_init(Voxel* v);
 void voxel_destroy(Voxel* voxel);

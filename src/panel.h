@@ -10,27 +10,6 @@
 
 struct Panel;
 struct PanelManager;
-struct ActionRegion;
-
-/* ActionRegion */
-
-typedef struct {
-    struct Panel* panel;
-    struct ActionRegion* actionRegion;
-    unsigned int x;
-    unsigned int y;
-} ActionRegionArgs;
-
-typedef struct ActionRegion {
-    unsigned int position[2];
-    unsigned int width;
-    unsigned int height;
-
-    void (*action_press)(ActionRegionArgs*);
-    void (*action_release)(ActionRegionArgs*);
-} ActionRegion;
-
-/* Panel */
 
 typedef struct Panel {
     unsigned int vbo;
@@ -46,15 +25,10 @@ typedef struct Panel {
     unsigned int position[2];
     unsigned int width;
     unsigned int height;
-
-    LinkedList actionRegions;
 } Panel;
 
 Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
 void panel_destroy(Panel* panel);
-
-void panel_add_action_region(Panel* panel, ActionRegion* actionRegion);
-void panel_action(Panel* panel, char action, unsigned int x, unsigned int y);
 
 void panel_set_position(Panel* panel, int x, int y);
 void panel_translate(Panel* panel, int x, int y);

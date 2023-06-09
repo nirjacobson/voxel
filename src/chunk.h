@@ -17,7 +17,6 @@ typedef struct {
     int width;
     int height;
     int length;
-    char dirty;
 } Chunk;
 
 /* Chunk */

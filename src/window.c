@@ -66,6 +66,10 @@ void window_toggle_fullscreen(Window* window) {
     }
 }
 
+char window_key_is_pressed(Window* window, int key) {
+    return glfwGetKey(window->glfwWindow, key) == GLFW_PRESS;
+}
+
 char window_mouse_state(Window* window, int* x, int* y) {
     double xd, yd;
     glfwGetCursorPos(window->glfwWindow, &xd, &yd);
@@ -77,8 +81,4 @@ char window_mouse_state(Window* window, int* x, int* y) {
     buttons |= glfwGetMouseButton(window->glfwWindow, GLFW_MOUSE_BUTTON_RIGHT);
 
     return buttons;
-}
-
-char window_key_is_pressed(Window* window, int key) {
-    return glfwGetKey(window->glfwWindow, key) == GLFW_PRESS;
 }

@@ -3,14 +3,6 @@
 
 /* Linked list processing callbacks */
 
-char coords_over_action_region(void* coordsPtr, void* actionRegionPtr) {
-    unsigned int* coords = (unsigned int*)coordsPtr;
-    ActionRegion* actionRegion = (ActionRegion*)actionRegionPtr;
-
-    return (coords[0] >= actionRegion->position[0]) && (coords[0] < (actionRegion->position[0] + actionRegion->width)) &&
-           (coords[1] >= actionRegion->position[1]) && (coords[1] < (actionRegion->position[1] + actionRegion->height));
-}
-
 char coords_over_panel(void* coordsPtr, void* panelPtr) {
     unsigned int* coords = (unsigned int*)coordsPtr;
     Panel* panel = (Panel*)panelPtr;
@@ -37,8 +29,6 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
     panel->drawCallback = drawCallback;
     panel->manager = manager;
 
-    linked_list_init(&panel->actionRegions);
-
     glGenBuffers(1, &panel->vbo);
     glGenTextures(1, &panel->tex);
 
@@ -60,44 +50,8 @@ void panel_destroy(Panel* panel) {
     glDeleteTextures(1, &panel->tex);
     glDeleteBuffers(1, &panel->vbo);
 
-    linked_list_destroy(&panel->actionRegions, free);
-
     cairo_destroy(panel->cr);
     cairo_surface_destroy(panel->surface);
-}
-
-void panel_add_action_region(Panel* panel, ActionRegion* actionRegion) {
-    linked_list_insert(&panel->actionRegions, actionRegion);
-}
-
-void panel_action(Panel* panel, char action, unsigned int x, unsigned int y) {
-    if (action == MOUSE_PRESS) {
-        panel->manager->active_panel = panel;
-    }
-
-    unsigned int coords[2] = { x, y };
-    LinkedListNode* node = linked_list_find(&panel->actionRegions, coords, coords_over_action_region);
-
-    if (node) {
-        ActionRegion* actionRegion = (ActionRegion*)node->data;
-        ActionRegionArgs args = {
-            panel,
-            actionRegion,
-            x - actionRegion->position[0],
-            y - actionRegion->position[1]
-        };
-
-        switch (action) {
-            case MOUSE_PRESS:
-                if (actionRegion->action_press)
-                    actionRegion->action_press(&args);
-                break;
-            case MOUSE_RELEASE:
-                if (actionRegion->action_release)
-                    actionRegion->action_release(&args);
-                break;
-        }
-    }
 }
 
 void panel_set_position(Panel* panel, int x, int y) {
