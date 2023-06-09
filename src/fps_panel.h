@@ -1,9 +1,6 @@
 #ifndef FPS_PANEL_H
 #define FPS_PANEL_H
 
-#define FPS_PANEL_WIDTH     128
-#define FPS_PANEL_HEIGHT     16
-
 #include <stdio.h>
 
 #include "panel.h"
