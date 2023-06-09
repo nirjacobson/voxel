@@ -1,25 +1,12 @@
 #include "picker.h"
 #include "internal/picker.h"
 
-/* Linked list processing callbacks */
-
-void scale_vertices_up(void* ptr, void* unused) {
-    Quad* quad = (Quad*)ptr;
-    vec3_scale(quad->vertices[0].position, quad->vertices[0].position, 1.05);
-    vec3_scale(quad->vertices[1].position, quad->vertices[1].position, 1.05);
-    vec3_scale(quad->vertices[2].position, quad->vertices[2].position, 1.05);
-    vec3_scale(quad->vertices[3].position, quad->vertices[3].position, 1.05);
-}
-
-/* Picker */
-
 void picker_init(Picker* p, World* world) {
     Picker* picker = p ? p : NEW(Picker, 1);
     picker->world = world;
 
     box_init(&picker->box);
     box_mesh(&picker->mesh, &picker->box);
-    linked_list_foreach(&picker->mesh.quads, scale_vertices_up, NULL);
 
     picker->dragging = 0;
     picker->mode = PICKER_ADJACENT;
