@@ -118,7 +118,6 @@ void renderer_render_chunk(Renderer* renderer, Chunk* chunk, float* position) {
 }
 
 void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
-    glBindVertexArray(mesh->vao);
     renderer_3D_use(renderer);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
@@ -131,7 +130,6 @@ void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
     for (int q=0; q<mesh->quads.size; q++)
         glDrawElements(mode == MESH_FILL ? GL_TRIANGLE_STRIP : GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*) (4*q*sizeof(GLushort)));
 
-    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
