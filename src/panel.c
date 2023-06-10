@@ -32,7 +32,7 @@ Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), PanelManag
     glGenBuffers(1, &panel->vbo);
     glGenTextures(1, &panel->tex);
 
-    GLfloat vertex_data[] =  {
+    float vertex_data[] =  {
         panel->position[0], panel->position[1], -0.5, 0, 0,
         panel->position[0], panel->position[1] + panel->height, -0.5, 0, 1,
         panel->position[0] + panel->width, panel->position[1], -0.5, 1, 0,
@@ -58,7 +58,7 @@ void panel_set_position(Panel* panel, int x, int y) {
     panel->position[0] = x;
     panel->position[1] = y;
 
-    GLfloat vertex_data[] =  {
+    float vertex_data[] =  {
         panel->position[0], panel->position[1], -0.5, 0, 0,
         panel->position[0], panel->position[1] + panel->height, -0.5, 0, 1,
         panel->position[0] + panel->width, panel->position[1], -0.5, 1, 0,

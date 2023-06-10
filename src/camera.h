@@ -8,10 +8,10 @@
 #include "matrix.h"
 
 typedef struct {
-    double fov;
-    double aspect;
-    double near;
-    double far;
+    float fov;
+    float aspect;
+    float near;
+    float far;
 
     float position[3];
     float forward[3];
@@ -28,6 +28,6 @@ Camera* camera_init(Camera* c);
 
 void camera_rotate(Camera* camera, float* axis, float radians);
 void camera_move(Camera* camera, float* direction, float amount);
-void camera_set_aspect(Camera* camera, double aspect);
+void camera_set_aspect(Camera* camera, float aspect);
 
 #endif // CAMERA_H
