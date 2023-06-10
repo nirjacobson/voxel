@@ -13,14 +13,14 @@ void fps_panel_destroy(FPSPanel* fpsPanel) {
     panel_destroy(&fpsPanel->panel);
 }
 
-void fps_panel_set_fps(FPSPanel* fpsPanel, double fps) {
+void fps_panel_set_fps(FPSPanel* fpsPanel, float fps) {
     fpsPanel->fps = fps;
 }
 
 void fps_panel_draw(void* fpsPanelPtr) {
     FPSPanel* fpsPanel = (FPSPanel*)fpsPanelPtr;
 
-    char fpsStr[12];
+    char fpsStr[25];
     sprintf(fpsStr, "%.2f FPS", fpsPanel->fps);
 
     cairo_set_source_rgba(fpsPanel->panel.cr, 0, 0, 0, 0);

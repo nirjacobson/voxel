@@ -205,7 +205,7 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    camera_set_aspect(&voxel->camera, (double)application->window->width / application->window->height);
+    camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
     renderer_resize(&voxel->renderer, application->window->width, application->window->height, &voxel->camera);
