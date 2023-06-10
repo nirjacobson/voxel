@@ -36,7 +36,7 @@ void renderer_clear(Renderer* renderer) {
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
     glViewport(0, 0, width, height);
 
-    camera_set_aspect(camera, (double)width / height);
+    camera_set_aspect(camera, (float)width / height);
 
     renderer_apply_camera(renderer, camera);
 }
@@ -96,9 +96,9 @@ void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
 
     glEnableVertexAttribArray(renderer->shaderProgram3D.attrib_position);
-    glVertexAttribPointer(renderer->shaderProgram3D.attrib_position, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
+    glVertexAttribPointer(renderer->shaderProgram3D.attrib_position, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
     glEnableVertexAttribArray(renderer->shaderProgram3D.attrib_normal);
-    glVertexAttribPointer(renderer->shaderProgram3D.attrib_normal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    glVertexAttribPointer(renderer->shaderProgram3D.attrib_normal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
 
     for (int q=0; q<mesh->quads.size; q++)
         glDrawElements(mode == MESH_FILL ? GL_TRIANGLE_STRIP : GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*) (4*q*sizeof(GLushort)));

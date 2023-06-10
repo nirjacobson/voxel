@@ -23,8 +23,8 @@ float* mat4_identity(float* mat4d);
 float* mat4_translate(float* mat4d, float* mat4s, float* vec3);
 float* mat4_rotate(float* mat4d, float* mat4s, float radians, float* vec3);
 float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b);
-float* mat4_perspective(float* mat4d, double fov, double aspect, double near, double far);
-float* mat4_orthographic(float* mat4d, double left, double right, double top, double bottom);
+float* mat4_perspective(float* mat4d, float fov, float aspect, float near, float far);
+float* mat4_orthographic(float* mat4d, float left, float right, float top, float bottom);
 
 float* vec3_add(float* vec3d, float* vec3a, float* vec3b);
 float* vec3_scale(float* vec3d, float* vec3s, float m);

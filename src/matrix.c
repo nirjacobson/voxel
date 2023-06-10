@@ -281,7 +281,7 @@ float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
     return mat4d;
 }
 
-float* mat4_perspective(float* mat4d, double fov, double aspect, double near, double far) {
+float* mat4_perspective(float* mat4d, float fov, float aspect, float near, float far) {
     float yc = 1 / tan(fov/2.0 * M_PI/180.0);
     float xc = yc / aspect;
     float zc = (near + far) / (near - far);
@@ -298,7 +298,7 @@ float* mat4_perspective(float* mat4d, double fov, double aspect, double near, do
     return mat4p;
 }
 
-float* mat4_orthographic(float* mat4d, double left, double right, double top, double bottom) {
+float* mat4_orthographic(float* mat4d, float left, float right, float top, float bottom) {
     float xc = 2.0 / (right - left);
     float xt = -(2.0 * left + right - left) / (right - left);
     float yc = -2.0 / (bottom - top);
