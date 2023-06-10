@@ -53,4 +53,3 @@ void camera_move(Camera* camera, float* direction, float amount) {
 void camera_set_aspect(Camera* camera, double aspect) {
     camera->aspect = aspect;
 }
-
