@@ -50,6 +50,6 @@ void camera_move(Camera* camera, float* direction, float amount) {
     mat4_translate(camera->mat_view, NULL, camera->position);
 }
 
-void camera_set_aspect(Camera* camera, double aspect) {
+void camera_set_aspect(Camera* camera, float aspect) {
     camera->aspect = aspect;
 }
