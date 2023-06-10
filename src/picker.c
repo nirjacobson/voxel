@@ -51,17 +51,17 @@ Box picker_merge_selections(Box* selectionA, Box* selectionB) {
     merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);
     merged.position[2] = MIN(selectionA->position[2], selectionB->position[2]);
 
-    GLfloat endpointA[] = {
+    float endpointA[] = {
         selectionA->position[0] + selectionA->width,
         selectionA->position[1] + selectionA->height,
         selectionA->position[2] + selectionA->length
     };
-    GLfloat endpointB[] = {
+    float endpointB[] = {
         selectionB->position[0] + selectionB->width,
         selectionB->position[1] + selectionB->height,
         selectionB->position[2] + selectionB->length
     };
-    GLfloat mergedEndpoint[] = {
+    float mergedEndpoint[] = {
         MAX(endpointA[0], endpointB[0]),
         MAX(endpointA[1], endpointB[1]),
         MAX(endpointA[2], endpointB[2])
@@ -153,7 +153,7 @@ void picker_set_action(Picker* picker, char action) {
     }
 }
 
-void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouseY) {
+void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     picker->ray[0] = mouseX;
     picker->ray[1] = mouseY;
     picker->ray[2] =   1;
@@ -171,11 +171,11 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
 
     vec3_normalize(picker->ray, picker->ray);
 
-    GLfloat ray[3];
-    GLfloat ray_point[3];
+    float ray[3];
+    float ray_point[3];
     int block_location[3];
     int block_location_adjacent[3];
-    memcpy(ray_point, camera->position, 3*sizeof(GLfloat));
+    memcpy(ray_point, camera->position, 3*sizeof(float));
     vec3_scale(ray, picker->ray, 0.2);
     Block* block;
     int i;
@@ -222,7 +222,7 @@ void picker_update(Picker* picker, Camera* camera, GLfloat mouseX, GLfloat mouse
     box_mesh(&picker->mesh, &picker->box);
 
     if (picker->selection.model) {
-        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(GLfloat));
+        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(float));
         box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
     }

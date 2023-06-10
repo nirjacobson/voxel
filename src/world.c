@@ -94,7 +94,7 @@ LinkedList* world_draw_list(Camera* camera) {
                               chunkIDStart.y * WORLD_CHUNK_LENGTH,
                               chunkIDStart.z * WORLD_CHUNK_LENGTH
                             };
-    GLfloat vec[3];
+    float vec[3];
 
     vec3_scale(vec, aabb.right, aabb.width);
     vec3_add(vec, aabb.position, vec);

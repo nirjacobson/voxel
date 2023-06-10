@@ -82,7 +82,7 @@ void mesh_calc_normals(Mesh* mesh) {
 void mesh_buffer(Mesh* mesh, char mode) {
     int num_elements_f = mesh->quads.size * 4;
     int num_vertices_f = num_elements_f * 6;
-    GLfloat* vertex_data = NEW(GLfloat, num_vertices_f);
+    float* vertex_data = NEW(float, num_vertices_f);
     GLushort*  elements    = NEW(GLushort, num_elements_f);
 
     LinkedListNode* node = mesh->quads.head;
@@ -106,7 +106,7 @@ void mesh_buffer(Mesh* mesh, char mode) {
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_vertices_f*sizeof(GLfloat), vertex_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, num_vertices_f*sizeof(float), vertex_data, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_elements_f*sizeof(GLushort), elements, GL_STATIC_DRAW);
