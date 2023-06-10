@@ -36,6 +36,8 @@ void renderer_clear(Renderer* renderer) {
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
     glViewport(0, 0, width, height);
 
+    camera_set_aspect(camera, (double)width / height);
+
     renderer_apply_camera(renderer, camera);
 }
 

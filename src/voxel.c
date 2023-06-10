@@ -113,8 +113,6 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    camera_set_aspect(&voxel->camera, (double)application->window->width / application->window->height);
-
     renderer_resize(&voxel->renderer, application->window->width, application->window->height, &voxel->camera);
 }
 
