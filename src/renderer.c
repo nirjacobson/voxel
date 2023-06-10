@@ -88,7 +88,7 @@ void renderer_clear(Renderer* renderer) {
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
     glViewport(0, 0, width, height);
 
-    GLfloat mat[16];
+    float mat[16];
     mat4_orthographic(mat, 0, width, 0, height);
     renderer_2D_update_projection(renderer, mat);
     camera_set_aspect(camera, (double)width / height);
