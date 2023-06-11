@@ -246,7 +246,6 @@ void renderer_render_picker(Renderer* renderer, Picker* picker) {
     renderer_render_mesh(renderer, &picker->mesh, MESH_LINE);
 }
 
-
 void renderer_render_panels(Renderer* renderer, LinkedList* panels) {
     linked_list_foreach(panels, render_panel, renderer);
 }
