@@ -15,8 +15,6 @@ void picker_panel_bluebar_press(ActionRegionArgs* args) {
     PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
 
     BLOCK_COLOR_SET_BLUE(pickerPanel->picker->color, args->x / 15);
-    picker_panel_draw_bluebar(pickerPanel);
-    picker_panel_draw_palette(pickerPanel);
 }
 
 void picker_panel_palette_press(ActionRegionArgs* args) {
@@ -24,19 +22,16 @@ void picker_panel_palette_press(ActionRegionArgs* args) {
 
     BLOCK_COLOR_SET_RED(pickerPanel->picker->color, 7 - (args->y / 15));
     BLOCK_COLOR_SET_GREEN(pickerPanel->picker->color, args->x / 15);
-    picker_panel_draw_palette(pickerPanel);
 }
 
 void picker_panel_pencil_button_press(ActionRegionArgs* args) {
     PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_SET);
-    picker_panel_draw_buttons(pickerPanel);
 }
 
 void picker_panel_eraser_button_press(ActionRegionArgs* args) {
     PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
     picker_set_action(pickerPanel->picker, PICKER_CLEAR);
-    picker_panel_draw_buttons(pickerPanel);
 }
 
 /* PickerPanel */
