@@ -64,12 +64,10 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
 
     if (block || block_location[1] == -1) {
         if (!picker->dragging) {
-            if(picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-                if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
-                    memcpy(picker->positionStart, block_location, 3*sizeof(int));
-                } else {
-                    memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
-                }
+            if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
+                memcpy(picker->positionStart, block_location, 3*sizeof(int));
+            } else {
+                memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
             }
         }
         if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
