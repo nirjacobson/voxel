@@ -125,29 +125,26 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
         if (picker->action == PICKER_MOVE) {
             picker_set_action(picker, PICKER_SELECT);
         }
-    } else {
-        picker->selection.present = 0;
-        if (picker->action == PICKER_EYEDROPPER) {
-            Block* block = world_get_block(picker->world, picker->positionEnd);
-            picker->color = block_color(block);
-        } else if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-            for (int x = 0; x < picker->box.width; x++) {
-                for (int y = 0; y < picker->box.height; y++) {
-                    for (int z = 0; z < picker->box.length; z++) {
-                        int location[3] = {
-                            picker->box.position[0] + x,
-                            picker->box.position[1] + y,
-                            picker->box.position[2] + z
-                        };
-                        switch (picker->action) {
-                            case PICKER_CLEAR:
-                                world_block_set_active(picker->world, location, 0);
-                                break;
-                            case PICKER_SET:
-                                world_block_set_color(picker->world, location, picker->color);
-                                world_block_set_active(picker->world, location, 1);
-                                break;
-                        }
+    } else if (picker->action == PICKER_EYEDROPPER) {
+        Block* block = world_get_block(picker->world, picker->positionEnd);
+        picker->color = block_color(block);
+    } else if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
+        for (int x = 0; x < picker->box.width; x++) {
+            for (int y = 0; y < picker->box.height; y++) {
+                for (int z = 0; z < picker->box.length; z++) {
+                    int location[3] = {
+                        picker->box.position[0] + x,
+                        picker->box.position[1] + y,
+                        picker->box.position[2] + z
+                    };
+                    switch (picker->action) {
+                        case PICKER_CLEAR:
+                            world_block_set_active(picker->world, location, 0);
+                            break;
+                        case PICKER_SET:
+                            world_block_set_color(picker->world, location, picker->color);
+                            world_block_set_active(picker->world, location, 1);
+                            break;
                     }
                 }
             }
