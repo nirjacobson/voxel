@@ -8,10 +8,6 @@ void picker_init(Picker* p, World* world) {
     box_init(&picker->box);
     box_mesh(&picker->mesh, &picker->box);
 
-    picker->selection.model = NULL;
-    picker->selection.rotation = 0;
-    picker->selection.present = 0;
-
     picker->dragging = 0;
     picker->mode = PICKER_ADJACENT;
     picker->action = PICKER_SET;
@@ -68,7 +64,7 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
 
     if (block || block_location[1] == -1) {
         if (!picker->dragging) {
-            if(picker->action == PICKER_SELECT || picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
+            if(picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
                 if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
                     memcpy(picker->positionStart, block_location, 3*sizeof(int));
                 } else {
@@ -92,13 +88,6 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
 
     mesh_destroy(&picker->mesh);
     box_mesh(&picker->mesh, &picker->box);
-
-    if (picker->selection.model) {
-        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(float));
-        box_mesh(&picker->selection.mesh, &picker->selection.box);
-        picker->selection.present = 1;
-    }
-
 }
 
 void picker_press(Picker* picker, char modifier1, char modifier2) {
@@ -124,39 +113,23 @@ void picker_release(Picker* picker, char modifier1, char modifier2) {
 }
 
 void picker_act(Picker* picker, char modifier1, char modifier2) {
-    if (picker->action == PICKER_SELECT) {
-        picker->selection.box = modifier1 ? picker_merge_selections(&picker->selection.box, &picker->box) : picker->box;
-        box_mesh(&picker->selection.mesh, &picker->selection.box);
-        picker->selection.present = 1;
-        picker->selection.rotation = 0;
-    } else if (picker->action == PICKER_STAMP || picker->action == PICKER_MOVE) {
-        world_set_chunk(picker->world, picker->selection.model, picker->positionEnd, picker->selection.rotation);
-        if (picker->action == PICKER_MOVE) {
-            picker_set_action(picker, PICKER_SELECT);
-        }
-    } else {
-        picker->selection.present = 0;
-        if (picker->action == PICKER_EYEDROPPER) {
-            Block* block = world_get_block(picker->world, picker->positionEnd);
-            picker->color = block_color(block);
-        } else if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-            for (int x = 0; x < picker->box.width; x++) {
-                for (int y = 0; y < picker->box.height; y++) {
-                    for (int z = 0; z < picker->box.length; z++) {
-                        int location[3] = {
-                            picker->box.position[0] + x,
-                            picker->box.position[1] + y,
-                            picker->box.position[2] + z
-                        };
-                        switch (picker->action) {
-                            case PICKER_CLEAR:
-                                world_block_set_active(picker->world, location, 0);
-                                break;
-                            case PICKER_SET:
-                                world_block_set_color(picker->world, location, picker->color);
-                                world_block_set_active(picker->world, location, 1);
-                                break;
-                        }
+    if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
+        for (int x = 0; x < picker->box.width; x++) {
+            for (int y = 0; y < picker->box.height; y++) {
+                for (int z = 0; z < picker->box.length; z++) {
+                    int location[3] = {
+                        picker->box.position[0] + x,
+                        picker->box.position[1] + y,
+                        picker->box.position[2] + z
+                    };
+                    switch (picker->action) {
+                        case PICKER_CLEAR:
+                            world_block_set_active(picker->world, location, 0);
+                            break;
+                        case PICKER_SET:
+                            world_block_set_color(picker->world, location, picker->color);
+                            world_block_set_active(picker->world, location, 1);
+                            break;
                     }
                 }
             }
@@ -164,52 +137,6 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
     }
 }
 
-Box picker_merge_selections(Box* selectionA, Box* selectionB) {
-    Box merged;
-    box_init(&merged);
-
-    merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
-    merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);
-    merged.position[2] = MIN(selectionA->position[2], selectionB->position[2]);
-
-    float endpointA[] = {
-        selectionA->position[0] + selectionA->width,
-        selectionA->position[1] + selectionA->height,
-        selectionA->position[2] + selectionA->length
-    };
-    float endpointB[] = {
-        selectionB->position[0] + selectionB->width,
-        selectionB->position[1] + selectionB->height,
-        selectionB->position[2] + selectionB->length
-    };
-    float mergedEndpoint[] = {
-        MAX(endpointA[0], endpointB[0]),
-        MAX(endpointA[1], endpointB[1]),
-        MAX(endpointA[2], endpointB[2])
-    };
-
-    merged.width = mergedEndpoint[0] - merged.position[0];
-    merged.height = mergedEndpoint[1] - merged.position[1];
-    merged.length = mergedEndpoint[2] - merged.position[2];
-
-    return merged;
-}
-
 void picker_set_action(Picker* picker, char action) {
     picker->action = action;
-
-    if (action == PICKER_STAMP || action == PICKER_MOVE) {
-        picker->selection.model = action == PICKER_STAMP
-                                  ? world_copy_chunk(picker->world, &picker->selection.box)
-                                  : world_cut_chunk(picker->world, &picker->selection.box);
-        chunk_mesh(picker->selection.model);
-        picker->mode = PICKER_ADJACENT;
-    }  else {
-        picker->selection.present = 0;
-        if (picker->selection.model) {
-            chunk_destroy(picker->selection.model);
-            free(picker->selection.model);
-            picker->selection.model = NULL;
-        }
-    }
 }

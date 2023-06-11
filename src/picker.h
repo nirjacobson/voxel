@@ -6,23 +6,11 @@
 #include "camera.h"
 #include "world.h"
 
-#define PICKER_ONTO        1
-#define PICKER_ADJACENT    2
+#define PICKER_ONTO     1
+#define PICKER_ADJACENT 2
 
-#define PICKER_CLEAR       3
-#define PICKER_SET         4
-#define PICKER_EYEDROPPER  5
-#define PICKER_SELECT      6
-#define PICKER_STAMP       7
-#define PICKER_MOVE        8
-
-typedef struct {
-    Box box;
-    Mesh mesh;
-    Chunk* model;
-    char rotation;
-    char present;
-} Selection;
+#define PICKER_CLEAR    3
+#define PICKER_SET      4
 
 typedef struct {
     World* world;
@@ -31,7 +19,6 @@ typedef struct {
     int positionEnd[3];
     Box box;
     Mesh mesh;
-    Selection selection;
 
     char dragging;
     char mode;

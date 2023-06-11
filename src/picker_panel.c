@@ -39,30 +39,6 @@ void picker_panel_eraser_button_press(ActionRegionArgs* args) {
     picker_panel_draw_buttons(pickerPanel);
 }
 
-void picker_panel_dropper_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
-    picker_set_action(pickerPanel->picker, PICKER_EYEDROPPER);
-    picker_panel_draw_buttons(pickerPanel);
-}
-
-void picker_panel_select_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
-    picker_set_action(pickerPanel->picker, PICKER_SELECT);
-    picker_panel_draw_buttons(pickerPanel);
-}
-
-void picker_panel_stamp_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
-    picker_set_action(pickerPanel->picker, PICKER_STAMP);
-    picker_panel_draw_buttons(pickerPanel);
-}
-
-void picker_panel_move_button_press(ActionRegionArgs* args) {
-    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
-    picker_set_action(pickerPanel->picker, PICKER_MOVE);
-    picker_panel_draw_buttons(pickerPanel);
-}
-
 /* PickerPanel */
 
 PickerPanel* picker_panel_init(PickerPanel* pp, PanelManager* panelManager, Picker* picker) {
@@ -75,14 +51,6 @@ PickerPanel* picker_panel_init(PickerPanel* pp, PanelManager* panelManager, Pick
     pickerPanel->pencil_button_surface_selected = cairo_image_surface_create_from_png("img/pencil-selected.png");
     pickerPanel->eraser_button_surface_natural = cairo_image_surface_create_from_png("img/eraser-natural.png");
     pickerPanel->eraser_button_surface_selected = cairo_image_surface_create_from_png("img/eraser-selected.png");
-    pickerPanel->dropper_button_surface_natural = cairo_image_surface_create_from_png("img/color-dropper-natural.png");
-    pickerPanel->dropper_button_surface_selected = cairo_image_surface_create_from_png("img/color-dropper-selected.png");
-    pickerPanel->select_button_surface_natural = cairo_image_surface_create_from_png("img/select-natural.png");
-    pickerPanel->select_button_surface_selected = cairo_image_surface_create_from_png("img/select-selected.png");
-    pickerPanel->stamp_button_surface_natural = cairo_image_surface_create_from_png("img/stamp-natural.png");
-    pickerPanel->stamp_button_surface_selected = cairo_image_surface_create_from_png("img/stamp-selected.png");
-    pickerPanel->move_button_surface_natural = cairo_image_surface_create_from_png("img/move-natural.png");
-    pickerPanel->move_button_surface_selected = cairo_image_surface_create_from_png("img/move-selected.png");
 
     pickerPanel->picker = picker;
 
@@ -93,23 +61,11 @@ PickerPanel* picker_panel_init(PickerPanel* pp, PanelManager* panelManager, Pick
     picker_panel_add_palette_action_region(pickerPanel);
     picker_panel_add_pencil_button_action_region(pickerPanel);
     picker_panel_add_eraser_button_action_region(pickerPanel);
-    picker_panel_add_dropper_button_action_region(pickerPanel);
-    picker_panel_add_select_button_action_region(pickerPanel);
-    picker_panel_add_stamp_button_action_region(pickerPanel);
-    picker_panel_add_move_button_action_region(pickerPanel);
 
     return pickerPanel;
 }
 
 void picker_panel_destroy(PickerPanel* pickerPanel) {
-    cairo_surface_destroy(pickerPanel->move_button_surface_selected);
-    cairo_surface_destroy(pickerPanel->move_button_surface_natural);
-    cairo_surface_destroy(pickerPanel->stamp_button_surface_selected);
-    cairo_surface_destroy(pickerPanel->stamp_button_surface_natural);
-    cairo_surface_destroy(pickerPanel->select_button_surface_selected);
-    cairo_surface_destroy(pickerPanel->select_button_surface_natural);
-    cairo_surface_destroy(pickerPanel->dropper_button_surface_selected);
-    cairo_surface_destroy(pickerPanel->dropper_button_surface_natural);
     cairo_surface_destroy(pickerPanel->eraser_button_surface_selected);
     cairo_surface_destroy(pickerPanel->eraser_button_surface_natural);
     cairo_surface_destroy(pickerPanel->pencil_button_surface_selected);
@@ -221,57 +177,9 @@ void picker_panel_draw_eraser_button(PickerPanel* pickerPanel) {
     cairo_paint(pickerPanel->panel.cr);
 }
 
-void picker_panel_draw_dropper_button(PickerPanel* pickerPanel) {
-    cairo_surface_t* glyph =
-        pickerPanel->picker->action == PICKER_EYEDROPPER
-        ? pickerPanel->dropper_button_surface_selected
-        : pickerPanel->dropper_button_surface_natural;
-
-    cairo_set_source_surface(pickerPanel->panel.cr, glyph, COLOR_DROPPER_BUTTON_X, COLOR_DROPPER_BUTTON_Y);
-    cairo_paint(pickerPanel->panel.cr);
-}
-
-void picker_panel_draw_select_button(PickerPanel* pickerPanel) {
-    cairo_surface_t* glyph =
-        pickerPanel->picker->action == PICKER_SELECT
-        ? pickerPanel->select_button_surface_selected
-        : pickerPanel->select_button_surface_natural;
-
-    cairo_set_source_surface(pickerPanel->panel.cr, glyph, SELECT_BUTTON_X, SELECT_BUTTON_Y);
-    cairo_paint(pickerPanel->panel.cr);
-}
-
-void picker_panel_draw_stamp_button(PickerPanel* pickerPanel) {
-    if (pickerPanel->picker->selection.present) {
-        cairo_surface_t* glyph =
-            pickerPanel->picker->action == PICKER_STAMP
-            ? pickerPanel->stamp_button_surface_selected
-            : pickerPanel->stamp_button_surface_natural;
-
-        cairo_set_source_surface(pickerPanel->panel.cr, glyph, STAMP_BUTTON_X, STAMP_BUTTON_Y);
-        cairo_paint(pickerPanel->panel.cr);
-    }
-}
-
-void picker_panel_draw_move_button(PickerPanel* pickerPanel) {
-    if (pickerPanel->picker->selection.present) {
-        cairo_surface_t* glyph =
-            pickerPanel->picker->action == PICKER_MOVE
-            ? pickerPanel->move_button_surface_selected
-            : pickerPanel->move_button_surface_natural;
-
-        cairo_set_source_surface(pickerPanel->panel.cr, glyph, MOVE_BUTTON_X, MOVE_BUTTON_Y);
-        cairo_paint(pickerPanel->panel.cr);
-    }
-}
-
 void picker_panel_draw_buttons(PickerPanel* pickerPanel) {
     picker_panel_draw_pencil_button(pickerPanel);
     picker_panel_draw_eraser_button(pickerPanel);
-    picker_panel_draw_dropper_button(pickerPanel);
-    picker_panel_draw_select_button(pickerPanel);
-    picker_panel_draw_stamp_button(pickerPanel);
-    picker_panel_draw_move_button(pickerPanel);
 }
 
 void picker_panel_draw(void* pickerPanelPtr) {
@@ -338,54 +246,6 @@ void picker_panel_add_eraser_button_action_region(PickerPanel* pickerPanel) {
     actionRegion->width = BUTTON_WIDTH;
     actionRegion->height = BUTTON_HEIGHT;
     actionRegion->action_press = picker_panel_eraser_button_press;
-    actionRegion->action_release = NULL;
-    panel_add_action_region(&pickerPanel->panel, actionRegion);
-}
-
-void picker_panel_add_dropper_button_action_region(PickerPanel* pickerPanel) {
-    ActionRegion* actionRegion = NEW(ActionRegion, 1);
-
-    actionRegion->position[0] = COLOR_DROPPER_BUTTON_X;
-    actionRegion->position[1] = COLOR_DROPPER_BUTTON_Y;
-    actionRegion->width = BUTTON_WIDTH;
-    actionRegion->height = BUTTON_HEIGHT;
-    actionRegion->action_press = picker_panel_dropper_button_press;
-    actionRegion->action_release = NULL;
-    panel_add_action_region(&pickerPanel->panel, actionRegion);
-}
-
-void picker_panel_add_select_button_action_region(PickerPanel* pickerPanel) {
-    ActionRegion* actionRegion = NEW(ActionRegion, 1);
-
-    actionRegion->position[0] = SELECT_BUTTON_X;
-    actionRegion->position[1] = SELECT_BUTTON_Y;
-    actionRegion->width = BUTTON_WIDTH;
-    actionRegion->height = BUTTON_HEIGHT;
-    actionRegion->action_press = picker_panel_select_button_press;
-    actionRegion->action_release = NULL;
-    panel_add_action_region(&pickerPanel->panel, actionRegion);
-}
-
-void picker_panel_add_stamp_button_action_region(PickerPanel* pickerPanel) {
-    ActionRegion* actionRegion = NEW(ActionRegion, 1);
-
-    actionRegion->position[0] = STAMP_BUTTON_X;
-    actionRegion->position[1] = STAMP_BUTTON_Y;
-    actionRegion->width = BUTTON_WIDTH;
-    actionRegion->height = BUTTON_HEIGHT;
-    actionRegion->action_press = picker_panel_stamp_button_press;
-    actionRegion->action_release = NULL;
-    panel_add_action_region(&pickerPanel->panel, actionRegion);
-}
-
-void picker_panel_add_move_button_action_region(PickerPanel* pickerPanel) {
-    ActionRegion* actionRegion = NEW(ActionRegion, 1);
-
-    actionRegion->position[0] = MOVE_BUTTON_X;
-    actionRegion->position[1] = MOVE_BUTTON_Y;
-    actionRegion->width = BUTTON_WIDTH;
-    actionRegion->height = BUTTON_HEIGHT;
-    actionRegion->action_press = picker_panel_move_button_press;
     actionRegion->action_release = NULL;
     panel_add_action_region(&pickerPanel->panel, actionRegion);
 }

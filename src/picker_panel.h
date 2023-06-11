@@ -12,14 +12,6 @@ typedef struct {
     cairo_surface_t* pencil_button_surface_selected;
     cairo_surface_t* eraser_button_surface_natural;
     cairo_surface_t* eraser_button_surface_selected;
-    cairo_surface_t* dropper_button_surface_natural;
-    cairo_surface_t* dropper_button_surface_selected;
-    cairo_surface_t* select_button_surface_natural;
-    cairo_surface_t* select_button_surface_selected;
-    cairo_surface_t* stamp_button_surface_natural;
-    cairo_surface_t* stamp_button_surface_selected;
-    cairo_surface_t* move_button_surface_natural;
-    cairo_surface_t* move_button_surface_selected;
 
     Picker* picker;
 } PickerPanel;

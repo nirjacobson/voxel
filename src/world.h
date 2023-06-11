@@ -5,7 +5,6 @@
 
 #include <stdlib.h>
 
-#include "box.h"
 #include "camera.h"
 #include "chunk.h"
 #include "linked_list.h"
@@ -27,9 +26,5 @@ void world_destroy(World* world);
 Block* world_get_block(World* world, int* location);
 void world_block_set_active(World* world, int* location, char active);
 void world_block_set_color(World* world, int* location, uint16_t color);
-
-Chunk* world_copy_chunk(World* world, Box* box);
-Chunk* world_cut_chunk(World* world, Box* box);
-void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation);
 
 #endif // WORLD_H

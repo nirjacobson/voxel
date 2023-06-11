@@ -75,18 +75,6 @@ char voxel_process_input(Voxel* voxel) {
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_2))
         picker_set_action(&voxel->picker, PICKER_CLEAR);
 
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Q))
-        picker_set_action(&voxel->picker, PICKER_EYEDROPPER);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Z))
-        picker_set_action(&voxel->picker, PICKER_SELECT);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_X))
-        picker_set_action(&voxel->picker, PICKER_STAMP);
-
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_C))
-        picker_set_action(&voxel->picker, PICKER_MOVE);
-
     f[1] = f[0];
     f[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_F);
     if (!f[1] && f[0]) {
@@ -128,19 +116,7 @@ char voxel_process_input(Voxel* voxel) {
     }
 
     if ((mouseButtons[0] & MOUSE_BUTTON_RIGHT) != (mouseButtons[1] & MOUSE_BUTTON_RIGHT)) {
-        if (!(mouseButtons[0] & MOUSE_BUTTON_LEFT)) {
-            voxel->panelManager.dragging = 0;
-        }
-
-        Panel* panel = panel_manager_find_panel(&voxel->panelManager, mouseX[0], mouseY[0]);
-
-        if (panel) {
-
-        } else if (mouseButtons[0] & MOUSE_BUTTON_RIGHT) {
-
-        } else {
-            voxel->picker.selection.rotation = (voxel->picker.selection.rotation + 1) % 4;
-        }
+        // ...
     }
 
     return 1;

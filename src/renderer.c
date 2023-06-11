@@ -200,52 +200,14 @@ void renderer_render_world(Renderer* renderer, World* world, Camera* camera) {
 
 void renderer_render_picker(Renderer* renderer, Picker* picker) {
     float mat[16];
-    float vec[3];
 
-    if (picker->selection.present) {
-        mat4_rotate(mat, NULL, (M_PI/2) * picker->selection.rotation, Y);
-        switch (picker->selection.rotation) {
-            case 0:
-                break;
-            case 1:
-                vec[0] = 0;
-                vec[1] = 0;
-                vec[2] = picker->selection.box.width;
-                mat4_translate(mat, mat, vec);
-                break;
-            case 2:
-                vec[0] = picker->selection.box.width;
-                vec[1] = 0;
-                vec[2] = picker->selection.box.length;
-                mat4_translate(mat, mat, vec);
-                break;
-            case 3:
-                vec[0] = picker->selection.box.length;
-                vec[1] = 0;
-                vec[2] = 0;
-                mat4_translate(mat, mat, vec);
-                break;
-            default:
-                break;
-        }
-        renderer_3D_update_model(renderer, mat);
-        renderer_3D_update_world_position(renderer, picker->selection.box.position);
-        renderer_3D_update_color(renderer, 0,255,255);
-        renderer_render_mesh(renderer, &picker->selection.mesh, MESH_LINE);
-    }
-
-    if (picker->selection.model) {
-        renderer_render_chunk(renderer, picker->selection.model, picker->box.position);
-    } else {
-        renderer_3D_update_world_position(renderer, picker->box.position);
-        renderer_3D_update_color(renderer, 255,255,0);
-        renderer_render_mesh(renderer, &picker->mesh, MESH_LINE);
-    }
+    renderer_3D_update_world_position(renderer, picker->box.position);
+    renderer_3D_update_color(renderer, 255,255,0);
+    renderer_render_mesh(renderer, &picker->mesh, MESH_LINE);
 
     mat4_identity(mat);
     renderer_3D_update_model(renderer, mat);
 }
-
 
 void renderer_render_panels(Renderer* renderer, LinkedList* panels) {
     linked_list_foreach(panels, render_panel, renderer);
