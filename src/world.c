@@ -240,14 +240,14 @@ void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation) {
                         break;
                     case 1:
                         blockLocation[0] = location[0] + z;
-                        blockLocation[2] = location[2] - x - 1 + chunk->width;
+                        blockLocation[2] = location[2] - x;
                         break;
                     case 2:
-                        blockLocation[0] = location[0] - x - 1 + chunk->width;
-                        blockLocation[2] = location[2] - z - 1 + chunk->length;
+                        blockLocation[0] = location[0] - x;
+                        blockLocation[2] = location[2] - z;
                         break;
                     case 3:
-                        blockLocation[0] = location[0] - z - 1 + chunk->length;
+                        blockLocation[0] = location[0] - z;
                         blockLocation[2] = location[2] + x;
                         break;
                 }

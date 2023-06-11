@@ -68,12 +68,10 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
 
     if (block || block_location[1] == -1) {
         if (!picker->dragging) {
-            if(picker->action == PICKER_SELECT || picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-                if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
-                    memcpy(picker->positionStart, block_location, 3*sizeof(int));
-                } else {
-                    memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
-                }
+            if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
+                memcpy(picker->positionStart, block_location, 3*sizeof(int));
+            } else {
+                memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
             }
         }
         if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
@@ -92,13 +90,6 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
 
     mesh_destroy(&picker->mesh);
     box_mesh(&picker->mesh, &picker->box);
-
-    if (picker->selection.model) {
-        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(float));
-        box_mesh(&picker->selection.mesh, &picker->selection.box);
-        picker->selection.present = 1;
-    }
-
 }
 
 void picker_press(Picker* picker, char modifier1, char modifier2) {
