@@ -1,24 +1,12 @@
 #include "picker.h"
 #include "internal/picker.h"
 
-/* Linked list processing callbacks */
-
-void scale_vertices_up(void* ptr, void* unused) {
-    Quad* quad = (Quad*)ptr;
-    vec3_scale(quad->vertices[0].position, quad->vertices[0].position, 1.05);
-    vec3_scale(quad->vertices[1].position, quad->vertices[1].position, 1.05);
-    vec3_scale(quad->vertices[2].position, quad->vertices[2].position, 1.05);
-    vec3_scale(quad->vertices[3].position, quad->vertices[3].position, 1.05);
-}
-
-/* Picker */
-
-void picker_init(Picker* p) {
+void picker_init(Picker* p, World* world) {
     Picker* picker = p ? p : NEW(Picker, 1);
+    picker->world = world;
 
     box_init(&picker->box);
     box_mesh(&picker->mesh, &picker->box);
-    linked_list_foreach(&picker->mesh.quads, scale_vertices_up, NULL);
 
     picker->selection.model = NULL;
     picker->selection.rotation = 0;
@@ -35,43 +23,104 @@ void picker_destroy(Picker* picker) {
     mesh_destroy(&picker->mesh);
 }
 
-void picker_mode(Picker* picker, char mode) {
-    picker->mode = mode;
+void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
+    float ray[4];
+    ray[0] = mouseX;
+    ray[1] = mouseY;
+    ray[2] =  -1;
+    ray[3] = 1.0;
+
+    // undivide by W
+    vec4_scale(ray, ray, camera->near);
+
+    vec4_transform(ray, camera->mat_proj_inv, ray);
+    ray[2] = -camera->near; // for accuracy
+    ray[3] =  0;
+
+    vec4_transform(ray, camera->mat_model, ray);
+    vec4_transform(ray, camera->mat_view, ray);
+
+    vec3_normalize(ray, ray);
+    vec3_scale(ray, ray, 0.2);
+
+    float ray_point[3];
+    memcpy(ray_point, camera->position, 3*sizeof(float));
+
+    Block* block;
+    int block_location[3];
+    int block_location_adjacent[3];
+    for (int i = 0; i < 1000; ++i) {
+        memcpy(block_location_adjacent, block_location, 3*sizeof(int));
+        block_location[0] = floor(ray_point[0]);
+        block_location[1] = floor(ray_point[1]);
+        block_location[2] = floor(ray_point[2]);
+
+        block = world_get_block(picker->world, block_location);
+
+        if (block_location[1] < 0)
+            break;
+
+        if (block && block_is_active(block))
+            break;
+
+        vec3_add(ray_point, ray_point, ray);
+    }
+
+    if (block || block_location[1] == -1) {
+        if (!picker->dragging) {
+            if(picker->action == PICKER_SELECT || picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
+                if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
+                    memcpy(picker->positionStart, block_location, 3*sizeof(int));
+                } else {
+                    memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
+                }
+            }
+        }
+        if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
+            memcpy(picker->positionEnd, block_location, 3*sizeof(int));
+        } else {
+            memcpy(picker->positionEnd, block_location_adjacent, 3*sizeof(int));
+        }
+    }
+
+    picker->box.position[0] = MIN(picker->positionStart[0], picker->positionEnd[0]);
+    picker->box.position[1] = MIN(picker->positionStart[1], picker->positionEnd[1]);
+    picker->box.position[2] = MIN(picker->positionStart[2],  picker->positionEnd[2]);
+    picker->box.width = abs(picker->positionEnd[0] - picker->positionStart[0]) + 1;
+    picker->box.height = abs(picker->positionEnd[1] - picker->positionStart[1]) + 1;
+    picker->box.length = abs(picker->positionEnd[2] - picker->positionStart[2]) + 1;
+
+    mesh_destroy(&picker->mesh);
+    box_mesh(&picker->mesh, &picker->box);
+
+    if (picker->selection.model) {
+        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(float));
+        box_mesh(&picker->selection.mesh, &picker->selection.box);
+        picker->selection.present = 1;
+    }
+
 }
 
 void picker_press(Picker* picker, char modifier1, char modifier2) {
     picker->dragging = 1;
 }
 
-Box picker_merge_selections(Box* selectionA, Box* selectionB) {
-    Box merged;
-    box_init(&merged);
+void picker_release(Picker* picker, char modifier1, char modifier2) {
+    picker->dragging = 0;
 
-    merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
-    merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);
-    merged.position[2] = MIN(selectionA->position[2], selectionB->position[2]);
+    picker_act(picker, modifier1, modifier2);
 
-    float endpointA[] = {
-        selectionA->position[0] + selectionA->width,
-        selectionA->position[1] + selectionA->height,
-        selectionA->position[2] + selectionA->length
-    };
-    float endpointB[] = {
-        selectionB->position[0] + selectionB->width,
-        selectionB->position[1] + selectionB->height,
-        selectionB->position[2] + selectionB->length
-    };
-    float mergedEndpoint[] = {
-        MAX(endpointA[0], endpointB[0]),
-        MAX(endpointA[1], endpointB[1]),
-        MAX(endpointA[2], endpointB[2])
-    };
+    memcpy(picker->positionStart, picker->positionEnd, 3*sizeof(int));
 
-    merged.width = mergedEndpoint[0] - merged.position[0];
-    merged.height = mergedEndpoint[1] - merged.position[1];
-    merged.length = mergedEndpoint[2] - merged.position[2];
+    picker->box.position[0] = picker->positionEnd[0];
+    picker->box.position[1] = picker->positionEnd[1];
+    picker->box.position[2] = picker->positionEnd[2];
+    picker->box.width = 1;
+    picker->box.height = 1;
+    picker->box.length = 1;
 
-    return merged;
+    mesh_destroy(&picker->mesh);
+    box_mesh(&picker->mesh, &picker->box);
 }
 
 void picker_act(Picker* picker, char modifier1, char modifier2) {
@@ -115,23 +164,35 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
     }
 }
 
-void picker_release(Picker* picker, char modifier1, char modifier2) {
-    picker->dragging = 0;
+Box picker_merge_selections(Box* selectionA, Box* selectionB) {
+    Box merged;
+    box_init(&merged);
 
-    picker_act(picker, modifier1, modifier2);
+    merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
+    merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);
+    merged.position[2] = MIN(selectionA->position[2], selectionB->position[2]);
 
-    memcpy(picker->positionStart, picker->positionEnd, 3*sizeof(int));
-    memcpy(picker->box.position, picker->positionEnd, 3*sizeof(int));
+    float endpointA[] = {
+        selectionA->position[0] + selectionA->width,
+        selectionA->position[1] + selectionA->height,
+        selectionA->position[2] + selectionA->length
+    };
+    float endpointB[] = {
+        selectionB->position[0] + selectionB->width,
+        selectionB->position[1] + selectionB->height,
+        selectionB->position[2] + selectionB->length
+    };
+    float mergedEndpoint[] = {
+        MAX(endpointA[0], endpointB[0]),
+        MAX(endpointA[1], endpointB[1]),
+        MAX(endpointA[2], endpointB[2])
+    };
 
-    picker->box.position[0] = (float)picker->positionEnd[0];
-    picker->box.position[1] = (float)picker->positionEnd[1];
-    picker->box.position[2] = (float)picker->positionEnd[2];
-    picker->box.width = 1;
-    picker->box.height = 1;
-    picker->box.length = 1;
+    merged.width = mergedEndpoint[0] - merged.position[0];
+    merged.height = mergedEndpoint[1] - merged.position[1];
+    merged.length = mergedEndpoint[2] - merged.position[2];
 
-    mesh_destroy(&picker->mesh);
-    box_mesh(&picker->mesh, &picker->box);
+    return merged;
 }
 
 void picker_set_action(Picker* picker, char action) {
@@ -152,84 +213,3 @@ void picker_set_action(Picker* picker, char action) {
         }
     }
 }
-
-void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
-    picker->ray[0] = mouseX;
-    picker->ray[1] = mouseY;
-    picker->ray[2] =   1;
-    picker->ray[3] = 1.0;
-
-    // undivide by W
-    vec4_scale(picker->ray, picker->ray, camera->near);
-
-    vec4_transform(picker->ray, camera->mat_proj_inv, picker->ray);
-    picker->ray[2] = -camera->near; // for accuracy
-    picker->ray[3] =  0;
-
-    vec4_transform(picker->ray, camera->mat_model, picker->ray);
-    vec4_transform(picker->ray, camera->mat_view, picker->ray);
-
-    vec3_normalize(picker->ray, picker->ray);
-
-    float ray[3];
-    float ray_point[3];
-    int block_location[3];
-    int block_location_adjacent[3];
-    memcpy(ray_point, camera->position, 3*sizeof(float));
-    vec3_scale(ray, picker->ray, 0.2);
-    Block* block;
-    int i;
-    for (i = 0; i < 1000; ++i) {
-        memcpy(block_location_adjacent, block_location, 3*sizeof(int));
-        block_location[0] = floor(ray_point[0]);
-        block_location[1] = floor(ray_point[1]);
-        block_location[2] = floor(ray_point[2]);
-
-        block = world_get_block(picker->world, block_location);
-
-        if (block_location[1] < 0)
-            break;
-
-        if (block && block_is_active(block))
-            break;
-
-        vec3_add(ray_point, ray_point, ray);
-    }
-
-    if (block || block_location[1] == -1) {
-        if (!(picker->dragging && (picker->action == PICKER_SELECT || picker->action == PICKER_SET || picker->action == PICKER_CLEAR))) {
-            if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
-                memcpy(picker->positionStart, block_location, 3*sizeof(int));
-            } else {
-                memcpy(picker->positionStart, block_location_adjacent, 3*sizeof(int));
-            }
-        }
-        if (picker->mode == PICKER_ONTO && block_location[1] >= 0) {
-            memcpy(picker->positionEnd, block_location, 3*sizeof(int));
-        } else {
-            memcpy(picker->positionEnd, block_location_adjacent, 3*sizeof(int));
-        }
-    }
-
-    picker->box.position[0] = MIN(picker->positionStart[0], picker->positionEnd[0]);
-    picker->box.position[1] = MIN(picker->positionStart[1], picker->positionEnd[1]);
-    picker->box.position[2] = MIN(picker->positionStart[2],  picker->positionEnd[2]);
-    picker->box.width = abs(picker->positionEnd[0] - picker->positionStart[0]) + 1;
-    picker->box.height = abs(picker->positionEnd[1] - picker->positionStart[1]) + 1;
-    picker->box.length = abs(picker->positionEnd[2] - picker->positionStart[2]) + 1;
-
-    mesh_destroy(&picker->mesh);
-    box_mesh(&picker->mesh, &picker->box);
-
-    if (picker->selection.model) {
-        memcpy(picker->selection.box.position, picker->box.position, 3*sizeof(float));
-        box_mesh(&picker->selection.mesh, &picker->selection.box);
-        picker->selection.present = 1;
-    }
-
-}
-
-void picker_set_world(Picker* picker, World* world) {
-    picker->world = world;
-}
-

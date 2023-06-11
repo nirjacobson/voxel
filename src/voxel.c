@@ -106,17 +106,17 @@ char voxel_process_input(Voxel* voxel) {
         }
     }
 
-    if ((mouseButtons[0] & BUTTON_LEFT) != (mouseButtons[1] & BUTTON_LEFT)) {
-        if (!(mouseButtons[0] & BUTTON_LEFT)) {
+    if ((mouseButtons[0] & MOUSE_BUTTON_LEFT) != (mouseButtons[1] & MOUSE_BUTTON_LEFT)) {
+        if (!(mouseButtons[0] & MOUSE_BUTTON_LEFT)) {
             voxel->panelManager.dragging = 0;
         }
 
         Panel* panel = panel_manager_find_panel(&voxel->panelManager, mouseX[0], mouseY[0]);
 
         if (panel) {
-            GLuint action = (mouseButtons[0] & BUTTON_LEFT) ? MOUSE_PRESS : MOUSE_RELEASE;
+            GLuint action = (mouseButtons[0] & MOUSE_BUTTON_LEFT) ? MOUSE_PRESS : MOUSE_RELEASE;
             panel_action(panel, action, mouseX[0] - panel->position[0], mouseY[0] - panel->position[1]);
-        } else if (mouseButtons[0] & BUTTON_LEFT) {
+        } else if (mouseButtons[0] & MOUSE_BUTTON_LEFT) {
             char modifier1 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT);
             char modifier2 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SUPER);
             picker_press(&voxel->picker, modifier1, modifier2);
@@ -127,8 +127,8 @@ char voxel_process_input(Voxel* voxel) {
         }
     }
 
-    if ((mouseButtons[0] & BUTTON_RIGHT) != (mouseButtons[1] & BUTTON_RIGHT)) {
-        if (!(mouseButtons[0] & BUTTON_LEFT)) {
+    if ((mouseButtons[0] & MOUSE_BUTTON_RIGHT) != (mouseButtons[1] & MOUSE_BUTTON_RIGHT)) {
+        if (!(mouseButtons[0] & MOUSE_BUTTON_LEFT)) {
             voxel->panelManager.dragging = 0;
         }
 
@@ -136,7 +136,7 @@ char voxel_process_input(Voxel* voxel) {
 
         if (panel) {
 
-        } else if (mouseButtons[0] & BUTTON_RIGHT) {
+        } else if (mouseButtons[0] & MOUSE_BUTTON_RIGHT) {
 
         } else {
             voxel->picker.selection.rotation = (voxel->picker.selection.rotation + 1) % 4;
@@ -147,8 +147,6 @@ char voxel_process_input(Voxel* voxel) {
 }
 
 void voxel_draw(Voxel* voxel) {
-    world_update(&voxel->world, &voxel->camera);
-
     renderer_clear(&voxel->renderer);
     renderer_render_world(&voxel->renderer, &voxel->world, &voxel->camera);
     renderer_render_picker(&voxel->renderer, &voxel->picker);
@@ -157,11 +155,14 @@ void voxel_draw(Voxel* voxel) {
     struct timeval oldFrameTime = voxel->frameTime;
     gettimeofday(&voxel->frameTime, NULL);
 
-    struct timeval elapsed;
-    timersub(&voxel->frameTime, &oldFrameTime, &elapsed);
-    long millisElapsed = (elapsed.tv_sec * 1000000 + elapsed.tv_usec) / 1000;
+    static int i = 0;
+    if ((i = (i + 1) % 10) == 0) {
+        struct timeval elapsed;
+        timersub(&voxel->frameTime, &oldFrameTime, &elapsed);
+        long millisElapsed = (elapsed.tv_sec * 1000000 + elapsed.tv_usec) / 1000;
 
-    fps_panel_set_fps(&voxel->fpsPanel, 1000.0 / millisElapsed);
+        fps_panel_set_fps(&voxel->fpsPanel, 1000.0 / millisElapsed);
+    }
 }
 
 
@@ -172,19 +173,50 @@ void voxel_setup(Application* application) {
     camera_init(&voxel->camera);
 
     camera_move(&voxel->camera, Y, 2);
+    camera_move(&voxel->camera, Z, WORLD_CHUNK_LENGTH * 2);
 
     voxel_resize(application);
 
-    picker_init(&voxel->picker);
+    world_init(&voxel->world, "cubes");
+
+    Chunk* chunk = NEW(Chunk, 1);
+    chunk_init(chunk, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH);
+
+    for (int x = 0; x < WORLD_CHUNK_LENGTH; x++) {
+        for (int y = 0; y < WORLD_CHUNK_LENGTH; y++) {
+            for (int z = 0; z < WORLD_CHUNK_LENGTH; z++) {
+                uint16_t color = 0;
+
+                int red = x / 2;
+                int green = y / 2;
+                int blue = z / 2;
+
+                color = (red << 6) | (green << 3) | (blue);
+
+                block_set_active(&chunk->blocks[x][y][z], 1);
+                block_set_color(&chunk->blocks[x][y][z], color);
+            }
+        }
+    }
+
+    chunk_mesh(chunk);
+
+    WorldChunk* worldChunk = NEW(WorldChunk, 1);
+    worldChunk->id.x = 0;
+    worldChunk->id.y = 0;
+    worldChunk->id.z = 0;
+    worldChunk->chunk = chunk;
+
+    linked_list_insert(&voxel->world.chunks, worldChunk);
+
+    picker_init(&voxel->picker, &voxel->world);
 
     panel_manager_init(&voxel->panelManager);
-    picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
 
     fps_panel_init(&voxel->fpsPanel, &voxel->panelManager);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
-    world_init(&voxel->world, "cubes");
-    picker_set_world(&voxel->picker, &voxel->world);
+    picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
 }
 
 void voxel_main(Application* application) {
@@ -205,7 +237,6 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
     renderer_resize(&voxel->renderer, application->window->width, application->window->height, &voxel->camera);

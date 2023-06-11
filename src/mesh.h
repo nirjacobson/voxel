@@ -2,6 +2,9 @@
 #define MESH_H
 
 #include <stdlib.h>
+#include <stdint.h>
+
+#include <GLES3/gl3.h>
 
 #include "global.h"
 #include "linked_list.h"

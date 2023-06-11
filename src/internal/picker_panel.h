@@ -1,6 +1,9 @@
 #ifndef PICKER_PANEL_INTERNAL_H
 #define PICKER_PANEL_INTERNAL_H
 
+#include "../global.h"
+#include "../block.h"
+
 #include "../picker_panel.h"
 
 #define PICKER_PANEL_WIDTH          320

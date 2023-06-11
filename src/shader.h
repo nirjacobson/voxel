@@ -2,7 +2,8 @@
 #define SHADER_H
 
 #include <stdio.h>
-#include <stdlib.h>
+
+#include <GLES3/gl3.h>
 
 #include "global.h"
 
@@ -64,6 +65,5 @@ void shader_program_2D_update_projection(ShaderProgram2D* shaderProgram2D, float
 void shader_program_2D_update_sampler(ShaderProgram2D* shaderProgram2D, GLint sampler);
 
 void shader_program_2D_use(ShaderProgram2D* shaderProgram2D);
-
 
 #endif // SHADER_H

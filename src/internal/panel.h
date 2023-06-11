@@ -7,6 +7,5 @@
 
 char coords_over_action_region(void* coordsPtr, void* actionRegionPtr);
 char coords_over_panel(void* coordsPtr, void* panelPtr);
-void draw_panel(void* panelPtr, void* unusued);
 
 #endif // PANEL_INTERNAL_H
