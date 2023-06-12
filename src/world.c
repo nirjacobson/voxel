@@ -71,7 +71,7 @@ void world_destroy(World* world) {
     chunk_dao_destroy(&world->chunkDAO);
 }
 
-LinkedList* world_draw_list(Camera* camera) {
+LinkedList* world_draw_list(LinkedList* list, Camera* camera) {
     Box aabb;
     camera_aabb(&aabb, camera);
 
@@ -108,7 +108,7 @@ LinkedList* world_draw_list(Camera* camera) {
         block_position[2] += WORLD_CHUNK_LENGTH;
     }
 
-    LinkedList* drawList = linked_list_init(NULL);
+    LinkedList* drawList = linked_list_init(list);
     for (int x = chunkIDStart.x; x < chunkIDEnd.x; x++) {
         for (int y = chunkIDStart.y; y < chunkIDEnd.y; y++) {
             for (int z = chunkIDStart.z; z < chunkIDEnd.z; z++) {
@@ -355,14 +355,16 @@ void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation) {
 }
 
 void world_update(World* world, Camera* camera) {
-    LinkedList* drawList = world_draw_list(camera);
+    LinkedList drawList;
+    world_draw_list(&drawList, camera);
+
     LinkedList chunksToUnload;
     LinkedList chunksToLoad;
 
     linked_list_init(&chunksToUnload);
     linked_list_init(&chunksToLoad);
 
-    LinkedListNode* drawListNode = drawList->head;
+    LinkedListNode* drawListNode = drawList.head;
     LinkedListNode* chunksListNode = world->chunks.head;
 
     while (drawListNode || chunksListNode) {
@@ -397,4 +399,6 @@ void world_update(World* world, Camera* camera) {
 
     linked_list_destroy(&chunksToLoad, NULL);
     linked_list_destroy(&chunksToUnload, NULL);
+
+    linked_list_destroy(&drawList, free);
 }

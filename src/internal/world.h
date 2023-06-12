@@ -17,6 +17,6 @@ int compare_world_chunks(void* worldChunkAPtr, void* worldChunkBPtr);
 Chunk* world_load_world_chunk(World* world, ChunkID* chunkID);
 void world_unload_world_chunk(World* world, WorldChunk* worldChunk);
 
-LinkedList* world_draw_list(Camera* camera);
+LinkedList* world_draw_list(LinkedList* list, Camera* camera);
 
 #endif // WORLD_INTERNAL_H
