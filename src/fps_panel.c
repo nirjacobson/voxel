@@ -20,7 +20,7 @@ void fps_panel_set_fps(FPSPanel* fpsPanel, float fps) {
 void fps_panel_draw(void* fpsPanelPtr) {
     FPSPanel* fpsPanel = (FPSPanel*)fpsPanelPtr;
 
-    char fpsStr[50];
+    char fpsStr[25];
     sprintf(fpsStr, "%.2f FPS", fpsPanel->fps);
 
     cairo_set_source_rgba(fpsPanel->panel.cr, 0, 0, 0, 0);

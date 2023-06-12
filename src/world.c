@@ -17,13 +17,12 @@ void unload_world_chunk(void* worldChunkPtr, void* worldPtr) {
     world_unload_world_chunk(world, worldChunk);
 }
 
-char chunk_id_equals(void* a, void* b) {
-    ChunkID* chunkIDA = (ChunkID*)a;
-    ChunkID* chunkIDB = (ChunkID*)b;
+void destroy_world_chunk(void* worldChunkPtr) {
+    WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
 
-    return chunkIDA->x == chunkIDB->x &&
-           chunkIDA->y == chunkIDB->y &&
-           chunkIDA->z == chunkIDB->z;
+    chunk_destroy(worldChunk->chunk);
+    free(worldChunk->chunk);
+    free(worldChunk);
 }
 
 char chunk_id_equals_world_chunk(void* chunkIDPtr, void* worldChunkPtr) {
@@ -33,14 +32,6 @@ char chunk_id_equals_world_chunk(void* chunkIDPtr, void* worldChunkPtr) {
     return chunkID->x == worldChunk->id.x &&
            chunkID->y == worldChunk->id.y &&
            chunkID->z == worldChunk->id.z;
-}
-
-void destroy_world_chunk(void* worldChunkPtr) {
-    WorldChunk* worldChunk = (WorldChunk*)worldChunkPtr;
-
-    chunk_destroy(worldChunk->chunk);
-    free(worldChunk->chunk);
-    free(worldChunk);
 }
 
 int compare_chunk_ids(ChunkID* chunkIDA, ChunkID* chunkIDB) {

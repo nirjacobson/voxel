@@ -5,11 +5,11 @@
 
 #include <stdlib.h>
 
+#include "box.h"
 #include "camera.h"
 #include "chunk.h"
 #include "chunk_dao.h"
 #include "linked_list.h"
-#include "box.h"
 #include "ground.h"
 
 typedef struct {

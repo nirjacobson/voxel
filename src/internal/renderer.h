@@ -1,6 +1,8 @@
 #ifndef RENDERER_INTERNAL_H
 #define RENDERER_INTERNAL_H
 
+#include <GLES3/gl3.h>
+
 #include "../renderer.h"
 
 #include "../ground.h"
@@ -30,8 +32,8 @@ void render_world_chunk(void* worldChunkPtr, void* rendererPtr);
 void render_panel(void* panelPtr, void* rendererPtr);
 
 void renderer_render_ground(Renderer* renderer, Ground* ground, Camera* camera);
-void renderer_render_chunk(Renderer* renderer, Chunk* chunk, float* position);
 void renderer_render_mesh(Renderer* renderer, Mesh* mesh, char mode);
+void renderer_render_chunk(Renderer* renderer, Chunk* chunk, float* position);
 void renderer_render_panel(Renderer* renderer, Panel* panel);
 
 #endif // RENDERER_INTERNAL_H

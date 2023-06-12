@@ -7,7 +7,6 @@
 
 void load_world_chunk(void* chunkIDPtr, void* worldPtr);
 void unload_world_chunk(void* worldChunkPtr, void* worldPtr);
-char chunk_id_equals(void* a, void* b);
 char chunk_id_equals_world_chunk(void* chunkIDPtr, void* worldChunkPtr);
 void destroy_world_chunk(void* worldChunkPtr);
 int compare_chunk_ids(ChunkID* chunkIDA, ChunkID* chunkIDB);

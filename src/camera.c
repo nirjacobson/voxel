@@ -86,4 +86,3 @@ Box* camera_aabb(Box* box, Camera* camera) {
 
     return frustum_aabb;
 }
-

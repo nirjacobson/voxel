@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "global.h"
+#include "matrix.h"
 #include "box.h"
 
 typedef struct {
