@@ -1,23 +1,19 @@
 # Voxel
-Voxel is an engine demo that allows you to paint with volumetric pixels, or voxels. It’s similar to the original MS Paint program in a 3D, Minecraft-esque environment. It has an infinite draw area that is saved to a file as it is explored.
-
-![Voxel](https://nirjacobson.com/wp-content/uploads/2019/12/voxel.png)
-
-There is a branch for the Raspberry Pi 3 and the Raspberry Pi 4.
+Voxel is a volumetric pixel painter. It’s similar to the original MS Paint program in a 3D, Minecraft-esque environment. It has an infinite draw area that is saved to a file as it is explored.
 
 ## Dependencies
 
-Voxel depends on the [cairo](https://www.cairographics.org/) graphics library. [GLFW](https://www.glfw.org/) is also a dependency on the Raspberry Pi 4.
+Voxel depends on the [cairo](https://www.cairographics.org/) graphics library and [GLFW](https://www.glfw.org/).
 
 ```
 sudo apt install libcairo2-dev
-sudo apt install libglfw3-dev    # (Raspberry Pi 4 only)
+sudo apt install libglfw3-dev 
 ```
 
 ## Usage
 
 ```
-git clone https://github.com/nirjacobson/voxel.git
+git clone https://github.com/nirjacobson/Voxel.git
 cd voxel/
 make
 ./voxel
