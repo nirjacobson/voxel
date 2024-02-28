@@ -146,8 +146,16 @@ char voxel_process_input(Voxel* voxel) {
     return 1;
 }
 
+void texture_panel(void* panelPtr, void* userData) {
+    Panel* panel = (Panel*)panelPtr;
+
+    panel_texture(panel);
+}
+
 void voxel_draw(Voxel* voxel) {
     world_update(&voxel->world, &voxel->camera);
+
+    linked_list_foreach(&voxel->panelManager.panels, texture_panel, voxel);
 
     renderer_render(&voxel->renderer, &voxel->world, &voxel->camera, &voxel->picker, &voxel->panelManager.panels);
 
