@@ -225,13 +225,11 @@ void voxel_main(Application* application) {
 
     while (!glfwWindowShouldClose(application->window->glfwWindow))
     {
+        glfwPollEvents();
         if (!voxel_process_input(voxel))
             break;
 
         voxel_draw(voxel);
-
-        glfwSwapBuffers(application->window->glfwWindow);
-        glfwPollEvents();
     }
 }
 
@@ -246,6 +244,8 @@ void voxel_resize(Application* application) {
 
 void voxel_teardown(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
+
+    vkDeviceWaitIdle(voxel->vulkan.device);
 
     world_destroy(&voxel->world);
     fps_panel_destroy(&voxel->fpsPanel);
