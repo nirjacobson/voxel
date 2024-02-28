@@ -86,3 +86,8 @@ Box* camera_aabb(Box* box, Camera* camera) {
 
     return frustum_aabb;
 }
+
+void camera_update_projection(Camera* camera) {
+    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+    mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
+}

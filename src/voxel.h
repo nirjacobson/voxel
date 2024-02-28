@@ -4,6 +4,7 @@
 #include <sys/time.h>
 
 #include "global.h"
+#include "vulkan_util.h"
 #include "application.h"
 #include "window.h"
 #include "renderer.h"
@@ -17,6 +18,8 @@
 typedef struct {
     Application application;
     Window window;
+
+    Vulkan vulkan;
 
     Renderer renderer;
 

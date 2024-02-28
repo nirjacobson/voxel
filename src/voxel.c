@@ -1,6 +1,8 @@
 #include "voxel.h"
 #include "internal/voxel.h"
 
+extern const bool enableValidationLayers;
+
 Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);
 
@@ -149,10 +151,7 @@ char voxel_process_input(Voxel* voxel) {
 void voxel_draw(Voxel* voxel) {
     world_update(&voxel->world, &voxel->camera);
 
-    renderer_clear(&voxel->renderer);
-    renderer_render_world(&voxel->renderer, &voxel->world, &voxel->camera);
-    renderer_render_picker(&voxel->renderer, &voxel->picker);
-    renderer_render_panels(&voxel->renderer, &voxel->panelManager.panels);
+    renderer_render(&voxel->renderer, &voxel->world, &voxel->camera, &voxel->picker, &voxel->panelManager.panels);
 
     struct timeval oldFrameTime = voxel->frameTime;
     gettimeofday(&voxel->frameTime, NULL);
@@ -167,11 +166,32 @@ void voxel_draw(Voxel* voxel) {
     }
 }
 
+void voxel_setup_vulkan(Voxel* voxel) {
+    vulkan_create_instance("Voxel", &voxel->vulkan.instance);
+
+    if (glfwCreateWindowSurface(voxel->vulkan.instance, voxel->window.glfwWindow, NULL, &voxel->vulkan.surface) != VK_SUCCESS) {
+        printf("failed to create window surface.");
+    }
+
+    voxel->window.surface = voxel->vulkan.surface;
+
+    vulkan_pick_physical_device(voxel->vulkan.instance, voxel->window.surface, &voxel->vulkan.physicalDevice);
+
+    vulkan_create_logical_device(voxel->vulkan.physicalDevice, voxel->window.surface, &voxel->vulkan.device, &voxel->renderer.graphicsQueue, &voxel->renderer.presentQueue);
+}
+
+void voxel_teardown_vulkan(Voxel* voxel) {
+    vkDestroyDevice(voxel->vulkan.device, NULL);
+    vkDestroySurfaceKHR(voxel->vulkan.instance, voxel->window.surface, NULL);
+    vkDestroyInstance(voxel->vulkan.instance, NULL);
+}
 
 void voxel_setup(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    renderer_init(&voxel->renderer);
+    voxel_setup_vulkan(voxel);
+
+    renderer_init(&voxel->renderer, &voxel->window, &voxel->vulkan);
     camera_init(&voxel->camera);
 
     camera_move(&voxel->camera, Y, 2);
@@ -210,7 +230,8 @@ void voxel_resize(Application* application) {
 
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
-    renderer_resize(&voxel->renderer, application->window->width, application->window->height, &voxel->camera);
+    camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
+    renderer_resize(&voxel->renderer);
 }
 
 void voxel_teardown(Application* application) {
@@ -222,6 +243,8 @@ void voxel_teardown(Application* application) {
     panel_manager_destroy(&voxel->panelManager);
     picker_destroy(&voxel->picker);
     renderer_destroy(&voxel->renderer);
+
+    voxel_teardown_vulkan(voxel);
 }
 
 void voxel_run(Voxel* voxel) {

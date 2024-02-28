@@ -1,20 +1,20 @@
-#version 300 es
+#version 450
 
-precision highp float;
+layout(location = 0) in vec3 Position;
+layout(location = 1) in vec3 Normal;
 
-in vec3 Position;
-in vec3 Normal;
+layout(push_constant) uniform fPushConstants {
+    layout(offset = 32)  vec3 color;
+    layout(offset = 48)  vec3 sun_position;
+    layout(offset = 64) float ambient;
+} pushConstants;
 
-uniform vec3 color;
-uniform vec3 sun_position;
-uniform float ambient;
-
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 void main()
 {
-    vec3 sun_direction = normalize(sun_position - Position);
+    vec3 sun_direction = normalize(pushConstants.sun_position - Position);
     float diff = max(dot(Normal, sun_direction), 0.0);
 
-    fragColor = vec4(color*(ambient+diff), 1.0);
+    fragColor = vec4(pushConstants.color*(pushConstants.ambient+diff), 1.0);
 }

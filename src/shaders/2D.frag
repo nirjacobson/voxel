@@ -1,13 +1,11 @@
-#version 300 es
+#version 450
 
-precision highp float;
+layout(location = 0) in vec2 TexCoord;
 
-in vec2 TexCoord;
+layout(binding = 0) uniform sampler2D texSampler;
 
-uniform sampler2D sampler;
-
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 void main() {
-  fragColor = texture2D(sampler, TexCoord).bgra;
+  fragColor = texture(texSampler, TexCoord);
 }

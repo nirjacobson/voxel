@@ -1,14 +1,16 @@
-#version 300 es
+#version 450
 
-in vec3 position;
-in vec2 texcoord;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texcoord;
 
-uniform mat4 projection;
+layout(push_constant) uniform vPushConstants {
+    layout(offset = 0) mat4 projection;
+} pushConstants;
 
-out vec2 TexCoord;
+layout(location = 0) out vec2 TexCoord;
 
 void main() {
-  vec4 screenPosition = projection * vec4(position, 1.0);
+  vec4 screenPosition = pushConstants.projection * vec4(position, 1.0);
 
   gl_Position = screenPosition;
   TexCoord = texcoord;

@@ -33,8 +33,9 @@ typedef struct ActionRegion {
 /* Panel */
 
 typedef struct Panel {
-    unsigned int vbo;
-    unsigned int tex;
+    VkBuffer vbo;
+    VkImage texImage;
+    VkImageView texImageView;
 
     cairo_surface_t *surface;
     cairo_t *cr;
