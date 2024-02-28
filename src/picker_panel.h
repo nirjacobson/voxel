@@ -24,7 +24,7 @@ typedef struct {
     Picker* picker;
 } PickerPanel;
 
-PickerPanel* picker_panel_init(PickerPanel* td, PanelManager* panelManager, Picker* picker);
+PickerPanel* picker_panel_init(PickerPanel* td, Vulkan* vulkan, PanelManager* panelManager, Picker* picker);
 void picker_panel_destroy(PickerPanel* pickerPanel);
 
 #endif // PICKER_PANEL_H

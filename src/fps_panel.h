@@ -10,7 +10,7 @@ typedef struct {
     float fps;
 } FPSPanel;
 
-FPSPanel* fps_panel_init(FPSPanel* p, PanelManager* panelManager);
+FPSPanel* fps_panel_init(FPSPanel* p, Vulkan* vulkan, PanelManager* panelManager);
 void fps_panel_destroy(FPSPanel* fpsPanel);
 
 void fps_panel_set_fps(FPSPanel* fpsPanel, float fps);

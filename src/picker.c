@@ -5,7 +5,7 @@ void picker_init(Picker* p, World* world) {
     Picker* picker = p ? p : NEW(Picker, 1);
     picker->world = world;
 
-    box_init(&picker->box);
+    box_init(&picker->box, world->vulkan);
     box_mesh(&picker->mesh, &picker->box);
 
     picker->selection.model = NULL;
@@ -154,7 +154,7 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
 
 Box picker_merge_selections(Box* selectionA, Box* selectionB) {
     Box merged;
-    box_init(&merged);
+    box_init(&merged, selectionA->vulkan);
 
     merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
     merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);

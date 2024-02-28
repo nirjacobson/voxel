@@ -56,7 +56,10 @@ void renderer_2D_record_panel(Renderer* renderer, Panel* panel) {
     descriptorWrite.pImageInfo = &imageInfo;
     descriptorWrite.pTexelBufferView = NULL;
     
-    vkCmdPushDescriptorSetKHR(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &descriptorWrite);
+    PFN_vkCmdPushDescriptorSetKHR _vkCmdPushDescriptorSetKHR;
+    *(void**)&_vkCmdPushDescriptorSetKHR = (void*)vkGetInstanceProcAddr(renderer->vulkan->instance, "vkCmdPushDescriptorSetKHR");
+
+    _vkCmdPushDescriptorSetKHR(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &descriptorWrite);
     vkCmdBindVertexBuffers(renderer->commandBuffers[renderer->currentFrame], 0, 1, vertexBuffers, offsets);
     vkCmdDraw(renderer->commandBuffers[renderer->currentFrame], 4, 1, 0, 0);
 }
@@ -136,8 +139,6 @@ Renderer* renderer_init(Renderer* r, Window* window, Vulkan* vulkan) {
     renderer_3D_create_pipeline(renderer);
     renderer_2D_create_pipeline(renderer);
 
-    vulkan_create_command_pool(vulkan->physicalDevice, vulkan->device, vulkan->surface, &renderer->commandPool);
-
     renderer_setup_depth_resources(renderer);
 
     renderer_setup_framebuffers(renderer);
@@ -157,29 +158,6 @@ Renderer* renderer_init(Renderer* r, Window* window, Vulkan* vulkan) {
 
     renderer->currentFrame = 0;
     renderer->framebufferResized = false;
-
-    // shader_program_3D_init(&renderer->shaderProgram3D);
-
-    // float mat4[16];
-    // renderer_3D_update_model(renderer, mat4_identity(mat4));
-    // renderer_3D_update_ambient(renderer, 0.4);
-
-    // float sunPosition[] = { 100, 100, 100 };
-    // renderer_3D_update_sun_position(renderer, sunPosition);
-
-    // shader_program_2D_init(&renderer->shaderProgram2D);
-
-    // glActiveTexture(GL_TEXTURE0);
-    // renderer_2D_update_sampler(renderer, 0);
-
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
-    // glClearColor(0.50f, 0.75f, 0.86f, 1.0f);
-    // glClearDepthf(1);
-    // glEnable( GL_DEPTH_TEST );
-    // glEnable( GL_BLEND );
-    // glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    // glLineWidth(2);
 
     return renderer;
 }
@@ -362,11 +340,10 @@ void renderer_destroy(Renderer* renderer) {
     free(renderer->pipeline3D.pipeline.descriptorSets);
     free(renderer->pipeline2D.pipeline.descriptorSets);
 
-    vkFreeCommandBuffers(renderer->vulkan->device, renderer->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
+    vkFreeCommandBuffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
     free(renderer->commandBuffers);
 
     vkDestroyDescriptorPool(renderer->vulkan->device, renderer->descriptorPool, NULL);
-    vkDestroyCommandPool(renderer->vulkan->device, renderer->commandPool, NULL);
     vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.descriptorSetLayout, NULL);
     
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline2D.pipeline.pipeline, NULL);
@@ -384,10 +361,6 @@ void renderer_destroy(Renderer* renderer) {
     }
 }
 
-void renderer_clear(Renderer* renderer) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
 void renderer_resize(Renderer* renderer) {
     renderer->framebufferResized = true;
 }
@@ -397,12 +370,6 @@ void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position)
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 16, sizeof(float[3]), position);
     
     linked_list_foreach(&chunk->meshes, record_mesh, renderer);
-}
-
-void renderer_render_world(Renderer* renderer, World* world, Camera* camera) {
-    renderer_render_ground(renderer, &world->ground, camera);
-
-    linked_list_foreach(&world->chunks, record_world_chunk, renderer);
 }
 
 void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
@@ -527,7 +494,7 @@ void renderer_2D_create_descriptor_sets(Renderer* renderer) {
 
 void renderer_create_command_buffers(Renderer* renderer) {
     renderer->commandBuffers = NEW(VkCommandBuffer, MAX_FRAMES_IN_FLIGHT);
-    vulkan_create_command_buffers(renderer->vulkan->device, renderer->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
+    vulkan_create_command_buffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
 }
 
 void renderer_create_sync_objects(Renderer* renderer) {

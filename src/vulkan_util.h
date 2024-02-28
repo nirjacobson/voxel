@@ -10,11 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-const VkDynamicState dynamicStates[] = {
-    VK_DYNAMIC_STATE_VIEWPORT,
-    VK_DYNAMIC_STATE_SCISSOR
-};
-
 typedef struct {
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout layout;
@@ -28,6 +23,8 @@ typedef struct {
     VkPhysicalDevice physicalDevice;
     VkDevice device;
     VkSurfaceKHR surface;
+    VkCommandPool commandPool;
+    VkQueue commandQueue;
 } Vulkan;
 
 typedef struct {
@@ -82,5 +79,8 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
 void vulkan_create_descriptor_set_pool(VkDevice device, VkDescriptorPoolSize* poolSizes, int numPoolSizes, VkDescriptorPool* descriptorPool, uint32_t maxSets);
 void vulkan_create_descriptor_sets(VkDevice device, VkDescriptorPool descriptorPool, int count, VkDescriptorSetLayout layout, VkDescriptorSet** descriptorSets);
 void vulkan_create_command_buffers(VkDevice device, VkCommandPool commandPool, int count, VkCommandBuffer* commandBuffers);
+void vulkan_copy_buffer(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+void vulkan_copy_buffer_to_image(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 #endif // VULKAN_UTIL_H

@@ -9,6 +9,7 @@
 
 #include "global.h"
 #include "linked_list.h"
+#include "vulkan_util.h"
 
 #define NORTH           0
 #define SOUTH           1
@@ -31,14 +32,17 @@ typedef struct {
 } Quad;
 
 typedef struct {
+    Vulkan* vulkan;
     uint16_t color;
     LinkedList quads;
 
     VkBuffer vbo;
+    VkDeviceMemory vboDeviceMemory;
     VkBuffer ebo;
+    VkDeviceMemory eboDeviceMemory;
 } Mesh;
 
-Mesh* mesh_init(Mesh* m);
+Mesh* mesh_init(Mesh* m, Vulkan* vulkan);
 void mesh_destroy(Mesh* mesh);
 
 void mesh_add_quad(Mesh* mesh, Quad* quad);

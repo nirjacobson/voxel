@@ -56,7 +56,7 @@ void camera_set_aspect(Camera* camera, float aspect) {
 
 Box* camera_aabb(Box* box, Camera* camera) {
     Box frustum_bb;
-    box_init(&frustum_bb);
+    box_init(&frustum_bb, NULL);
 
     frustum_bb.height = 2 * tan(camera->fov/2.0 * M_PI/180.0) * camera->far;
     frustum_bb.width = frustum_bb.height * camera->aspect;

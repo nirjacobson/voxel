@@ -8,6 +8,7 @@
 #include "mesh.h"
 
 typedef struct {
+    Vulkan* vulkan;
     float position[3];
 
     float forward[3];
@@ -19,7 +20,7 @@ typedef struct {
     float length;
 } Box;
 
-Box* box_init(Box* b);
+Box* box_init(Box* b, Vulkan* vulkan);
 
 Box* box_aabb(Box* boxd, Box* boxs);
 

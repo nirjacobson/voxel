@@ -25,8 +25,10 @@ void prepare_mesh(void* ptr, void* rendererPtr) {
 
 /* Chunk */
 
-Chunk* chunk_init(Chunk* c, int width, int height, int length) {
+Chunk* chunk_init(Chunk* c, Vulkan* vulkan, int width, int height, int length) {
     Chunk* chunk = c ? c : NEW(Chunk, 1);
+
+    chunk->vulkan = vulkan;
 
     chunk->width = width;
     chunk->height = height;
@@ -227,7 +229,7 @@ void chunk_mesh(Chunk* chunk) {
                             mesh->color = mask[n];
                             LinkedListNode* existingNode = linked_list_find(&chunk->meshes, mesh, meshes_are_equal);
                             if (existingNode == NULL) {
-                                mesh_init(mesh);
+                                mesh_init(mesh, chunk->vulkan);
                                 linked_list_insert(&chunk->meshes, mesh);
                             } else {
                                 free(mesh);

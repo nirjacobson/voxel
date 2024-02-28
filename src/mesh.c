@@ -57,20 +57,21 @@ void quad_set_normals(void* ptr, void* unused) {
 
 /* Mesh */
 
-Mesh* mesh_init(Mesh* m) {
+Mesh* mesh_init(Mesh* m, Vulkan* vulkan) {
     Mesh* mesh = m ? m : NEW(Mesh, 1);
 
-    linked_list_init(&mesh->quads);
+    mesh->vulkan = vulkan;
 
-    glGenBuffers(1, &mesh->vbo);
-    glGenBuffers(1, &mesh->ebo);
+    linked_list_init(&mesh->quads);
 
     return mesh;
 }
 
 void mesh_destroy(Mesh* mesh) {
-    glDeleteBuffers(1, &mesh->ebo);
-    glDeleteBuffers(1, &mesh->vbo);
+    vkDestroyBuffer(mesh->vulkan->device, mesh->vbo, NULL);
+    vkFreeMemory(mesh->vulkan->device, mesh->vboDeviceMemory, NULL);
+    vkDestroyBuffer(mesh->vulkan->device, mesh->ebo, NULL);
+    vkFreeMemory(mesh->vulkan->device, mesh->eboDeviceMemory, NULL);
 
     linked_list_destroy(&mesh->quads, free);
 }
@@ -80,10 +81,10 @@ void mesh_calc_normals(Mesh* mesh) {
 }
 
 void mesh_buffer(Mesh* mesh, char mode) {
-    int num_elements_f = mesh->quads.size * 4;
-    int num_vertices_f = num_elements_f * 6;
-    float* vertex_data = NEW(float, num_vertices_f);
-    GLushort*  elements    = NEW(GLushort, num_elements_f);
+    int num_elements_f  = mesh->quads.size * 4;
+    int num_vertices_f  = num_elements_f * 6;
+    float* vertex_data  = NEW(float, num_vertices_f);
+    uint16_t*  elements = NEW(uint16_t, num_elements_f);
 
     LinkedListNode* node = mesh->quads.head;
     for (int q=0; node; q++, node = node->next) {
@@ -105,11 +106,48 @@ void mesh_buffer(Mesh* mesh, char mode) {
         }
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_vertices_f*sizeof(float), vertex_data, GL_STATIC_DRAW);
+    // Vertices
+    VkBuffer oldBuffer = mesh->vbo;
+    VkDeviceMemory oldMemory = mesh->vboDeviceMemory;
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_elements_f*sizeof(GLushort), elements, GL_STATIC_DRAW);
+    VkDeviceSize bufferSize = num_vertices_f*sizeof(float);
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertex_data, bufferSize);
+    vkUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
+
+    vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->vbo, &mesh->vboDeviceMemory);
+    vulkan_copy_buffer(mesh->vulkan->device, mesh->vulkan->commandQueue, mesh->vulkan->commandPool, stagingBuffer, mesh->vbo, bufferSize);
+
+    vkDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
+    vkFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
+    
+    vkDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
+    vkFreeMemory(mesh->vulkan->device, oldMemory, NULL);
+
+    // Indices
+    oldBuffer = mesh->ebo;
+    oldMemory = mesh->eboDeviceMemory;
+
+    bufferSize = num_elements_f*sizeof(uint16_t);
+    vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    vkMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, elements, bufferSize);
+    vkUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
+
+    vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->ebo, &mesh->eboDeviceMemory);
+    vulkan_copy_buffer(mesh->vulkan->device, mesh->vulkan->commandQueue, mesh->vulkan->commandPool, stagingBuffer, mesh->ebo, bufferSize);
+
+    vkDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
+    vkFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
+
+    vkDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
+    vkFreeMemory(mesh->vulkan->device, oldMemory, NULL);
 
     free(elements);
     free(vertex_data);

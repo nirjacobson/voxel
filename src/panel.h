@@ -7,6 +7,7 @@
 #include "global.h"
 #include "linked_list.h"
 #include "window.h"
+#include "vulkan_util.h"
 
 struct Panel;
 struct PanelManager;
@@ -33,8 +34,11 @@ typedef struct ActionRegion {
 /* Panel */
 
 typedef struct Panel {
+    Vulkan* vulkan;
     VkBuffer vbo;
+    VkDeviceMemory vboDeviceMemory;
     VkImage texImage;
+    VkDeviceMemory texImageDeviceMemory;
     VkImageView texImageView;
 
     cairo_surface_t *surface;
@@ -51,7 +55,7 @@ typedef struct Panel {
     LinkedList actionRegions;
 } Panel;
 
-Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
+Panel* panel_init(Panel* d, Vulkan* vulkan, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
 void panel_destroy(Panel* panel);
 
 void panel_add_action_region(Panel* panel, ActionRegion* actionRegion);

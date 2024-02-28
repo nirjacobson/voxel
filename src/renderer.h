@@ -35,7 +35,6 @@ typedef struct {
     VkQueue presentQueue;
     SwapChain swapChain;
     VkRenderPass renderPass;
-    VkCommandPool commandPool;
     VkImage depthImage;
     VkDeviceMemory depthImageMemory;
     VkImageView depthImageView;

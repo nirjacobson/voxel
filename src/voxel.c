@@ -57,8 +57,6 @@ char voxel_process_input(Voxel* voxel) {
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
         camera_rotate(&voxel->camera, Y, -0.05);
 
-    renderer_apply_camera(&voxel->renderer, &voxel->camera);
-
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
             tab = 1;
@@ -178,9 +176,13 @@ void voxel_setup_vulkan(Voxel* voxel) {
     vulkan_pick_physical_device(voxel->vulkan.instance, voxel->window.surface, &voxel->vulkan.physicalDevice);
 
     vulkan_create_logical_device(voxel->vulkan.physicalDevice, voxel->window.surface, &voxel->vulkan.device, &voxel->renderer.graphicsQueue, &voxel->renderer.presentQueue);
+    voxel->vulkan.commandQueue = voxel->renderer.graphicsQueue;
+
+    vulkan_create_command_pool(voxel->vulkan.physicalDevice, voxel->vulkan.device, voxel->vulkan.surface, &voxel->vulkan.commandPool);
 }
 
 void voxel_teardown_vulkan(Voxel* voxel) {
+    vkDestroyCommandPool(voxel->vulkan.device, voxel->vulkan.commandPool, NULL);
     vkDestroyDevice(voxel->vulkan.device, NULL);
     vkDestroySurfaceKHR(voxel->vulkan.instance, voxel->window.surface, NULL);
     vkDestroyInstance(voxel->vulkan.instance, NULL);
@@ -198,16 +200,16 @@ void voxel_setup(Application* application) {
 
     voxel_resize(application);
 
-    world_init(&voxel->world, "cubes");
+    world_init(&voxel->world, &voxel->vulkan, "cubes");
 
     picker_init(&voxel->picker, &voxel->world);
 
     panel_manager_init(&voxel->panelManager);
 
-    fps_panel_init(&voxel->fpsPanel, &voxel->panelManager);
+    fps_panel_init(&voxel->fpsPanel, &voxel->vulkan, &voxel->panelManager);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
-    picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
+    picker_panel_init(&voxel->pickerPanel, &voxel->vulkan, &voxel->panelManager, &voxel->picker);
 }
 
 void voxel_main(Application* application) {

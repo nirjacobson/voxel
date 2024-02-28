@@ -4,6 +4,7 @@
 #include "block.h"
 #include "mesh.h"
 #include "linked_list.h"
+#include "vulkan_util.h"
 
 typedef struct {
     int x;
@@ -12,6 +13,7 @@ typedef struct {
 } ChunkID;
 
 typedef struct {
+    Vulkan* vulkan;
     Block*** blocks;
     LinkedList meshes;
     int width;
@@ -22,7 +24,7 @@ typedef struct {
 
 /* Chunk */
 
-Chunk* chunk_init(Chunk* c, int width, int height, int length);
+Chunk* chunk_init(Chunk* c, Vulkan* vulkan, int width, int height, int length);
 void chunk_destroy(Chunk* chunk);
 
 void chunk_mesh(Chunk* chunk);
