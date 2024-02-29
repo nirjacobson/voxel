@@ -672,7 +672,9 @@ void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh) {
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(renderer->commandBuffers[renderer->currentFrame], 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(renderer->commandBuffers[renderer->currentFrame], mesh->ebo, 0, VK_INDEX_TYPE_UINT16);
-    vkCmdDrawIndexed(renderer->commandBuffers[renderer->currentFrame], mesh->quads.size * 4, 1, 0, 0, 0);
+    for (int i = 0; i < mesh->quads.size; i++) {
+        vkCmdDrawIndexed(renderer->commandBuffers[renderer->currentFrame], 4, 1, 4 * i, 0, 0);
+    }
 }
 
 void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camera) {

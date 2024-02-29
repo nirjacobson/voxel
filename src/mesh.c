@@ -72,10 +72,10 @@ Mesh* mesh_init(Mesh* m, Vulkan* vulkan) {
 void mesh_destroy(Mesh* mesh) {
     vkQueueWaitIdle(mesh->vulkan->commandQueue);
 
-    vkDestroyBuffer(mesh->vulkan->device, mesh->vbo, NULL);
-    vkFreeMemory(mesh->vulkan->device, mesh->vboDeviceMemory, NULL);
     vkDestroyBuffer(mesh->vulkan->device, mesh->ebo, NULL);
     vkFreeMemory(mesh->vulkan->device, mesh->eboDeviceMemory, NULL);
+    vkDestroyBuffer(mesh->vulkan->device, mesh->vbo, NULL);
+    vkFreeMemory(mesh->vulkan->device, mesh->vboDeviceMemory, NULL);
 
     linked_list_destroy(&mesh->quads, free);
 }
