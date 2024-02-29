@@ -282,17 +282,17 @@ float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
 }
 
 float* mat4_perspective(float* mat4d, float fov, float aspect, float near, float far) {
-    float yc = 1 / tan(fov/2.0 * M_PI/180.0);
-    float xc = yc / aspect;
-    float zc = (near + far) / (near - far);
-    float za = (2*far*near) / (near - far);
+    float yc = (1 / tan(fov/2.0 * M_PI/180.0));
+    float xc = (yc / aspect);
+    float zc = far / (far - near);
+    float za = -(far*near) / (far - near);
 
     float* mat4p = mat4_identity(mat4d);
 
     mat4p[0]  = xc;
     mat4p[5]  = yc;
     mat4p[10] = zc;
-    mat4p[11] = -1;
+    mat4p[11] = 1;
     mat4p[14] = za;
 
     return mat4p;
@@ -301,8 +301,8 @@ float* mat4_perspective(float* mat4d, float fov, float aspect, float near, float
 float* mat4_orthographic(float* mat4d, float left, float right, float top, float bottom) {
     float xc = 2.0 / (right - left);
     float xt = -(2.0 * left + right - left) / (right - left);
-    float yc = -2.0 / (bottom - top);
-    float yt =  (2.0 * top + bottom - top) / (bottom - top);
+    float yc = -2.0 / (top - bottom);
+    float yt =  (2.0 * bottom + top - bottom) / (top - bottom);
     float zc = 1;
     float zt = 0;
 

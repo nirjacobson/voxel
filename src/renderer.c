@@ -14,7 +14,7 @@ void record_mesh(void* ptr, void* rendererPtr) {
     color[2] /= 255.0f;
 
     // Color
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, mesh);
 }
@@ -352,7 +352,7 @@ void renderer_resize(Renderer* renderer) {
 
 void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position) {
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(float[3]), position);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(float[3]), position);
 
     linked_list_foreach(&chunk->meshes, record_mesh, renderer);
 }
@@ -365,9 +365,9 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
         float color[] = { 0, 1, 1 };
 
         // World position
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(picker->selection.box.position),  picker->selection.box.position);
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->selection.box.position),  picker->selection.box.position);
         // Color
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
         renderer_3D_record_mesh(renderer, &picker->selection.mesh);
     }
@@ -409,10 +409,10 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
     // Model matrix
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(picker->box.position),  picker->box.position);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->box.position),  picker->box.position);
     // Color
     float color[] = { 1, 1, 0 };
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &picker->mesh);
 }
@@ -655,10 +655,9 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
 
     renderer_3D_record(renderer, world, camera, picker);
 
-    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.pipeline);
-    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &renderer->pipeline2D.pipeline.descriptorSets[renderer->currentFrame], 0, NULL);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.pipeline);
 
-    // renderer_2D_record(renderer, panels);
+    renderer_2D_record(renderer, panels);
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -689,9 +688,9 @@ void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camer
         192.0f/255
     };
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(worldPosition), worldPosition);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(worldPosition), worldPosition);
     // Color
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &ground->mesh);
 }
