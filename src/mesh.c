@@ -71,7 +71,7 @@ Mesh* mesh_init(Mesh* m, Vulkan* vulkan) {
 
 void mesh_destroy(Mesh* mesh) {
     vkQueueWaitIdle(mesh->vulkan->commandQueue);
-    
+
     vkDestroyBuffer(mesh->vulkan->device, mesh->vbo, NULL);
     vkFreeMemory(mesh->vulkan->device, mesh->vboDeviceMemory, NULL);
     vkDestroyBuffer(mesh->vulkan->device, mesh->ebo, NULL);
@@ -158,7 +158,7 @@ void mesh_buffer(Mesh* mesh, char mode) {
         vkDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
         vkFreeMemory(mesh->vulkan->device, oldMemory, NULL);
     }
-    
+
     mesh->haveBuffers = true;
 
     free(elements);

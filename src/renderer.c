@@ -70,12 +70,12 @@ void renderer_setup_depth_resources(Renderer* renderer) {
     VkFormat formats[] = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
 
     VkFormat depthFormat = vulkan_find_supported_format(
-        renderer->vulkan->physicalDevice,
-        formats,
-        sizeof(formats) / sizeof(formats[0]),
-        VK_IMAGE_TILING_OPTIMAL,
-        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-    );
+                               renderer->vulkan->physicalDevice,
+                               formats,
+                               sizeof(formats) / sizeof(formats[0]),
+                               VK_IMAGE_TILING_OPTIMAL,
+                               VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+                           );
 
     vulkan_create_image(renderer->vulkan->physicalDevice,
                         renderer->vulkan->device,
@@ -135,7 +135,7 @@ Renderer* renderer_init(Renderer* r, Window* window, Vulkan* vulkan) {
     renderer_create_descriptor_pool(renderer);
 
     renderer_3D_create_descriptor_sets(renderer);
-    
+
 
     renderer_create_command_buffers(renderer);
 
@@ -334,9 +334,9 @@ void renderer_destroy(Renderer* renderer) {
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline2D.pipeline.layout, NULL);
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline3D.pipeline.pipeline, NULL);
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.layout, NULL);
-    
+
     vkDestroyRenderPass(renderer->vulkan->device, renderer->renderPass, NULL);
-    
+
     renderer_cleanup_swap_chain(renderer);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -353,7 +353,7 @@ void renderer_resize(Renderer* renderer) {
 void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position) {
     // World position
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(float[3]), position);
-    
+
     linked_list_foreach(&chunk->meshes, record_mesh, renderer);
 }
 
@@ -468,7 +468,7 @@ void renderer_3D_create_descriptor_sets(Renderer* renderer) {
         descriptorWrite.pBufferInfo = &bufferInfo;
         descriptorWrite.pImageInfo = NULL;
         descriptorWrite.pTexelBufferView = NULL;
-        
+
         vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
 }
@@ -492,8 +492,8 @@ void renderer_create_sync_objects(Renderer* renderer) {
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         if (vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(renderer->vulkan->device, &fenceInfo, NULL, &renderer->inFlightFences[i]) != VK_SUCCESS) {
+                vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(renderer->vulkan->device, &fenceInfo, NULL, &renderer->inFlightFences[i]) != VK_SUCCESS) {
             printf("failed to create sync objects.\n");
             assert(false);
         }
@@ -533,7 +533,7 @@ void renderer_recreate_swap_chain(Renderer* renderer) {
 
 void renderer_3D_update_uniforms(Renderer* renderer, Camera* camera) {
     UniformBufferObject3D ubo = { 0 };
-    
+
     mat4_multiply(ubo.camera, camera->mat_view, camera->mat_model);
     mat4_inverse(ubo.camera, ubo.camera);
     memcpy(ubo.projection, camera->mat_proj, sizeof(ubo.projection));
@@ -601,7 +601,7 @@ void renderer_render(Renderer* renderer, World* world, Camera* camera, Picker* p
         printf("failed to present swap chain image.\n");
         assert(false);
     }
-    
+
     renderer->currentFrame = (renderer->currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
@@ -615,7 +615,7 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
         printf("failed to begin recording command buffer.\n");
         assert(false);
     }
-            
+
     VkClearValue clearValues[2] = { 0 };
     clearValues[0].color.float32[0] = 0.50f;
     clearValues[0].color.float32[1] = 0.75f;
@@ -739,7 +739,7 @@ void renderer_create_descriptor_sets(Renderer* renderer, VkImageView imageView, 
         descriptorWrite.pBufferInfo = NULL;
         descriptorWrite.pImageInfo = &imageInfo;
         descriptorWrite.pTexelBufferView = NULL;
-        
+
         vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
 }

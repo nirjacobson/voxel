@@ -36,7 +36,7 @@ bool vulkan_check_validation_layer_support() {
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 
     int validationLayersCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
-        bool layerFound = false;
+    bool layerFound = false;
     for (int i = 0; i < validationLayersCount; i++) {
         layerFound = false;
 
@@ -459,14 +459,14 @@ VkFormat vulkan_find_supported_format(VkPhysicalDevice physicalDevice, VkFormat*
 
 VkFormat vulkan_find_depth_format(VkPhysicalDevice physicalDevice) {
     VkFormat formats[] = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-    
+
     return vulkan_find_supported_format(
-        physicalDevice,
-        formats,
-        sizeof(formats) / sizeof(formats[0]),
-        VK_IMAGE_TILING_OPTIMAL,
-        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-    );
+               physicalDevice,
+               formats,
+               sizeof(formats) / sizeof(formats[0]),
+               VK_IMAGE_TILING_OPTIMAL,
+               VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+           );
 }
 
 void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device, SwapChain* swapChain, VkRenderPass* renderPass) {
@@ -613,9 +613,9 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment = { 0 };
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                            VK_COLOR_COMPONENT_G_BIT |
-                                            VK_COLOR_COMPONENT_B_BIT |
-                                            VK_COLOR_COMPONENT_A_BIT;
+                                          VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT |
+                                          VK_COLOR_COMPONENT_A_BIT;
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -937,11 +937,11 @@ void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPoo
     }
 
     vkCmdPipelineBarrier(commandBuffer,
-                            sourceStage, destinationStage,
-                            0,
-                            0, NULL,
-                            0, NULL,
-                            1, &barrier);
+                         sourceStage, destinationStage,
+                         0,
+                         0, NULL,
+                         0, NULL,
+                         1, &barrier);
 
     vulkan_end_single_time_commands(commandBuffer, device, queue, commandPool);
 }

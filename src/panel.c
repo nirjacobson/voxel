@@ -122,7 +122,7 @@ void panel_set_position(Panel* panel, int x, int y) {
     vkUnmapMemory(panel->vulkan->device, stagingBufferMemory);
 
     vulkan_copy_buffer(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, stagingBuffer, panel->vbo, bufferSize);
-    
+
     vkDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
     vkFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
 }
@@ -182,7 +182,7 @@ void panel_create_vulkan_resources(Panel* panel) {
     // Texture
     bufferSize = panel->width * panel->height * 4;
     vulkan_create_image(panel->vulkan->physicalDevice, panel->vulkan->device, panel->width, panel->height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &panel->texImage, &panel->texImageDeviceMemory);
-    panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);   
+    panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     // Descriptor sets
     panel->descriptorSets = NEW(VkDescriptorSet, MAX_FRAMES_IN_FLIGHT);

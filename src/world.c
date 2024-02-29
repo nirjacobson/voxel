@@ -129,7 +129,7 @@ LinkedList* world_draw_list(LinkedList* list, Camera* camera) {
 
 Chunk* world_load_world_chunk(World* world, ChunkID* chunkID) {
     Chunk* chunk = chunk_dao_load(&world->chunkDAO, chunkID);
-    
+
     if (chunk) {
         chunk->vulkan = world->vulkan;
 
@@ -139,7 +139,7 @@ Chunk* world_load_world_chunk(World* world, ChunkID* chunkID) {
         worldChunk->chunk = chunk;
         linked_list_insert(&world->chunks, worldChunk);
     }
-    
+
     return chunk;
 }
 
