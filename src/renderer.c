@@ -1,6 +1,8 @@
 #include "renderer.h"
 #include "internal/renderer.h"
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 void record_mesh(void* ptr, void* rendererPtr) {
     Mesh* mesh = (Mesh*)ptr;
     Renderer* renderer = (Renderer*)rendererPtr;
@@ -40,26 +42,7 @@ void renderer_2D_record_panel(Renderer* renderer, Panel* panel) {
     VkBuffer vertexBuffers[] = { panel->vbo };
     VkDeviceSize offsets[] = { 0 };
 
-    VkDescriptorImageInfo imageInfo = { 0 };
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = panel->texImageView;
-    imageInfo.sampler = renderer->pipeline2D.sampler;
-
-    VkWriteDescriptorSet descriptorWrite = { 0 };
-    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = renderer->pipeline2D.pipeline.descriptorSets[renderer->currentFrame];
-    descriptorWrite.dstBinding = 0;
-    descriptorWrite.dstArrayElement = 0;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pBufferInfo = NULL;
-    descriptorWrite.pImageInfo = &imageInfo;
-    descriptorWrite.pTexelBufferView = NULL;
-    
-    PFN_vkCmdPushDescriptorSetKHR _vkCmdPushDescriptorSetKHR;
-    *(void**)&_vkCmdPushDescriptorSetKHR = (void*)vkGetInstanceProcAddr(renderer->vulkan->instance, "vkCmdPushDescriptorSetKHR");
-
-    _vkCmdPushDescriptorSetKHR(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &descriptorWrite);
+    vkCmdBindDescriptorSets(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &panel->descriptorSets[renderer->currentFrame], 0, NULL);
     vkCmdBindVertexBuffers(renderer->commandBuffers[renderer->currentFrame], 0, 1, vertexBuffers, offsets);
     vkCmdDraw(renderer->commandBuffers[renderer->currentFrame], 4, 1, 0, 0);
 }
@@ -150,7 +133,7 @@ Renderer* renderer_init(Renderer* r, Window* window, Vulkan* vulkan) {
     renderer_create_descriptor_pool(renderer);
 
     renderer_3D_create_descriptor_sets(renderer);
-    renderer_2D_create_descriptor_sets(renderer);
+    
 
     renderer_create_command_buffers(renderer);
 
@@ -335,10 +318,8 @@ void renderer_destroy(Renderer* renderer) {
         vkDestroyBuffer(renderer->vulkan->device, renderer->pipeline3D.mcpBuffers[i], NULL);
         vkFreeMemory(renderer->vulkan->device, renderer->pipeline3D.mcpBuffersMemory[i], NULL);
     }
-    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline3D.pipeline.descriptorSets);
-    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline2D.pipeline.descriptorSets);
-    free(renderer->pipeline3D.pipeline.descriptorSets);
-    free(renderer->pipeline2D.pipeline.descriptorSets);
+    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline3D.descriptorSets);
+    free(renderer->pipeline3D.descriptorSets);
 
     vkFreeCommandBuffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
     free(renderer->commandBuffers);
@@ -465,7 +446,7 @@ void renderer_create_descriptor_pool(Renderer* renderer) {
 }
 
 void renderer_3D_create_descriptor_sets(Renderer* renderer) {
-    vulkan_create_descriptor_sets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline3D.pipeline.descriptorSetLayout, &renderer->pipeline3D.pipeline.descriptorSets);
+    vulkan_create_descriptor_sets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline3D.pipeline.descriptorSetLayout, &renderer->pipeline3D.descriptorSets);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         VkDescriptorBufferInfo bufferInfo = { 0 };
@@ -475,7 +456,7 @@ void renderer_3D_create_descriptor_sets(Renderer* renderer) {
 
         VkWriteDescriptorSet descriptorWrite = { 0 };
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = renderer->pipeline3D.pipeline.descriptorSets[i];
+        descriptorWrite.dstSet = renderer->pipeline3D.descriptorSets[i];
         descriptorWrite.dstBinding = 0;
         descriptorWrite.dstArrayElement = 0;
         descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -486,10 +467,6 @@ void renderer_3D_create_descriptor_sets(Renderer* renderer) {
         
         vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
-}
-
-void renderer_2D_create_descriptor_sets(Renderer* renderer) {
-    vulkan_create_descriptor_sets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline2D.pipeline.descriptorSetLayout, &renderer->pipeline2D.pipeline.descriptorSets);
 }
 
 void renderer_create_command_buffers(Renderer* renderer) {
@@ -647,7 +624,7 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.pipeline);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.layout, 0, 1, &renderer->pipeline3D.pipeline.descriptorSets[renderer->currentFrame], 0, NULL);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.layout, 0, 1, &renderer->pipeline3D.descriptorSets[renderer->currentFrame], 0, NULL);
 
     VkViewport viewport = { 0 };
     viewport.x = 0.0f;
@@ -666,10 +643,12 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
 
     renderer_3D_record(renderer, world, camera, picker);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.pipeline);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &renderer->pipeline2D.pipeline.descriptorSets[renderer->currentFrame], 0, NULL);
+    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.pipeline);
+    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline2D.pipeline.layout, 0, 1, &renderer->pipeline2D.pipeline.descriptorSets[renderer->currentFrame], 0, NULL);
 
-    renderer_2D_record(renderer, panels);
+    // renderer_2D_record(renderer, panels);
+
+    vkCmdEndRenderPass(commandBuffer);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         printf("failed to record command buffer.");
@@ -726,4 +705,33 @@ void renderer_2D_record(Renderer* renderer, LinkedList* panels) {
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat), mat);
 
     linked_list_foreach(panels, record_panel, renderer);
+}
+
+void renderer_create_descriptor_sets(Renderer* renderer, VkImageView imageView, VkDescriptorSet** descriptorSets) {
+    vulkan_create_descriptor_sets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline2D.pipeline.descriptorSetLayout, descriptorSets);
+
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        VkDescriptorImageInfo imageInfo = { 0 };
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = imageView;
+        imageInfo.sampler = renderer->pipeline2D.sampler;
+
+        VkWriteDescriptorSet descriptorWrite = { 0 };
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = (*descriptorSets)[i];
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = NULL;
+        descriptorWrite.pImageInfo = &imageInfo;
+        descriptorWrite.pTexelBufferView = NULL;
+        
+        vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
+    }
+}
+
+void renderer_destroy_descriptor_sets(Renderer* renderer, VkDescriptorSet* descriptorSets) {
+    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, descriptorSets);
+    free(descriptorSets);
 }

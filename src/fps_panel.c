@@ -1,10 +1,10 @@
 #include "fps_panel.h"
 #include "internal/fps_panel.h"
 
-FPSPanel* fps_panel_init(FPSPanel* p, Vulkan* vulkan, PanelManager* panelManager) {
+FPSPanel* fps_panel_init(FPSPanel* p, Renderer* renderer, PanelManager* panelManager) {
     FPSPanel* fpsPanel = p ? p : NEW(FPSPanel, 1);
 
-    panel_init(&fpsPanel->panel, vulkan, fpsPanel, fps_panel_draw, panelManager, FPS_PANEL_WIDTH, FPS_PANEL_HEIGHT);
+    panel_init(&fpsPanel->panel, renderer, fpsPanel, fps_panel_draw, panelManager, FPS_PANEL_WIDTH, FPS_PANEL_HEIGHT);
 
     return fpsPanel;
 }

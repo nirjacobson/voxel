@@ -21,10 +21,11 @@ char coords_over_panel(void* coordsPtr, void* panelPtr) {
 
 /* Panel */
 
-Panel* panel_init(Panel* d, Vulkan* vulkan, void* owner, void (*drawCallback)(void*), PanelManager* manager, unsigned int width, unsigned int height) {
+Panel* panel_init(Panel* d, Renderer* renderer, void* owner, void (*drawCallback)(void*), PanelManager* manager, unsigned int width, unsigned int height) {
     Panel* panel = d ? d : NEW(Panel, 1);
 
-    panel->vulkan = vulkan;
+    panel->renderer = renderer;
+    panel->vulkan = renderer->vulkan;
 
     panel->position[0] = 10;
     panel->position[1] = 10;
@@ -49,6 +50,8 @@ Panel* panel_init(Panel* d, Vulkan* vulkan, void* owner, void (*drawCallback)(vo
 }
 
 void panel_destroy(Panel* panel) {
+    renderer_destroy_descriptor_sets(panel->renderer, panel->descriptorSets);
+
     vkDestroyImageView(panel->vulkan->device, panel->texImageView, NULL);
     vkDestroyImage(panel->vulkan->device, panel->texImage, NULL);
     vkFreeMemory(panel->vulkan->device, panel->texImageDeviceMemory, NULL);
@@ -179,7 +182,10 @@ void panel_create_vulkan_resources(Panel* panel) {
     // Texture
     bufferSize = panel->width * panel->height * 4;
     vulkan_create_image(panel->vulkan->physicalDevice, panel->vulkan->device, panel->width, panel->height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &panel->texImage, &panel->texImageDeviceMemory);
-    vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);   
+    panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);   
+
+    // Descriptor sets
+    renderer_create_descriptor_sets(panel->renderer, panel->texImageView, &panel->descriptorSets);
 }
 
 /* PanelManager */

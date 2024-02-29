@@ -8,8 +8,6 @@
 #include "../mesh.h"
 #include "../panel.h"
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
-
 typedef struct {
     _Alignas(16) float camera[16];
     _Alignas(16) float projection[16];

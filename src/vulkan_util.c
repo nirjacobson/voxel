@@ -11,8 +11,7 @@ const char* validationLayers[] = {
 };
 
 const char* deviceExtensions[] = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 const VkDynamicState dynamicStates[] = {
@@ -226,6 +225,7 @@ void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPh
 
     if (*physicalDevice == VK_NULL_HANDLE) {
         printf("failed to find a suitable GPU.");
+        while(true);
     }
 
     free(devices);

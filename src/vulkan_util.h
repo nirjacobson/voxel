@@ -14,7 +14,6 @@ typedef struct {
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout layout;
     VkPipeline pipeline;
-    VkDescriptorSet* descriptorSets;
     int descriptorSetCount;
 } Pipeline;
 

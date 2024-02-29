@@ -214,10 +214,10 @@ void voxel_setup(Application* application) {
 
     panel_manager_init(&voxel->panelManager);
 
-    fps_panel_init(&voxel->fpsPanel, &voxel->vulkan, &voxel->panelManager);
+    fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
-    picker_panel_init(&voxel->pickerPanel, &voxel->vulkan, &voxel->panelManager, &voxel->picker);
+    picker_panel_init(&voxel->pickerPanel, &voxel->renderer, &voxel->panelManager, &voxel->picker);
 }
 
 void voxel_main(Application* application) {

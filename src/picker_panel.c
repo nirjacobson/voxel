@@ -56,10 +56,10 @@ void picker_panel_move_button_press(ActionRegionArgs* args) {
 
 /* PickerPanel */
 
-PickerPanel* picker_panel_init(PickerPanel* pp, Vulkan* vulkan, PanelManager* panelManager, Picker* picker) {
+PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager* panelManager, Picker* picker) {
     PickerPanel* pickerPanel = pp ? pp : NEW(PickerPanel, 1);
 
-    panel_init(&pickerPanel->panel, vulkan, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
+    panel_init(&pickerPanel->panel, renderer, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
 
     pickerPanel->background_surface = cairo_image_surface_create_from_png("img/dialog.png");
     pickerPanel->pencil_button_surface_natural = cairo_image_surface_create_from_png("img/pencil-natural.png");
