@@ -703,6 +703,14 @@ void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker
     mat4_identity(mat4);
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat4), mat4);
 
+    // Sun position
+    float vec3[] = { 100, 100, 100 };
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 96, sizeof(vec3), vec3);
+    
+    // Ambient
+    float ambient = 0.2;
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 112, sizeof(ambient), &ambient);
+
     renderer_3D_record_ground(renderer, &world->ground, camera);
 
     linked_list_foreach(&world->chunks, record_world_chunk, renderer);
