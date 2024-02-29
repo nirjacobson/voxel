@@ -57,6 +57,5 @@ void renderer_resize(Renderer* renderer);
 void renderer_render(Renderer* renderer, World* world, Camera* camera, Picker* picker, LinkedList* panels);
 
 void renderer_create_descriptor_sets(Renderer* renderer, VkImageView imageView, VkDescriptorSet** descriptorSets);
-void renderer_destroy_descriptor_sets(Renderer* renderer, VkDescriptorSet* descriptorSets);
 
 #endif // RENDERER_H

@@ -14,7 +14,7 @@ void record_mesh(void* ptr, void* rendererPtr) {
     color[2] /= 255.0f;
 
     // Color
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, mesh);
 }
@@ -61,7 +61,8 @@ void renderer_3D_create_descriptor_set_layout(Renderer* renderer, VkDescriptorSe
     layoutInfo.pBindings = &mcpLayoutBinding;
 
     if (vkCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
-        printf("failed to create descriptor set layout.");
+        printf("failed to create descriptor set layout.\n");
+        assert(false);
     }
 }
 
@@ -104,7 +105,8 @@ void renderer_setup_framebuffers(Renderer* renderer) {
         frameBufferInfo.layers = 1;
 
         if (vkCreateFramebuffer(renderer->vulkan->device, &frameBufferInfo, NULL, &renderer->swapChain.frameBuffers[i]) != VK_SUCCESS) {
-            printf("failed to create framebuffer.");
+            printf("failed to create framebuffer.\n");
+            assert(false);
         }
     }
 }
@@ -233,7 +235,8 @@ void renderer_2D_create_descriptor_set_layout(Renderer* renderer, VkDescriptorSe
     layoutInfo.pBindings = &samplerLayoutBinding;
 
     if (vkCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
-        printf("failed to create descriptor set layout.");
+        printf("failed to create descriptor set layout.\n");
+        assert(false);
     }
 }
 
@@ -318,7 +321,6 @@ void renderer_destroy(Renderer* renderer) {
         vkDestroyBuffer(renderer->vulkan->device, renderer->pipeline3D.mcpBuffers[i], NULL);
         vkFreeMemory(renderer->vulkan->device, renderer->pipeline3D.mcpBuffersMemory[i], NULL);
     }
-    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->pipeline3D.descriptorSets);
     free(renderer->pipeline3D.descriptorSets);
 
     vkFreeCommandBuffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->commandBuffers);
@@ -326,11 +328,13 @@ void renderer_destroy(Renderer* renderer) {
 
     vkDestroyDescriptorPool(renderer->vulkan->device, renderer->descriptorPool, NULL);
     vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.descriptorSetLayout, NULL);
-    
+    vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline2D.pipeline.descriptorSetLayout, NULL);
+
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline2D.pipeline.pipeline, NULL);
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline2D.pipeline.layout, NULL);
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline3D.pipeline.pipeline, NULL);
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.layout, NULL);
+    
     vkDestroyRenderPass(renderer->vulkan->device, renderer->renderPass, NULL);
     
     renderer_cleanup_swap_chain(renderer);
@@ -348,7 +352,7 @@ void renderer_resize(Renderer* renderer) {
 
 void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position) {
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 16, sizeof(float[3]), position);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(float[3]), position);
     
     linked_list_foreach(&chunk->meshes, record_mesh, renderer);
 }
@@ -361,9 +365,9 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
         float color[] = { 0, 1, 1 };
 
         // World position
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 16, sizeof(picker->selection.box.position),  picker->selection.box.position);
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(picker->selection.box.position),  picker->selection.box.position);
         // Color
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
 
         renderer_3D_record_mesh(renderer, &picker->selection.mesh);
     }
@@ -396,19 +400,19 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
         }
 
         // Model matrix
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat), mat);
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
 
         renderer_3D_record_chunk(renderer, picker->selection.model, picker->box.position);
     }
 
     mat4_identity(mat);
     // Model matrix
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat), mat);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 16, sizeof(picker->box.position),  picker->box.position);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(picker->box.position),  picker->box.position);
     // Color
     float color[] = { 1, 1, 0 };
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &picker->mesh);
 }
@@ -440,9 +444,9 @@ void renderer_create_descriptor_pool(Renderer* renderer) {
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = (uint32_t)(MAX_FRAMES_IN_FLIGHT);
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = (uint32_t)(MAX_FRAMES_IN_FLIGHT);
+    poolSizes[1].descriptorCount = (uint32_t)(8);
 
-    vulkan_create_descriptor_set_pool(renderer->vulkan->device, poolSizes, sizeof(poolSizes)/sizeof(poolSizes[0]), &renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT);
+    vulkan_create_descriptor_set_pool(renderer->vulkan->device, poolSizes, sizeof(poolSizes)/sizeof(poolSizes[0]), &renderer->descriptorPool, 8);
 }
 
 void renderer_3D_create_descriptor_sets(Renderer* renderer) {
@@ -490,7 +494,8 @@ void renderer_create_sync_objects(Renderer* renderer) {
         if (vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->imageAvailableSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(renderer->vulkan->device, &fenceInfo, NULL, &renderer->inFlightFences[i]) != VK_SUCCESS) {
-            printf("failed to create sync objects.");
+            printf("failed to create sync objects.\n");
+            assert(false);
         }
     }
 }
@@ -501,8 +506,11 @@ void renderer_cleanup_swap_chain(Renderer* renderer) {
     vkFreeMemory(renderer->vulkan->device, renderer->depthImageMemory, NULL);
     for (int i = 0; i < renderer->swapChain.imageCount; i++) {
         vkDestroyFramebuffer(renderer->vulkan->device, renderer->swapChain.frameBuffers[i], NULL);
+    }
+    for (int i = 0; i < renderer->swapChain.imageCount; i++) {
         vkDestroyImageView(renderer->vulkan->device, renderer->swapChain.imageViews[i], NULL);
     }
+    free(renderer->swapChain.frameBuffers);
     vkDestroySwapchainKHR(renderer->vulkan->device, renderer->swapChain.swapChain, NULL);
 }
 
@@ -543,7 +551,8 @@ void renderer_render(Renderer* renderer, World* world, Camera* camera, Picker* p
         renderer_recreate_swap_chain(renderer);
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        printf("failed to acquire swap chain image.");
+        printf("failed to acquire swap chain image.\n");
+        assert(false);
     }
 
     vkResetFences(renderer->vulkan->device, 1, &renderer->inFlightFences[renderer->currentFrame]);
@@ -568,7 +577,8 @@ void renderer_render(Renderer* renderer, World* world, Camera* camera, Picker* p
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     if (vkQueueSubmit(renderer->graphicsQueue, 1, &submitInfo, renderer->inFlightFences[renderer->currentFrame]) != VK_SUCCESS) {
-        printf("failed to submit draw command buffer.");
+        printf("failed to submit draw command buffer.\n");
+        assert(false);
     }
 
     VkPresentInfoKHR presentInfo = { 0 };
@@ -588,9 +598,10 @@ void renderer_render(Renderer* renderer, World* world, Camera* camera, Picker* p
         renderer->framebufferResized = false;
         renderer_recreate_swap_chain(renderer);
     } else if (result != VK_SUCCESS) {
-        printf("failed to present swap chain image.");
+        printf("failed to present swap chain image.\n");
+        assert(false);
     }
-
+    
     renderer->currentFrame = (renderer->currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
@@ -601,7 +612,8 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     beginInfo.pInheritanceInfo = NULL;
 
     if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-        printf("failed to begin recording command buffer.");
+        printf("failed to begin recording command buffer.\n");
+        assert(false);
     }
             
     VkClearValue clearValues[2] = { 0 };
@@ -651,7 +663,8 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     vkCmdEndRenderPass(commandBuffer);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        printf("failed to record command buffer.");
+        printf("failed to record command buffer.\n");
+        assert(false);
     }
 }
 
@@ -676,9 +689,9 @@ void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camer
         192.0f/255
     };
     // World position
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 16, sizeof(worldPosition), worldPosition);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(worldPosition), worldPosition);
     // Color
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 32, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &ground->mesh);
 }
@@ -687,7 +700,7 @@ void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker
     // Model matrix
     float mat4[16];
     mat4_identity(mat4);
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), mat4);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat4), mat4);
 
     renderer_3D_record_ground(renderer, &world->ground, camera);
 
@@ -702,7 +715,7 @@ void renderer_2D_record(Renderer* renderer, LinkedList* panels) {
     glfwGetFramebufferSize(renderer->window->glfwWindow, &width, &height);
     float mat[16];
     mat4_orthographic(mat, 0, width, 0, height);
-    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat), mat);
+    vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
 
     linked_list_foreach(panels, record_panel, renderer);
 }
@@ -729,9 +742,4 @@ void renderer_create_descriptor_sets(Renderer* renderer, VkImageView imageView, 
         
         vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
-}
-
-void renderer_destroy_descriptor_sets(Renderer* renderer, VkDescriptorSet* descriptorSets) {
-    vkFreeDescriptorSets(renderer->vulkan->device, renderer->descriptorPool, MAX_FRAMES_IN_FLIGHT, descriptorSets);
-    free(descriptorSets);
 }

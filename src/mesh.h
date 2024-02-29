@@ -40,6 +40,8 @@ typedef struct {
     VkDeviceMemory vboDeviceMemory;
     VkBuffer ebo;
     VkDeviceMemory eboDeviceMemory;
+
+    bool haveBuffers;
 } Mesh;
 
 Mesh* mesh_init(Mesh* m, Vulkan* vulkan);

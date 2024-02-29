@@ -17,8 +17,9 @@ Window* window_init(Window* w, Application* application) {
 }
 
 void window_open(Window* window) {
-    if (!glfwInit())
+    if (!glfwInit()) {
         return;
+    }
 
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
@@ -26,8 +27,9 @@ void window_open(Window* window) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
-    if (!window->glfwWindow)
+    if (!window->glfwWindow) {
         glfwTerminate();
+    }
 
     glfwSetWindowUserPointer(window->glfwWindow, window);
 

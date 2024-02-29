@@ -11,7 +11,7 @@ const char* validationLayers[] = {
 };
 
 const char* deviceExtensions[] = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 
 const VkDynamicState dynamicStates[] = {
@@ -169,7 +169,8 @@ bool vulkan_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
 
 void vulkan_create_instance(const char* appName, VkInstance* instance) {
     if (enableValidationLayers && !vulkan_check_validation_layer_support()) {
-        printf("validation layers requested, but not available.");
+        printf("validation layers requested, but not available.\n");
+        assert(false);
     }
 
     VkApplicationInfo appInfo = { 0 };
@@ -200,7 +201,8 @@ void vulkan_create_instance(const char* appName, VkInstance* instance) {
     }
 
     if(vkCreateInstance(&createInfo, NULL, instance) != VK_SUCCESS) {
-        printf("failed to create Vulkan instance.");
+        printf("failed to create Vulkan instance.\n");
+        assert(false);
     }
 }
 
@@ -208,7 +210,8 @@ void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPh
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
     if (deviceCount == 0) {
-        printf("failed to find GPUs with Vulkan support.");
+        printf("failed to find GPUs with Vulkan support.\n");
+        assert(false);
     }
 
     *physicalDevice = VK_NULL_HANDLE;
@@ -224,7 +227,7 @@ void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPh
     }
 
     if (*physicalDevice == VK_NULL_HANDLE) {
-        printf("failed to find a suitable GPU.");
+        printf("failed to find a suitable GPU.\n");
         while(true);
     }
 
@@ -288,7 +291,8 @@ void vulkan_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR 
     }
 
     if (vkCreateDevice(physicalDevice, &createInfo, NULL, device) != VK_SUCCESS) {
-        printf("failed to create logical device.");
+        printf("failed to create logical device.\n");
+        assert(false);
     }
 
     free(queueCreateInfos);
@@ -361,7 +365,8 @@ VkImageView vulkan_create_image_view(VkDevice device, VkImage image, VkFormat fo
 
     VkImageView imageView;
     if (vkCreateImageView(device, &viewInfo, NULL, &imageView) != VK_SUCCESS) {
-        printf("failed to create image view.");
+        printf("failed to create image view.\n");
+        assert(false);
     }
 
     return imageView;
@@ -411,7 +416,8 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     if (vkCreateSwapchainKHR(device, &createInfo, NULL, &swapChain->swapChain) != VK_SUCCESS) {
-        printf("failed to create swap chain.");
+        printf("failed to create swap chain.\n");
+        assert(false);
     }
 
     vkGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, NULL);
@@ -419,13 +425,15 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
     swapChain->imageCount = imageCount;
     vkGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, swapChain->images);
 
+    swapChain->imageFormat = surfaceFormat.format;
+    swapChain->extent = extent;
+
     swapChain->imageViews = NEW(VkImageView, imageCount);
     for (int i = 0; i < imageCount; i++) {
         swapChain->imageViews[i] = vulkan_create_image_view(device, swapChain->images[i], swapChain->imageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
-    swapChain->imageFormat = surfaceFormat.format;
-    swapChain->extent = extent;
+    swapChain->frameBuffers = NEW(VkFramebuffer, imageCount);
 
     free(swapChainSupport.formats);
     free(swapChainSupport.presentModes);
@@ -443,7 +451,8 @@ VkFormat vulkan_find_supported_format(VkPhysicalDevice physicalDevice, VkFormat*
         }
     }
 
-    printf("failed to find supported format.");
+    printf("failed to find supported format.\n");
+    assert(false);
 
     return -1;
 }
@@ -516,7 +525,8 @@ void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device,
     renderPassInfo.pDependencies = &dependency;
 
     if (vkCreateRenderPass(device, &renderPassInfo, NULL, renderPass) != VK_SUCCESS) {
-        printf("failed to create render pass.");
+        printf("failed to create render pass.\n");
+        assert(false);
     }
 }
 
@@ -546,7 +556,8 @@ VkShaderModule vulkan_create_shader_module(VkDevice device, const char* name) {
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) {
-        printf("failed to create shader module.");
+        printf("failed to create shader module.\n");
+        assert(false);
     }
 
     free(buffer);
@@ -632,7 +643,8 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
     pipelineLayoutInfo.pPushConstantRanges = pushConstants;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, NULL, &pipeline->layout) != VK_SUCCESS) {
-        printf("failed to create pipeline layout.");
+        printf("failed to create pipeline layout.\n");
+        assert(false);
     }
 
     VkPipelineDepthStencilStateCreateInfo depthStencil = { 0 };
@@ -668,7 +680,8 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
     pipelineInfo.basePipelineIndex = -1;
 
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, NULL, &pipeline->pipeline) != VK_SUCCESS) {
-        printf("failed to create graphics pipeline.");
+        printf("failed to create graphics pipeline.\n");
+        assert(false);
     }
 }
 
@@ -681,7 +694,8 @@ void vulkan_create_command_pool(VkPhysicalDevice physicalDevice, VkDevice device
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 
     if (vkCreateCommandPool(device, &poolInfo, NULL, commandPool) != VK_SUCCESS) {
-        printf("failed to create command pool.");
+        printf("failed to create command pool.\n");
+        assert(false);
     }
 }
 
@@ -695,7 +709,8 @@ uint32_t vulkan_find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeF
         }
     }
 
-    printf("failed to find suitable memory type.");
+    printf("failed to find suitable memory type.\n");
+    assert(false);
 
     return -1;
 }
@@ -718,7 +733,8 @@ void vulkan_create_image(VkPhysicalDevice physicalDevice, VkDevice device, uint3
     imageInfo.flags = 0;
 
     if (vkCreateImage(device, &imageInfo, NULL, image) != VK_SUCCESS) {
-        printf("failed to create image.");
+        printf("failed to create image.\n");
+        assert(false);
     }
 
     VkMemoryRequirements memRequirements;
@@ -730,7 +746,8 @@ void vulkan_create_image(VkPhysicalDevice physicalDevice, VkDevice device, uint3
     allocInfo.memoryTypeIndex = vulkan_find_memory_type(physicalDevice, memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocInfo, NULL, imageMemory) != VK_SUCCESS) {
-        printf("failed to allocate image memory.");
+        printf("failed to allocate image memory.\n");
+        assert(false);
     }
 
     vkBindImageMemory(device, *image, *imageMemory, 0);
@@ -758,7 +775,8 @@ void vulkan_create_sampler(VkPhysicalDevice physicalDevice, VkDevice device, VkS
     samplerInfo.maxLod = 0.0f;
 
     if (vkCreateSampler(device, &samplerInfo, NULL, sampler) != VK_SUCCESS) {
-        printf("failed to create texture sampler.");
+        printf("failed to create texture sampler.\n");
+        assert(false);
     }
 }
 
@@ -770,7 +788,8 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateBuffer(device, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
-        printf("failed to create vertex buffer.");
+        printf("failed to create vertex buffer.\n");
+        assert(false);
     }
 
     VkMemoryRequirements memRequirements;
@@ -782,7 +801,8 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
     allocInfo.memoryTypeIndex = vulkan_find_memory_type(physicalDevice, memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
-        printf("failed to allocate vertex buffer memory.");
+        printf("failed to allocate vertex buffer memory.\n");
+        assert(false);
     }
 
     vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
@@ -796,12 +816,16 @@ void vulkan_create_descriptor_set_pool(VkDevice device, VkDescriptorPoolSize* po
     poolInfo.maxSets = maxSets;
 
     if (vkCreateDescriptorPool(device, &poolInfo, NULL, descriptorPool) != VK_SUCCESS) {
-        printf("failed to create descriptor pool.");
+        printf("failed to create descriptor pool.\n");
+        assert(false);
     }
 }
 
 void vulkan_create_descriptor_sets(VkDevice device, VkDescriptorPool descriptorPool, int count, VkDescriptorSetLayout layout, VkDescriptorSet** descriptorSets) {
     VkDescriptorSetLayout* layouts = NEW(VkDescriptorSetLayout, count);
+    for (int i = 0; i < count; i++) {
+        layouts[i] = layout;
+    }
     VkDescriptorSetAllocateInfo allocInfo = { 0 };
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
@@ -809,8 +833,11 @@ void vulkan_create_descriptor_sets(VkDevice device, VkDescriptorPool descriptorP
     allocInfo.pSetLayouts = layouts;
 
     *descriptorSets = NEW(VkDescriptorSet, count);
-    if (vkAllocateDescriptorSets(device, &allocInfo, *descriptorSets) != VK_SUCCESS) {
-        printf("failed to allocate descriptor sets.");
+    VkResult result = vkAllocateDescriptorSets(device, &allocInfo, *descriptorSets);
+    if (result != VK_SUCCESS) {
+        printf("failed to allocate descriptor sets.\n");
+        printf("%d\n", result);
+        assert(false);
     }
 }
 
@@ -822,7 +849,8 @@ void vulkan_create_command_buffers(VkDevice device, VkCommandPool commandPool, i
     allocInfo.commandBufferCount = count;
 
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) != VK_SUCCESS) {
-        printf("failed to allocate command buffers.");
+        printf("failed to allocate command buffers.\n");
+        assert(false);
     }
 }
 
@@ -904,7 +932,8 @@ void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPoo
         sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else {
-        printf("unsupported layout transition.");
+        printf("unsupported layout transition.\n");
+        assert(false);
     }
 
     vkCmdPipelineBarrier(commandBuffer,

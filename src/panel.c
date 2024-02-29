@@ -50,7 +50,7 @@ Panel* panel_init(Panel* d, Renderer* renderer, void* owner, void (*drawCallback
 }
 
 void panel_destroy(Panel* panel) {
-    renderer_destroy_descriptor_sets(panel->renderer, panel->descriptorSets);
+    free(panel->descriptorSets);
 
     vkDestroyImageView(panel->vulkan->device, panel->texImageView, NULL);
     vkDestroyImage(panel->vulkan->device, panel->texImage, NULL);
@@ -185,6 +185,7 @@ void panel_create_vulkan_resources(Panel* panel) {
     panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);   
 
     // Descriptor sets
+    panel->descriptorSets = NEW(VkDescriptorSet, MAX_FRAMES_IN_FLIGHT);
     renderer_create_descriptor_sets(panel->renderer, panel->texImageView, &panel->descriptorSets);
 }
 

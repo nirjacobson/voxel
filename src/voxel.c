@@ -176,7 +176,8 @@ void voxel_setup_vulkan(Voxel* voxel) {
     vulkan_create_instance("Voxel", &voxel->vulkan.instance);
 
     if (glfwCreateWindowSurface(voxel->vulkan.instance, voxel->window.glfwWindow, NULL, &voxel->vulkan.surface) != VK_SUCCESS) {
-        printf("failed to create window surface.");
+        printf("failed to create window surface.\n");
+        assert(false);
     }
 
     voxel->window.surface = voxel->vulkan.surface;
@@ -206,8 +207,6 @@ void voxel_setup(Application* application) {
 
     camera_move(&voxel->camera, Y, 2);
 
-    voxel_resize(application);
-
     world_init(&voxel->world, &voxel->vulkan, "cubes");
 
     picker_init(&voxel->picker, &voxel->world);
@@ -218,6 +217,8 @@ void voxel_setup(Application* application) {
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
     picker_panel_init(&voxel->pickerPanel, &voxel->renderer, &voxel->panelManager, &voxel->picker);
+
+    voxel_resize(application);
 }
 
 void voxel_main(Application* application) {
