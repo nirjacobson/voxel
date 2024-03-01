@@ -3,6 +3,7 @@
 
 FPSPanel* fps_panel_init(FPSPanel* p, Renderer* renderer, PanelManager* panelManager) {
     FPSPanel* fpsPanel = p ? p : NEW(FPSPanel, 1);
+    fpsPanel->fps = 0;
 
     panel_init(&fpsPanel->panel, renderer, fpsPanel, fps_panel_draw, panelManager, FPS_PANEL_WIDTH, FPS_PANEL_HEIGHT);
 
