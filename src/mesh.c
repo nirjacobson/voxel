@@ -85,7 +85,8 @@ void mesh_calc_normals(Mesh* mesh) {
 }
 
 void mesh_buffer(Mesh* mesh, char mode) {
-    int num_elements_f  = mesh->quads.size * 4;
+    int elements_per_quad = (mode == MESH_FILL) ? 4 : 5;
+    int num_elements_f  = mesh->quads.size * elements_per_quad;
     int num_vertices_f  = num_elements_f * 6;
     float* vertex_data  = NEW(float, num_vertices_f);
     uint16_t*  elements = NEW(uint16_t, num_elements_f);
@@ -106,7 +107,11 @@ void mesh_buffer(Mesh* mesh, char mode) {
                 mode == MESH_FILL ? 3 : 2,
             };
 
-            elements[q*4+v] = q*4 + order[v];
+            elements[q*elements_per_quad+v] = q*4 + order[v];
+
+            if (mode == MESH_LINE && v == 3) {
+                elements[q*elements_per_quad+v+1] = q*4 + order[0];
+            }
         }
     }
 

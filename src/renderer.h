@@ -14,6 +14,7 @@
 
 typedef struct {
     Pipeline pipeline;
+    Pipeline pipelineLine;
     VkBuffer* mcpBuffers;
     VkDeviceMemory* mcpBuffersMemory;
     void** mcpBuffersMapped;

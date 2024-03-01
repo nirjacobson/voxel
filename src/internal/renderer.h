@@ -57,7 +57,7 @@ void renderer_3D_update_uniforms(Renderer* renderer, Camera* camera);
 
 void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t imageIndex, World* world, Camera* camera, Picker* picker, LinkedList* panels);
 
-void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh);
+void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh, char mode);
 void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position);
 void renderer_3D_record_picker(Renderer* renderer, Picker* picker);
 void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camera);

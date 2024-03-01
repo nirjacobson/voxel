@@ -16,7 +16,7 @@ void record_mesh(void* ptr, void* rendererPtr) {
     // Color
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
-    renderer_3D_record_mesh(renderer, mesh);
+    renderer_3D_record_mesh(renderer, mesh, MESH_FILL);
 }
 
 void record_world_chunk(void* worldChunkPtr, void* rendererPtr) {
@@ -177,6 +177,7 @@ void renderer_3D_get_attribute_descriptions(VkVertexInputAttributeDescription** 
 
 void renderer_3D_create_pipeline(Renderer* renderer) {
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->pipeline3D.pipeline.descriptorSetLayout);
+    renderer_3D_create_descriptor_set_layout(renderer, &renderer->pipeline3D.pipelineLine.descriptorSetLayout);
 
     VkShaderModule vertShaderModule = vulkan_create_shader_module(renderer->vulkan->device, "3D.vert.spv");
     VkShaderModule fragShaderModule = vulkan_create_shader_module(renderer->vulkan->device, "3D.frag.spv");
@@ -213,7 +214,18 @@ void renderer_3D_create_pipeline(Renderer* renderer) {
                            attributeDescriptionsCount,
                            &pushConstants,
                            renderer->renderPass,
+                           VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                            &renderer->pipeline3D.pipeline);
+    vulkan_create_pipeline(renderer->vulkan->device,
+                           &vertShaderStageInfo,
+                           &fragShaderStageInfo,
+                           &bindingDescription,
+                           attributeDescriptions,
+                           attributeDescriptionsCount,
+                           &pushConstants,
+                           renderer->renderPass,
+                           VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
+                           &renderer->pipeline3D.pipelineLine);
 
     vkDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
     vkDestroyShaderModule(renderer->vulkan->device, vertShaderModule, NULL);
@@ -306,6 +318,7 @@ void renderer_2D_create_pipeline(Renderer* renderer) {
                            attributeDescriptionsCount,
                            &pushConstants,
                            renderer->renderPass,
+                           VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                            &renderer->pipeline2D.pipeline);
 
     vkDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
@@ -328,12 +341,15 @@ void renderer_destroy(Renderer* renderer) {
 
     vkDestroyDescriptorPool(renderer->vulkan->device, renderer->descriptorPool, NULL);
     vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.descriptorSetLayout, NULL);
+    vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline3D.pipelineLine.descriptorSetLayout, NULL);
     vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->pipeline2D.pipeline.descriptorSetLayout, NULL);
 
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline2D.pipeline.pipeline, NULL);
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline2D.pipeline.layout, NULL);
     vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline3D.pipeline.pipeline, NULL);
     vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline3D.pipeline.layout, NULL);
+    vkDestroyPipeline(renderer->vulkan->device, renderer->pipeline3D.pipelineLine.pipeline, NULL);
+    vkDestroyPipelineLayout(renderer->vulkan->device, renderer->pipeline3D.pipelineLine.layout, NULL);
 
     vkDestroyRenderPass(renderer->vulkan->device, renderer->renderPass, NULL);
 
@@ -360,17 +376,6 @@ void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position)
 void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
     float mat[16];
     float vec[3];
-
-    if (picker->selection.present) {
-        float color[] = { 0, 1, 1 };
-
-        // World position
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->selection.box.position),  picker->selection.box.position);
-        // Color
-        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
-
-        renderer_3D_record_mesh(renderer, &picker->selection.mesh);
-    }
 
     if (picker->selection.model) {
         mat4_rotate(mat, NULL, (M_PI/2) * picker->selection.rotation, Y);
@@ -405,6 +410,20 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
         renderer_3D_record_chunk(renderer, picker->selection.model, picker->box.position);
     }
 
+    vkCmdBindPipeline(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipelineLine.pipeline);
+    vkCmdBindDescriptorSets(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipelineLine.layout, 0, 1, &renderer->pipeline3D.descriptorSets[renderer->currentFrame], 0, NULL);
+
+    if (picker->selection.present) {
+        float color[] = { 0, 1, 1 };
+
+        // World position
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->selection.box.position),  picker->selection.box.position);
+        // Color
+        vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
+
+        renderer_3D_record_mesh(renderer, &picker->selection.mesh, MESH_LINE);
+    }
+
     mat4_identity(mat);
     // Model matrix
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
@@ -414,7 +433,7 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
     float color[] = { 1, 1, 0 };
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
-    renderer_3D_record_mesh(renderer, &picker->mesh);
+    renderer_3D_record_mesh(renderer, &picker->mesh, MESH_LINE);
 }
 
 void renderer_record_panels(Renderer* renderer, LinkedList* panels) {
@@ -635,8 +654,6 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     renderPassInfo.pClearValues = clearValues;
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.pipeline);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.layout, 0, 1, &renderer->pipeline3D.descriptorSets[renderer->currentFrame], 0, NULL);
 
     VkViewport viewport = { 0 };
     viewport.x = 0.0f;
@@ -667,13 +684,14 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     }
 }
 
-void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh) {
+void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh, char mode) {
     VkBuffer vertexBuffers[] = { mesh->vbo };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(renderer->commandBuffers[renderer->currentFrame], 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(renderer->commandBuffers[renderer->currentFrame], mesh->ebo, 0, VK_INDEX_TYPE_UINT16);
+    int elementsPerQuad = (mode == MESH_FILL) ? 4 : 5;
     for (int i = 0; i < mesh->quads.size; i++) {
-        vkCmdDrawIndexed(renderer->commandBuffers[renderer->currentFrame], 4, 1, 4 * i, 0, 0);
+        vkCmdDrawIndexed(renderer->commandBuffers[renderer->currentFrame], elementsPerQuad, 1, elementsPerQuad * i, 0, 0);
     }
 }
 
@@ -694,7 +712,7 @@ void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camer
     // Color
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
-    renderer_3D_record_mesh(renderer, &ground->mesh);
+    renderer_3D_record_mesh(renderer, &ground->mesh, MESH_FILL);
 }
 
 void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker* picker) {
@@ -710,6 +728,9 @@ void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker
     // Ambient
     float ambient = 0.2;
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 112, sizeof(ambient), &ambient);
+
+    vkCmdBindPipeline(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.pipeline);
+    vkCmdBindDescriptorSets(renderer->commandBuffers[renderer->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->pipeline3D.pipeline.layout, 0, 1, &renderer->pipeline3D.descriptorSets[renderer->currentFrame], 0, NULL);
 
     renderer_3D_record_ground(renderer, &world->ground, camera);
 

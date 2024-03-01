@@ -570,7 +570,7 @@ VkShaderModule vulkan_create_shader_module(VkDevice device, const char* name) {
     return shaderModule;
 }
 
-void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* vertInfo, VkPipelineShaderStageCreateInfo* fragInfo, VkVertexInputBindingDescription* vertexBindingDescription, VkVertexInputAttributeDescription* vertexAttributeDescriptions, int vertexAttributeDescriptionCount, VkPushConstantRange* pushConstants, VkRenderPass renderPass, Pipeline* pipeline) {
+void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* vertInfo, VkPipelineShaderStageCreateInfo* fragInfo, VkVertexInputBindingDescription* vertexBindingDescription, VkVertexInputAttributeDescription* vertexAttributeDescriptions, int vertexAttributeDescriptionCount, VkPushConstantRange* pushConstants, VkRenderPass renderPass, VkPrimitiveTopology topology, Pipeline* pipeline) {
     VkPipelineShaderStageCreateInfo shaderStages[] = {*vertInfo, *fragInfo};
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = { 0 };
@@ -582,7 +582,7 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = { 0 };
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    inputAssembly.topology = topology;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkPipelineDynamicStateCreateInfo dynamicState = { 0 };

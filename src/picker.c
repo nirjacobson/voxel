@@ -21,6 +21,13 @@ void picker_init(Picker* p, World* world) {
 
 void picker_destroy(Picker* picker) {
     mesh_destroy(&picker->mesh);
+    if (picker->selection.present) {
+        mesh_destroy(&picker->selection.mesh);
+    }
+    if (picker->selection.model) {
+        chunk_destroy(picker->selection.model);
+        free(picker->selection.model);
+    }
 }
 
 void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
@@ -116,6 +123,9 @@ void picker_release(Picker* picker, char modifier1, char modifier2) {
 
 void picker_act(Picker* picker, char modifier1, char modifier2) {
     if (picker->action == PICKER_SELECT) {
+        if (picker->selection.present) {
+            mesh_destroy(&picker->selection.mesh);
+        }
         picker->selection.box = modifier1 ? picker_merge_selections(&picker->selection.box, &picker->box) : picker->box;
         box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
@@ -186,6 +196,12 @@ Box picker_merge_selections(Box* selectionA, Box* selectionB) {
 void picker_set_action(Picker* picker, char action) {
     picker->action = action;
 
+    if (picker->selection.model) {
+        chunk_destroy(picker->selection.model);
+        free(picker->selection.model);
+        picker->selection.model = NULL;
+    }
+
     if (action == PICKER_STAMP || action == PICKER_MOVE) {
         picker->selection.model = action == PICKER_STAMP
                                   ? world_copy_chunk(picker->world, &picker->selection.box)
@@ -193,11 +209,9 @@ void picker_set_action(Picker* picker, char action) {
         chunk_mesh(picker->selection.model);
         picker->mode = PICKER_ADJACENT;
     }  else {
-        picker->selection.present = 0;
-        if (picker->selection.model) {
-            chunk_destroy(picker->selection.model);
-            free(picker->selection.model);
-            picker->selection.model = NULL;
+        if (picker->selection.present) {
+            mesh_destroy(&picker->selection.mesh);
         }
+        picker->selection.present = 0;
     }
 }
