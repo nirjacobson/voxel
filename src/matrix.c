@@ -282,8 +282,8 @@ float* mat4_multiply(float* mat4d, float* mat4a, float* mat4b) {
 }
 
 float* mat4_perspective(float* mat4d, float fov, float aspect, float near, float far) {
-    float yc = (1 / tan(fov/2.0 * M_PI/180.0));
-    float xc = (yc / aspect);
+    float yc = -(1 / tan(fov/2.0 * M_PI/180.0));
+    float xc = (-yc / aspect);
     float zc = far / (far - near);
     float za = -(far*near) / (far - near);
 

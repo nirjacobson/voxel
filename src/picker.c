@@ -26,15 +26,15 @@ void picker_destroy(Picker* picker) {
 void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     float ray[4];
     ray[0] = mouseX;
-    ray[1] = mouseY;
-    ray[2] =  -1;
+    ray[1] = -mouseY;
+    ray[2] = 1;
     ray[3] = 1.0;
 
     // undivide by W
     vec4_scale(ray, ray, camera->near);
 
     vec4_transform(ray, camera->mat_proj_inv, ray);
-    ray[2] = -camera->near; // for accuracy
+    ray[2] = camera->near; // for accuracy
     ray[3] =  0;
 
     vec4_transform(ray, camera->mat_model, ray);

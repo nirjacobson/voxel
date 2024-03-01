@@ -104,10 +104,10 @@ void panel_set_position(Panel* panel, int x, int y) {
     panel->position[1] = y;
 
     float vertex_data[] =  {
-        panel->position[0], panel->position[1], -0.5, 0, 0,
-        panel->position[0], panel->position[1] + panel->height, -0.5, 0, 1,
-        panel->position[0] + panel->width, panel->position[1], -0.5, 1, 0,
-        panel->position[0] + panel->width, panel->position[1] + panel->height, -0.5, 1, 1
+        panel->position[0], panel->position[1], 0, 0, 0,
+        panel->position[0], panel->position[1] + panel->height, 0, 0, 1,
+        panel->position[0] + panel->width, panel->position[1], 0, 1, 0,
+        panel->position[0] + panel->width, panel->position[1] + panel->height, 0, 1, 1
     };
 
     // Vertex data
@@ -146,9 +146,9 @@ void panel_texture(Panel* panel) {
     memcpy(data, pixels, (size_t)(imageSize));
     vkUnmapMemory(panel->vulkan->device, stagingBufferMemory);
 
-    vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->texImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     vulkan_copy_buffer_to_image(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, stagingBuffer, panel->texImage, panel->width, panel->height);
-    vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->texImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
     vkFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
@@ -156,10 +156,10 @@ void panel_texture(Panel* panel) {
 
 void panel_create_vulkan_resources(Panel* panel) {
     float vertex_data[] =  {
-        panel->position[0], panel->position[1], -0.5, 0, 0,
-        panel->position[0], panel->position[1] + panel->height, -0.5, 0, 1,
-        panel->position[0] + panel->width, panel->position[1], -0.5, 1, 0,
-        panel->position[0] + panel->width, panel->position[1] + panel->height, -0.5, 1, 1
+        panel->position[0], panel->position[1], 0, 0, 0,
+        panel->position[0], panel->position[1] + panel->height, 0, 0, 1,
+        panel->position[0] + panel->width, panel->position[1], 0, 1, 0,
+        panel->position[0] + panel->width, panel->position[1] + panel->height, 0, 1, 1
     };
 
     // Vertex data
@@ -181,8 +181,8 @@ void panel_create_vulkan_resources(Panel* panel) {
 
     // Texture
     bufferSize = panel->width * panel->height * 4;
-    vulkan_create_image(panel->vulkan->physicalDevice, panel->vulkan->device, panel->width, panel->height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &panel->texImage, &panel->texImageDeviceMemory);
-    panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    vulkan_create_image(panel->vulkan->physicalDevice, panel->vulkan->device, panel->width, panel->height, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &panel->texImage, &panel->texImageDeviceMemory);
+    panel->texImageView = vulkan_create_image_view(panel->vulkan->device, panel->texImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     // Descriptor sets
     panel->descriptorSets = NEW(VkDescriptorSet, MAX_FRAMES_IN_FLIGHT);

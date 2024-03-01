@@ -17,7 +17,7 @@ Camera* camera_init(Camera* c) {
 
     camera->forward[0] =  0.0;
     camera->forward[1] =  0.0;
-    camera->forward[2] = -1.0;
+    camera->forward[2] = 1.0;
 
     camera->up[0] = 0.0;
     camera->up[1] = 1.0;
@@ -26,6 +26,8 @@ Camera* camera_init(Camera* c) {
     camera->right[0] =  1.0;
     camera->right[1] =  0.0;
     camera->right[2] =  0.0;
+
+    camera_update_projection(camera);
 
     return camera;
 }

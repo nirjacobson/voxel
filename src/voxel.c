@@ -46,16 +46,16 @@ char voxel_process_input(Voxel* voxel) {
         camera_move(&voxel->camera, voxel->camera.right, 0.5);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_UP))
-        camera_rotate(&voxel->camera, voxel->camera.right, 0.05);
-
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
-        camera_rotate(&voxel->camera, Y, 0.05);
-
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
         camera_rotate(&voxel->camera, voxel->camera.right, -0.05);
 
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
         camera_rotate(&voxel->camera, Y, -0.05);
+
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
+        camera_rotate(&voxel->camera, voxel->camera.right, 0.05);
+
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
+        camera_rotate(&voxel->camera, Y, 0.05);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
@@ -149,6 +149,7 @@ char voxel_process_input(Voxel* voxel) {
 void texture_panel(void* panelPtr, void* userData) {
     Panel* panel = (Panel*)panelPtr;
 
+    panel->drawCallback(panel->owner);
     panel_texture(panel);
 }
 
