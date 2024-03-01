@@ -706,7 +706,7 @@ void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker
     // Sun position
     float vec3[] = { 100, 100, 100 };
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 96, sizeof(vec3), vec3);
-    
+
     // Ambient
     float ambient = 0.2;
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 112, sizeof(ambient), &ambient);
