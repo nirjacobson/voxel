@@ -743,8 +743,13 @@ void renderer_2D_record(Renderer* renderer, LinkedList* panels) {
     // Projection
     int width = 0, height = 0;
     glfwGetFramebufferSize(renderer->window->glfwWindow, &width, &height);
+
+    float clipCorrect[16];
+    vulkan_clip_correction_matrix(clipCorrect);
+
     float mat[16];
     mat4_orthographic(mat, 0, width, 0, height);
+    mat4_multiply(mat, clipCorrect, mat);
     vkCmdPushConstants(renderer->commandBuffers[renderer->currentFrame], renderer->pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
 
     linked_list_foreach(panels, record_panel, renderer);

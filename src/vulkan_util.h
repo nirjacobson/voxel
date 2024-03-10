@@ -11,6 +11,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "matrix.h"
+
 typedef struct {
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout layout;
@@ -82,5 +84,7 @@ void vulkan_create_command_buffers(VkDevice device, VkCommandPool commandPool, i
 void vulkan_copy_buffer(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 void vulkan_copy_buffer_to_image(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+void vulkan_clip_correction_matrix(float* data);
 
 #endif // VULKAN_UTIL_H

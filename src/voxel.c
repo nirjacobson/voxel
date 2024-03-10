@@ -46,23 +46,23 @@ char voxel_process_input(Voxel* voxel) {
         camera_move(&voxel->camera, voxel->camera.right, 0.5);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_UP))
-        camera_rotate(&voxel->camera, voxel->camera.right, -0.05);
-
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
-        camera_rotate(&voxel->camera, Y, -0.05);
-
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
         camera_rotate(&voxel->camera, voxel->camera.right, 0.05);
 
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT))
         camera_rotate(&voxel->camera, Y, 0.05);
+
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_DOWN))
+        camera_rotate(&voxel->camera, voxel->camera.right, -0.05);
+
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_RIGHT))
+        camera_rotate(&voxel->camera, Y, -0.05);
 
     if (window_key_is_pressed(&voxel->window, GLFW_KEY_TAB)) {
         if (!tab) {
             tab = 1;
             voxel->picker.mode = voxel->picker.mode == PICKER_ONTO ? PICKER_ADJACENT : PICKER_ONTO;
             float nx = (2.0 * ((float)mouseX[0])/voxel->window.width) - 1;
-            float ny = (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height) - 1;
+            float ny = 1 - (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height);
             picker_update(&voxel->picker, &voxel->camera, nx, ny);
         }
     } else {
@@ -100,7 +100,7 @@ char voxel_process_input(Voxel* voxel) {
             Panel* panel = panel_manager_find_panel(&voxel->panelManager, mouseX[0], mouseY[0]);
             if (!panel) {
                 float nx = (2.0 * ((float)mouseX[0])/voxel->window.width) - 1;
-                float ny = (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height) - 1;
+                float ny = 1 - (2.0 * ((float)(voxel->window.height - mouseY[0]))/voxel->window.height);
                 picker_update(&voxel->picker, &voxel->camera, nx, ny);
             }
         }

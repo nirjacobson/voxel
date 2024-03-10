@@ -17,7 +17,7 @@ Camera* camera_init(Camera* c) {
 
     camera->forward[0] =  0.0;
     camera->forward[1] =  0.0;
-    camera->forward[2] = 1.0;
+    camera->forward[2] = -1.0;
 
     camera->up[0] = 0.0;
     camera->up[1] = 1.0;
@@ -90,6 +90,10 @@ Box* camera_aabb(Box* box, Camera* camera) {
 }
 
 void camera_update_projection(Camera* camera) {
+    float clipCorrect[16];
+    vulkan_clip_correction_matrix(clipCorrect);
+
     mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+    mat4_multiply(camera->mat_proj, clipCorrect, camera->mat_proj);
     mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
 }

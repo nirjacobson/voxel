@@ -976,3 +976,11 @@ void vulkan_copy_buffer_to_image(VkDevice device, VkQueue queue, VkCommandPool c
 
     vulkan_end_single_time_commands(commandBuffer, device, queue, commandPool);
 }
+
+void vulkan_clip_correction_matrix(float* data) {
+    mat4_identity(data);
+
+    data[5] = -1.0f;
+    data[10] = 0.5f;
+    data[14] = 0.5f;
+}

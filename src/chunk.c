@@ -193,10 +193,10 @@ void chunk_mesh(Chunk* chunk) {
                                                 quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
                                                 break;
                                             case 1:
-                                                quad->vertices[k].position[l] = (float)x[l]+du[l];
+                                                quad->vertices[k].position[l] = (float)x[l]+dv[l];
                                                 break;
                                             case 2:
-                                                quad->vertices[k].position[l] = (float)x[l]+dv[l];
+                                                quad->vertices[k].position[l] = (float)x[l]+du[l];
                                                 break;
                                             case 3:
                                                 quad->vertices[k].position[l] = (float)x[l];
@@ -209,10 +209,10 @@ void chunk_mesh(Chunk* chunk) {
                                                 quad->vertices[k].position[l] = (float)x[l]+du[l];
                                                 break;
                                             case 1:
-                                                quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
+                                                quad->vertices[k].position[l] = (float)x[l];
                                                 break;
                                             case 2:
-                                                quad->vertices[k].position[l] = (float)x[l];
+                                                quad->vertices[k].position[l] = (float)x[l]+du[l]+dv[l];
                                                 break;
                                             case 3:
                                                 quad->vertices[k].position[l] = (float)x[l]+dv[l];

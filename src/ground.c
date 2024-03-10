@@ -20,8 +20,8 @@ Ground* ground_init(Ground* g, Vulkan* vulkan, int length) {
         length/2, 0, length/2
     };
     memcpy(quad->vertices[0].position, backLeft, sizeof(backLeft));
-    memcpy(quad->vertices[1].position, backRight, sizeof(backRight));
-    memcpy(quad->vertices[2].position, frontLeft, sizeof(frontLeft));
+    memcpy(quad->vertices[1].position, frontLeft, sizeof(frontLeft));
+    memcpy(quad->vertices[2].position, backRight, sizeof(backRight));
     memcpy(quad->vertices[3].position, frontRight, sizeof(frontRight));
 
     quad->orientation = TOP;
