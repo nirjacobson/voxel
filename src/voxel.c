@@ -20,6 +20,8 @@ char voxel_process_input(Voxel* voxel) {
     static int mouseY[2];
     static char mouseButtons[2];
     static char f[2];
+    static char z[2];
+    static char c[2];
 
     static int tab = 0;
 
@@ -68,6 +70,21 @@ char voxel_process_input(Voxel* voxel) {
     } else {
         tab = 0;
     }
+    
+    z[1] = z[0];
+    z[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_Z);
+
+    if (!z[1] && z[0]) {
+        if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_CONTROL)) {
+            if (window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT)) {
+                undo_stack_redo(&voxel->undoStack);
+            } else {
+                undo_stack_undo(&voxel->undoStack);
+            }
+        } else {
+            picker_set_action(&voxel->picker, PICKER_SELECT);
+        }
+    }
 
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_1))
         picker_set_action(&voxel->picker, PICKER_SET);
@@ -78,14 +95,14 @@ char voxel_process_input(Voxel* voxel) {
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_Q))
         picker_set_action(&voxel->picker, PICKER_EYEDROPPER);
 
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_Z))
-        picker_set_action(&voxel->picker, PICKER_SELECT);
-
     if(window_key_is_pressed(&voxel->window, GLFW_KEY_X))
         picker_set_action(&voxel->picker, PICKER_STAMP);
 
-    if(window_key_is_pressed(&voxel->window, GLFW_KEY_C))
+    c[1] = c[0];
+    c[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_C);
+    if (!c[1] && c[0]) {
         picker_set_action(&voxel->picker, PICKER_MOVE);
+    }
 
     f[1] = f[0];
     f[0] = window_key_is_pressed(&voxel->window, GLFW_KEY_F);
@@ -180,7 +197,7 @@ void voxel_setup(Application* application) {
 
     world_init(&voxel->world, "cubes");
 
-    picker_init(&voxel->picker, &voxel->world);
+    picker_init(&voxel->picker, &voxel->world, &voxel->undoStack);
 
     panel_manager_init(&voxel->panelManager);
 
@@ -188,6 +205,8 @@ void voxel_setup(Application* application) {
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 
     picker_panel_init(&voxel->pickerPanel, &voxel->panelManager, &voxel->picker);
+
+    undo_stack_init(&voxel->undoStack);
 }
 
 void voxel_main(Application* application) {
@@ -216,6 +235,7 @@ void voxel_resize(Application* application) {
 void voxel_teardown(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
+    undo_stack_destroy(&voxel->undoStack);
     world_destroy(&voxel->world);
     fps_panel_destroy(&voxel->fpsPanel);
     picker_panel_destroy(&voxel->pickerPanel);
