@@ -1,4 +1,9 @@
 MODULES = global       \
+          commands/world_clear_region_command   \
+          commands/world_copy_chunk_command     \
+          commands/world_cut_chunk_command      \
+          commands/world_set_region_command     \
+          undo_stack   \
           vulkan_util  \
           panel        \
           fps_panel    \
@@ -34,7 +39,7 @@ format:
 	astyle -rnNCS *.{c,h}
 
 build/:
-	mkdir -p build
+	mkdir -p build/commands
 
 build/%.o : src/%.c | build/
 	gcc -c $< -o $@ ${CFLAGS}

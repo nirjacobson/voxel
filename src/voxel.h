@@ -14,6 +14,7 @@
 #include "panel.h"
 #include "fps_panel.h"
 #include "picker_panel.h"
+#include "undo_stack.h"
 
 typedef struct {
     Application application;
@@ -31,6 +32,8 @@ typedef struct {
 
     FPSPanel fpsPanel;
     PickerPanel pickerPanel;
+
+    UndoStack undoStack;
 
     struct timeval frameTime;
 } Voxel;

@@ -1,9 +1,10 @@
 #include "picker.h"
 #include "internal/picker.h"
 
-void picker_init(Picker* p, World* world) {
+void picker_init(Picker* p, World* world, UndoStack* undoStack) {
     Picker* picker = p ? p : NEW(Picker, 1);
     picker->world = world;
+    picker->undoStack = undoStack;
 
     box_init(&picker->box, world->vulkan);
     box_mesh(&picker->mesh, &picker->box);
@@ -130,35 +131,27 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
         box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
         picker->selection.rotation = 0;
-    } else if (picker->action == PICKER_STAMP || picker->action == PICKER_MOVE) {
-        world_set_chunk(picker->world, picker->selection.model, picker->positionEnd, picker->selection.rotation);
-        if (picker->action == PICKER_MOVE) {
-            picker_set_action(picker, PICKER_SELECT);
-        }
+    } else if (picker->action == PICKER_STAMP) {
+        WorldCopyChunkCommand* copyChunkCommand = world_copy_chunk_command_init(picker->world, picker->selection.model, picker->positionEnd, picker->selection.rotation);
+        undo_stack_push(picker->undoStack, &copyChunkCommand->command);
+    } else if (picker->action == PICKER_MOVE) {
+        int fromLocation[] = {
+            picker->selection.box.position[0],
+            picker->selection.box.position[1],
+            picker->selection.box.position[2],
+        };
+        WorldCutChunkCommand* cutChunkCommand = world_cut_chunk_command_init(picker->world, picker->selection.model, fromLocation, picker->positionEnd, picker->selection.rotation);
+        undo_stack_push(picker->undoStack, &cutChunkCommand->command);
+        picker_set_action(picker, PICKER_SELECT);
     } else if (picker->action == PICKER_EYEDROPPER) {
         Block* block = world_get_block(picker->world, picker->positionEnd);
         picker->color = block_color(block);
-    } else if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-        for (int x = 0; x < picker->box.width; x++) {
-            for (int y = 0; y < picker->box.height; y++) {
-                for (int z = 0; z < picker->box.length; z++) {
-                    int location[3] = {
-                        picker->box.position[0] + x,
-                        picker->box.position[1] + y,
-                        picker->box.position[2] + z
-                    };
-                    switch (picker->action) {
-                        case PICKER_CLEAR:
-                            world_block_set_active(picker->world, location, 0);
-                            break;
-                        case PICKER_SET:
-                            world_block_set_color(picker->world, location, picker->color);
-                            world_block_set_active(picker->world, location, 1);
-                            break;
-                    }
-                }
-            }
-        }
+    } else if (picker->action == PICKER_SET) {
+        WorldSetRegionCommand* setRegionCommand = world_set_region_command_init(picker->world, &picker->box, picker->color);
+        undo_stack_push(picker->undoStack, &setRegionCommand->command);
+    } else if (picker->action == PICKER_CLEAR) {
+        WorldClearRegionCommand* clearRegionCommand = world_clear_region_command_init(picker->world, &picker->box);
+        undo_stack_push(picker->undoStack, &clearRegionCommand->command);
     }
 }
 
@@ -196,12 +189,6 @@ Box picker_merge_selections(Box* selectionA, Box* selectionB) {
 void picker_set_action(Picker* picker, char action) {
     picker->action = action;
 
-    if (picker->selection.model) {
-        chunk_destroy(picker->selection.model);
-        free(picker->selection.model);
-        picker->selection.model = NULL;
-    }
-
     if (action == PICKER_STAMP || action == PICKER_MOVE) {
         picker->selection.model = action == PICKER_STAMP
                                   ? world_copy_chunk(picker->world, &picker->selection.box)
@@ -209,9 +196,9 @@ void picker_set_action(Picker* picker, char action) {
         chunk_mesh(picker->selection.model);
         picker->mode = PICKER_ADJACENT;
     }  else {
-        if (picker->selection.present) {
-            mesh_destroy(&picker->selection.mesh);
-        }
         picker->selection.present = 0;
+        if (picker->selection.model) {
+            picker->selection.model = NULL;
+        }
     }
 }

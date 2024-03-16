@@ -34,6 +34,7 @@ void world_block_set_color(World* world, int* location, uint16_t color);
 Chunk* world_copy_chunk(World* world, Box* box);
 Chunk* world_cut_chunk(World* world, Box* box);
 void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation);
+void world_clear_region(World* world, Box* region);
 
 void world_update(World* world, Camera* camera);
 

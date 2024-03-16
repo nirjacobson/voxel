@@ -354,6 +354,8 @@ void world_set_chunk(World* world, Chunk* chunk, int* location, int rotation) {
                 if (block_is_active(block)) {
                     world_block_set_active(world, blockLocation, 1);
                     world_block_set_color(world, blockLocation, block_color(block));
+                } else {
+                    world_block_set_active(world, blockLocation, 0);
                 }
             }
         }
@@ -407,4 +409,19 @@ void world_update(World* world, Camera* camera) {
     linked_list_destroy(&chunksToUnload, NULL);
 
     linked_list_destroy(&drawList, free);
+}
+
+void world_clear_region(World* world, Box* region) {
+    for (int x = 0; x < region->width; x++) {
+        for (int y = 0; y < region->height; y++) {
+            for (int z = 0; z < region->length; z++) {
+                int location[3] = {
+                    region->position[0] + x,
+                    region->position[1] + y,
+                    region->position[2] + z
+                };
+                world_block_set_active(world, location, 0);
+            }
+        }
+    }
 }
