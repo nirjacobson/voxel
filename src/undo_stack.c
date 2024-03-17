@@ -29,8 +29,17 @@ void undo_stack_push(UndoStack* stack, Command* command) {
         }
     }
 
-    linked_list_insert(&stack->commands, command);
-    stack->top = stack->commands.tail;
+    if (stack->commands.size == 0) {
+        linked_list_insert(&stack->commands, command);
+        stack->top = stack->commands.head;
+    } else if (stack->top == 0) {
+        linked_list_insert_before(&stack->commands, stack->commands.head, command);
+        stack->top = stack->commands.head;
+    } else {
+        linked_list_insert_after(&stack->commands, stack->top, command);
+        stack->top = stack->top->next;
+    }
+
 }
 
 void undo_stack_undo(UndoStack* stack) {
