@@ -20,6 +20,8 @@ void linked_list_destroy(LinkedList* list, void (*destroy_fn)(void*));
 
 void linked_list_insert(LinkedList* list, void* data);
 void linked_list_insert_ordered(LinkedList* list, void* data, int (*comparison)(void*, void*));
+void linked_list_insert_before(LinkedList* list, LinkedListNode* node, void* data);
+void linked_list_insert_after(LinkedList* list, LinkedListNode* node, void* data);
 
 void linked_list_foreach(LinkedList* list, void (*visitor)(void*, void*), void* userData);
 

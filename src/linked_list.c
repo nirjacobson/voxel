@@ -52,6 +52,46 @@ void linked_list_insert(LinkedList* list, void* data) {
     list->size++;
 }
 
+void linked_list_insert_before(LinkedList* list, LinkedListNode* node, void* data) {
+    LinkedListNode* newNode = NEW(LinkedListNode, 1);
+    linked_list_node_init(newNode);
+    newNode->data = data;
+
+    if (node->prev) {
+        node->prev->next = newNode;
+        newNode->prev = node->prev;
+    }
+
+    newNode->next = node;
+    node->prev = newNode;
+
+    if (node == list->head) {
+        list->head = newNode;
+    }
+
+    list->size++;
+}
+
+void linked_list_insert_after(LinkedList* list, LinkedListNode* node, void* data) {
+    LinkedListNode* newNode = NEW(LinkedListNode, 1);
+    linked_list_node_init(newNode);
+    newNode->data = data;
+
+    if (node->next) {
+        node->next->prev = newNode;
+        newNode->next = node->next;
+    }
+
+    newNode->prev = node;
+    node->next = newNode;
+
+    if (node == list->tail) {
+        list->tail = newNode;
+    }
+
+    list->size++;
+}
+
 void linked_list_insert_ordered(LinkedList* list, void* data, int (*comparison)(void*, void*)) {
     LinkedListNode* newNode = NEW(LinkedListNode, 1);
     linked_list_node_init(newNode);
