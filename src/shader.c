@@ -1,12 +1,6 @@
 #include "shader.h"
 
-extern const char __3D_vert_glsl[];
-extern const char __3D_frag_glsl[];
-
-extern const char __2D_vert_glsl[];
-extern const char __2D_frag_glsl[];
-
-GLuint shader_create(const char* src, GLenum shaderType) {
+GLuint shader_create(const unsigned char* src, GLenum shaderType) {
     GLuint shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, (const GLchar** const)&src, NULL);
     glCompileShader(shader);
@@ -42,8 +36,14 @@ GLuint shader_create_program(GLuint vertex_shader, GLuint fragment_shader) {
 ShaderProgram3D* shader_program_3D_init(ShaderProgram3D* s) {
     ShaderProgram3D* shaderProgram3D = s ? s : NEW(ShaderProgram3D, 1);
 
-    shaderProgram3D->shader_vert = shader_create(__3D_vert_glsl, GL_VERTEX_SHADER);
-    shaderProgram3D->shader_frag = shader_create(__3D_frag_glsl, GL_FRAGMENT_SHADER);
+    GBytes* _3D_vert_glsl = g_resources_lookup_data("/src/shaders/3D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_frag_glsl = g_resources_lookup_data("/src/shaders/3D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+
+    const guint8* __3D_vert_glsl = g_bytes_get_data(_3D_vert_glsl, NULL);
+    const guint8* __3D_frag_glsl = g_bytes_get_data(_3D_frag_glsl, NULL);
+
+    shaderProgram3D->shader_vert = shader_create((const unsigned char*)__3D_vert_glsl, GL_VERTEX_SHADER);
+    shaderProgram3D->shader_frag = shader_create((const unsigned char*)__3D_frag_glsl, GL_FRAGMENT_SHADER);
     shaderProgram3D->shader_prog = shader_create_program(shaderProgram3D->shader_vert, shaderProgram3D->shader_frag);
 
     shaderProgram3D->attrib_position = glGetAttribLocation(shaderProgram3D->shader_prog, "position");
@@ -100,8 +100,14 @@ void shader_program_3D_use(ShaderProgram3D* shaderProgram3D) {
 ShaderProgram2D* shader_program_2D_init(ShaderProgram2D* s) {
     ShaderProgram2D* shaderProgram2D = s ? s : NEW(ShaderProgram2D, 1);
 
-    shaderProgram2D->shader_vert = shader_create(__2D_vert_glsl, GL_VERTEX_SHADER);
-    shaderProgram2D->shader_frag = shader_create(__2D_frag_glsl, GL_FRAGMENT_SHADER);
+    GBytes* _2D_vert_glsl = g_resources_lookup_data("/src/shaders/2D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_frag_glsl = g_resources_lookup_data("/src/shaders/2D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+
+    const guint8* __2D_vert_glsl = g_bytes_get_data(_2D_vert_glsl, NULL);
+    const guint8* __2D_frag_glsl = g_bytes_get_data(_2D_frag_glsl, NULL);
+
+    shaderProgram2D->shader_vert = shader_create((const unsigned char*)__2D_vert_glsl, GL_VERTEX_SHADER);
+    shaderProgram2D->shader_frag = shader_create((const unsigned char*)__2D_frag_glsl, GL_FRAGMENT_SHADER);
     shaderProgram2D->shader_prog = shader_create_program(shaderProgram2D->shader_vert, shaderProgram2D->shader_frag);
 
     shaderProgram2D->attrib_position = glGetAttribLocation(shaderProgram2D->shader_prog, "position");

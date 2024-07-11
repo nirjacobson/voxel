@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <GLES3/gl3.h>
+#include <gio/gio.h>
 
 #include "global.h"
 
