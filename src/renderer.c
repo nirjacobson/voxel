@@ -3,16 +3,6 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-extern const unsigned char __3D_vert_spv[];
-extern const unsigned int __3D_vert_spv_len;
-extern const unsigned char __3D_frag_spv[];
-extern const unsigned int __3D_frag_spv_len;
-
-extern const unsigned char __2D_vert_spv[];
-extern const unsigned int __2D_vert_spv_len;
-extern const unsigned char __2D_frag_spv[];
-extern const unsigned int __2D_frag_spv_len;
-
 void record_mesh(void* ptr, void* rendererPtr) {
     Mesh* mesh = (Mesh*)ptr;
     Renderer* renderer = (Renderer*)rendererPtr;
@@ -189,6 +179,14 @@ void renderer_3D_create_pipeline(Renderer* renderer) {
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->pipeline3D.pipeline.descriptorSetLayout);
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->pipeline3D.pipelineLine.descriptorSetLayout);
 
+    GBytes* _3D_vert_spv = g_resources_lookup_data("/build/shaders/3D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_frag_spv = g_resources_lookup_data("/build/shaders/3D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+
+    const guint8* __3D_vert_spv = g_bytes_get_data(_3D_vert_spv, NULL);
+    gsize __3D_vert_spv_len = g_bytes_get_size(_3D_vert_spv);
+    const guint8* __3D_frag_spv = g_bytes_get_data(_3D_frag_spv, NULL);
+    gsize __3D_frag_spv_len = g_bytes_get_size(_3D_frag_spv);
+
     VkShaderModule vertShaderModule = vulkan_create_shader_module(renderer->vulkan->device, __3D_vert_spv, __3D_vert_spv_len);
     VkShaderModule fragShaderModule = vulkan_create_shader_module(renderer->vulkan->device, __3D_frag_spv, __3D_frag_spv_len);
 
@@ -292,6 +290,14 @@ void renderer_2D_get_attribute_descriptions(VkVertexInputAttributeDescription** 
 
 void renderer_2D_create_pipeline(Renderer* renderer) {
     renderer_2D_create_descriptor_set_layout(renderer, &renderer->pipeline2D.pipeline.descriptorSetLayout);
+
+    GBytes* _2D_vert_spv = g_resources_lookup_data("/build/shaders/2D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_frag_spv = g_resources_lookup_data("/build/shaders/2D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+
+    const guint8* __2D_vert_spv = g_bytes_get_data(_2D_vert_spv, NULL);
+    gsize __2D_vert_spv_len = g_bytes_get_size(_2D_vert_spv);
+    const guint8* __2D_frag_spv = g_bytes_get_data(_2D_frag_spv, NULL);
+    gsize __2D_frag_spv_len = g_bytes_get_size(_2D_frag_spv);
 
     VkShaderModule vertShaderModule = vulkan_create_shader_module(renderer->vulkan->device, __2D_vert_spv, __2D_vert_spv_len);
     VkShaderModule fragShaderModule = vulkan_create_shader_module(renderer->vulkan->device, __2D_frag_spv, __2D_frag_spv_len);

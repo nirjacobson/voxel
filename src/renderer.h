@@ -2,6 +2,7 @@
 #define RENDERER_H
 
 #include <math.h>
+#include <gio/gio.h>
 
 #include "matrix.h"
 

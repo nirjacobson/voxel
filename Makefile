@@ -4,10 +4,6 @@ MODULES = global       \
           commands/world_copy_chunk_command     \
           commands/world_cut_chunk_command      \
           commands/world_set_region_command     \
-          shaders/3D.vert \
-          shaders/3D.frag \
-          shaders/2D.vert \
-          shaders/2D.frag \
           undo_stack   \
           vulkan_util  \
           panel        \
@@ -31,6 +27,7 @@ MODULES = global       \
           window       \
           voxel        \
           main
+SHADERS = 3D.vert 3D.frag 2D.vert 2D.frag
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS    = vulkan glfw3 cairo gio-2.0
 CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags ${LIBS}` -g
@@ -42,17 +39,13 @@ EXEC    = voxel
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
-%.vert.spv : %.vert.glsl
+build/shaders/%.vert.spv : src/shaders/%.vert.glsl
 	glslc -fshader-stage=vert -c $< -o $@
 
-%.frag.spv : %.frag.glsl
+build/shaders/%.frag.spv : src/shaders/%.frag.glsl
 	glslc -fshader-stage=frag -c $< -o $@
 
-src/shaders/%.c: src/shaders/%.spv
-	xxd -i -n $(notdir $<) $< $@
-	sed -i 's/unsigned/const unsigned/g' $@
-
-src/resources.c: resources.xml
+src/resources.c: resources.xml $(foreach SHADER, ${SHADERS}, build/shaders/${SHADER}.spv)
 	glib-compile-resources --target=$@ --generate-source $<
 
 format:
@@ -66,8 +59,7 @@ build/%.o : src/%.c | build/
 	gcc -c $< -o $@ ${CFLAGS}
 
 clean:
-	rm -rf src/shaders/*.c
 	rm -f src/resources.c
 	rm -rf build
-	rm -rf src/shaders/*.{spv,c}
+	rm -rf src/shaders/*.spv
 	rm ${EXEC}
