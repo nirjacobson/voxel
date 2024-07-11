@@ -1,6 +1,8 @@
 #ifndef PICKER_H
 #define PICKER_H
 
+#include <glib.h>
+
 #include "global.h"
 #include "box.h"
 #include "camera.h"

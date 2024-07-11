@@ -1,6 +1,8 @@
 #include "voxel.h"
 #include "internal/voxel.h"
 
+extern GResource* resources_get_resource();
+
 Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);
 
@@ -187,6 +189,8 @@ void voxel_draw(Voxel* voxel) {
 
 void voxel_setup(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
+
+    g_resources_register(resources_get_resource());
 
     renderer_init(&voxel->renderer);
     camera_init(&voxel->camera);

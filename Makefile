@@ -1,4 +1,5 @@
 MODULES = global           \
+          resources        \
           commands/world_set_region_command \
           commands/world_clear_region_command \
           commands/world_copy_chunk_command \
@@ -31,13 +32,16 @@ MODULES = global           \
           voxel            \
           main
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS    = gl glfw3 cairo
+LIBS    = gl glfw3 cairo gio-2.0
 CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags ${LIBS}` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lm
 EXEC    = voxel
 
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
+
+src/resources.c: resources.xml
+	glib-compile-resources --target=$@ --generate-source $<
 
 src/shaders/%.c: src/shaders/%.glsl
 	xxd -i -n $(notdir $<) $< $@
@@ -55,5 +59,6 @@ build/%.o : src/%.c | build/
 
 clean:
 	rm -rf src/shaders/*.c
+	rm -f src/resources.c
 	rm -rf build
 	rm ${EXEC}
