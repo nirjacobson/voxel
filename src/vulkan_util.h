@@ -71,7 +71,7 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
 VkFormat vulkan_find_supported_format(VkPhysicalDevice physicalDevice, VkFormat* candidates, int count, VkImageTiling tiling, VkFormatFeatureFlags features);
 VkFormat vulkan_find_depth_format(VkPhysicalDevice physicalDevice);
 void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device, SwapChain* swapChain, VkRenderPass* renderPass);
-VkShaderModule vulkan_create_shader_module(VkDevice device, const char* name);
+VkShaderModule vulkan_create_shader_module(VkDevice device, const unsigned char* src, const int len);
 void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* vertInfo, VkPipelineShaderStageCreateInfo* fragInfo, VkVertexInputBindingDescription* vertexBindingDescription, VkVertexInputAttributeDescription* vertexAttributeDescriptions, int vertexAttributeDescriptionCount, VkPushConstantRange* pushConstants, VkRenderPass renderPass, VkPrimitiveTopology topology, Pipeline* pipeline);
 void vulkan_create_command_pool(VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, VkCommandPool* commandPool);
 uint32_t vulkan_find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);

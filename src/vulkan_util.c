@@ -536,29 +536,11 @@ void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device,
     }
 }
 
-VkShaderModule vulkan_create_shader_module(VkDevice device, const char* name) {
-    char fullpath[25];
-    sprintf(fullpath, "shaders/%s", name);
-
-    FILE* file;
-    long fsize;
-    char* buffer;
-
-    file = fopen(fullpath, "rb");
-
-    fseek(file, 0, SEEK_END);
-    fsize = ftell(file);
-    rewind(file);
-
-    buffer = NEW(char, fsize);
-    fread(buffer,1,fsize,file);
-
-    fclose(file);
-
+VkShaderModule vulkan_create_shader_module(VkDevice device, const unsigned char* src, const int len) {
     VkShaderModuleCreateInfo createInfo = { 0 };
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = fsize;
-    createInfo.pCode = (uint32_t*)buffer;
+    createInfo.codeSize = len;
+    createInfo.pCode = (uint32_t*)src;
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) {
@@ -566,7 +548,6 @@ VkShaderModule vulkan_create_shader_module(VkDevice device, const char* name) {
         assert(false);
     }
 
-    free(buffer);
     return shaderModule;
 }
 
