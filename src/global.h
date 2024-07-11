@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 
-#define MIN(x, y)    ((x) < (y) ? (x) : (y))
-#define MAX(x, y)    ((x) > (y) ? (x) : (y))
 #define NEW(type, count)     (type*)malloc((count) * sizeof(type));
 
 extern float X[3];

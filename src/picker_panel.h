@@ -1,6 +1,8 @@
 #ifndef PICKER_PANEL_H
 #define PICKER_PANEL_H
 
+#include <gio/gio.h>
+
 #include "panel.h"
 #include "picker.h"
 

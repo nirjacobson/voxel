@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/">
+    <file>img/color-dropper-natural.png</file>
+    <file>img/color-dropper-selected.png</file>
+    <file>img/dialog.png</file>
+    <file>img/eraser-natural.png</file>
+    <file>img/eraser-selected.png</file>
+    <file>img/move-natural.png</file>
+    <file>img/move-selected.png</file>
+    <file>img/pencil-natural.png</file>
+    <file>img/pencil-selected.png</file>
+    <file>img/select-natural.png</file>
+    <file>img/select-selected.png</file>
+    <file>img/stamp-natural.png</file>
+    <file>img/stamp-selected.png</file>
+  </gresource>
+</gresources>

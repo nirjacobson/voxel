@@ -56,24 +56,61 @@ void picker_panel_move_button_press(ActionRegionArgs* args) {
 
 /* PickerPanel */
 
+cairo_status_t cairo_read_func(void* closure, unsigned char* data, unsigned int length) {
+    unsigned int read_len = g_input_stream_read((GInputStream*)closure, data, length, (void*)NULL, (GError**)NULL);
+
+    if (read_len == length) {
+        return CAIRO_STATUS_SUCCESS;
+    }
+
+    return CAIRO_STATUS_READ_ERROR;
+}
+
 PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager* panelManager, Picker* picker) {
     PickerPanel* pickerPanel = pp ? pp : NEW(PickerPanel, 1);
 
     panel_init(&pickerPanel->panel, renderer, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
 
-    pickerPanel->background_surface = cairo_image_surface_create_from_png("img/dialog.png");
-    pickerPanel->pencil_button_surface_natural = cairo_image_surface_create_from_png("img/pencil-natural.png");
-    pickerPanel->pencil_button_surface_selected = cairo_image_surface_create_from_png("img/pencil-selected.png");
-    pickerPanel->eraser_button_surface_natural = cairo_image_surface_create_from_png("img/eraser-natural.png");
-    pickerPanel->eraser_button_surface_selected = cairo_image_surface_create_from_png("img/eraser-selected.png");
-    pickerPanel->dropper_button_surface_natural = cairo_image_surface_create_from_png("img/color-dropper-natural.png");
-    pickerPanel->dropper_button_surface_selected = cairo_image_surface_create_from_png("img/color-dropper-selected.png");
-    pickerPanel->select_button_surface_natural = cairo_image_surface_create_from_png("img/select-natural.png");
-    pickerPanel->select_button_surface_selected = cairo_image_surface_create_from_png("img/select-selected.png");
-    pickerPanel->stamp_button_surface_natural = cairo_image_surface_create_from_png("img/stamp-natural.png");
-    pickerPanel->stamp_button_surface_selected = cairo_image_surface_create_from_png("img/stamp-selected.png");
-    pickerPanel->move_button_surface_natural = cairo_image_surface_create_from_png("img/move-natural.png");
-    pickerPanel->move_button_surface_selected = cairo_image_surface_create_from_png("img/move-selected.png");
+    GInputStream* inputStream;
+    
+    const char* paths[] = {
+        "/img/dialog.png",
+        "/img/pencil-natural.png",
+        "/img/pencil-selected.png",
+        "/img/eraser-natural.png",
+        "/img/eraser-selected.png",
+        "/img/color-dropper-natural.png",
+        "/img/color-dropper-selected.png",
+        "/img/select-natural.png",
+        "/img/select-selected.png",
+        "/img/stamp-natural.png",
+        "/img/stamp-selected.png",
+        "/img/move-natural.png",
+        "/img/move-selected.png"
+    };
+
+    cairo_surface_t** surfaces[] = {
+        &pickerPanel->background_surface,
+        &pickerPanel->pencil_button_surface_natural,
+        &pickerPanel->pencil_button_surface_selected,
+        &pickerPanel->eraser_button_surface_natural,
+        &pickerPanel->eraser_button_surface_selected,
+        &pickerPanel->dropper_button_surface_natural,
+        &pickerPanel->dropper_button_surface_selected,
+        &pickerPanel->select_button_surface_natural,
+        &pickerPanel->select_button_surface_selected,
+        &pickerPanel->stamp_button_surface_natural,
+        &pickerPanel->stamp_button_surface_selected,
+        &pickerPanel->move_button_surface_natural,
+        &pickerPanel->move_button_surface_selected
+    };
+
+    int count = sizeof(surfaces) / sizeof(surfaces[0]);
+
+    for (int i = 0; i < count; i++) {
+        inputStream = g_resources_open_stream(paths[i], G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+        *surfaces[i] = cairo_image_surface_create_from_png_stream(cairo_read_func, (void*)inputStream);
+    }
 
     pickerPanel->picker = picker;
 

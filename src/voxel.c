@@ -2,6 +2,7 @@
 #include "internal/voxel.h"
 
 extern const bool enableValidationLayers;
+extern GResource* resources_get_resource();
 
 Voxel* voxel_init(Voxel* v) {
     Voxel* voxel = v ? v : NEW(Voxel, 1);
@@ -218,6 +219,8 @@ void voxel_teardown_vulkan(Voxel* voxel) {
 void voxel_setup(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
+    g_resources_register(resources_get_resource());
+    
     voxel_setup_vulkan(voxel);
 
     renderer_init(&voxel->renderer, &voxel->window, &voxel->vulkan);

@@ -1,4 +1,5 @@
 MODULES = global       \
+          resources    \
           commands/world_clear_region_command   \
           commands/world_copy_chunk_command     \
           commands/world_cut_chunk_command      \
@@ -31,10 +32,12 @@ MODULES = global       \
           voxel        \
           main
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS    = vulkan glfw3 cairo
+LIBS    = vulkan glfw3 cairo gio-2.0
 CFLAGS  = -O2 -Wall -Wno-unused-result `pkg-config --cflags ${LIBS}` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lm
 EXEC    = voxel
+
+.SECONDARY:
 
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
@@ -49,6 +52,9 @@ src/shaders/%.c: src/shaders/%.spv
 	xxd -i -n $(notdir $<) $< $@
 	sed -i 's/unsigned/const unsigned/g' $@
 
+src/resources.c: resources.xml
+	glib-compile-resources --target=$@ --generate-source $<
+
 format:
 	astyle -rnNCS *.{c,h}
 
@@ -60,6 +66,8 @@ build/%.o : src/%.c | build/
 	gcc -c $< -o $@ ${CFLAGS}
 
 clean:
+	rm -rf src/shaders/*.c
+	rm -f src/resources.c
 	rm -rf build
 	rm -rf src/shaders/*.{spv,c}
 	rm ${EXEC}

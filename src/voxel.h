@@ -2,6 +2,7 @@
 #define VOXEL_H
 
 #include <sys/time.h>
+#include <gio/gio.h>
 
 #include "global.h"
 #include "vulkan_util.h"
