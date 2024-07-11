@@ -1,24 +1,14 @@
 #include "shader.h"
 
-GLuint shader_create(const char* path, GLenum shaderType) {
-    FILE* file;
-    long fsize;
-    char* buffer;
+extern const char __3D_vert_glsl[];
+extern const char __3D_frag_glsl[];
 
-    file = fopen(path, "r");
+extern const char __2D_vert_glsl[];
+extern const char __2D_frag_glsl[];
 
-    fseek(file, 0, SEEK_END);
-    fsize = ftell(file);
-    rewind(file);
-
-    buffer = NEW(char, fsize + 1);
-    fread(buffer,1,fsize,file);
-    buffer[fsize] = '\0';
-
-    fclose(file);
-
+GLuint shader_create(const char* src, GLenum shaderType) {
     GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, (const GLchar** const)&buffer, NULL);
+    glShaderSource(shader, 1, (const GLchar** const)&src, NULL);
     glCompileShader(shader);
 
     GLint status;
@@ -28,8 +18,6 @@ GLuint shader_create(const char* path, GLenum shaderType) {
         glGetShaderInfoLog(shader, 512, NULL, buffer);
         printf("Shader compile error: %s\n", buffer);
     }
-
-    free(buffer);
 
     return shader;
 }
@@ -54,11 +42,8 @@ GLuint shader_create_program(GLuint vertex_shader, GLuint fragment_shader) {
 ShaderProgram3D* shader_program_3D_init(ShaderProgram3D* s) {
     ShaderProgram3D* shaderProgram3D = s ? s : NEW(ShaderProgram3D, 1);
 
-    char* shader_vert_path = "src/shaders/3D.vert";
-    char* shader_frag_path = "src/shaders/3D.frag";
-
-    shaderProgram3D->shader_vert = shader_create(shader_vert_path, GL_VERTEX_SHADER);
-    shaderProgram3D->shader_frag = shader_create(shader_frag_path, GL_FRAGMENT_SHADER);
+    shaderProgram3D->shader_vert = shader_create(__3D_vert_glsl, GL_VERTEX_SHADER);
+    shaderProgram3D->shader_frag = shader_create(__3D_frag_glsl, GL_FRAGMENT_SHADER);
     shaderProgram3D->shader_prog = shader_create_program(shaderProgram3D->shader_vert, shaderProgram3D->shader_frag);
 
     shaderProgram3D->attrib_position = glGetAttribLocation(shaderProgram3D->shader_prog, "position");
@@ -115,11 +100,8 @@ void shader_program_3D_use(ShaderProgram3D* shaderProgram3D) {
 ShaderProgram2D* shader_program_2D_init(ShaderProgram2D* s) {
     ShaderProgram2D* shaderProgram2D = s ? s : NEW(ShaderProgram2D, 1);
 
-    char* shader_vert_path = "src/shaders/2D.vert";
-    char* shader_frag_path = "src/shaders/2D.frag";
-
-    shaderProgram2D->shader_vert = shader_create(shader_vert_path, GL_VERTEX_SHADER);
-    shaderProgram2D->shader_frag = shader_create(shader_frag_path, GL_FRAGMENT_SHADER);
+    shaderProgram2D->shader_vert = shader_create(__2D_vert_glsl, GL_VERTEX_SHADER);
+    shaderProgram2D->shader_frag = shader_create(__2D_frag_glsl, GL_FRAGMENT_SHADER);
     shaderProgram2D->shader_prog = shader_create_program(shaderProgram2D->shader_vert, shaderProgram2D->shader_frag);
 
     shaderProgram2D->attrib_position = glGetAttribLocation(shaderProgram2D->shader_prog, "position");

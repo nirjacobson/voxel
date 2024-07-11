@@ -3,6 +3,10 @@ MODULES = global           \
           commands/world_clear_region_command \
           commands/world_copy_chunk_command \
           commands/world_cut_chunk_command \
+          shaders/3D.vert  \
+          shaders/3D.frag  \
+          shaders/2D.vert  \
+          shaders/2D.frag  \
           undo_stack       \
           panel            \
           fps_panel        \
@@ -35,15 +39,21 @@ EXEC    = voxel
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
+src/shaders/%.c: src/shaders/%.glsl
+	xxd -i -n $(notdir $<) $< $@
+	sed -i 's/unsigned/const/g' $@
+
 format:
 	astyle -rnNCS *.{c,h}
 
 build/:
 	mkdir -p build/commands
+	mkdir -p build/shaders
 
 build/%.o : src/%.c | build/
 	gcc -c $< -o $@ ${CFLAGS}
 
 clean:
+	rm -rf src/shaders/*.c
 	rm -rf build
 	rm ${EXEC}
