@@ -53,14 +53,16 @@ int compare_world_chunks(void* worldChunkAPtr, void* worldChunkBPtr) {
 
 /* World */
 
-World* world_init(World* world, const char* name) {
+World* world_init(World* world, Vulkan* vulkan, const char* name) {
     World* w = world ? world : NEW(World, 1);
+
+    w->vulkan = vulkan;
 
     chunk_dao_init(&w->chunkDAO, name);
 
     linked_list_init(&w->chunks);
 
-    ground_init(&w->ground, 500);
+    ground_init(&w->ground, vulkan, 500);
 
     return w;
 }
@@ -128,12 +130,15 @@ LinkedList* world_draw_list(LinkedList* list, Camera* camera) {
 Chunk* world_load_world_chunk(World* world, ChunkID* chunkID) {
     Chunk* chunk = chunk_dao_load(&world->chunkDAO, chunkID);
     if (chunk) {
+        chunk->vulkan = world->vulkan;
+
         chunk_mesh(chunk);
         WorldChunk* worldChunk = NEW(WorldChunk, 1);
         worldChunk->id = *chunkID;
         worldChunk->chunk = chunk;
         linked_list_insert(&world->chunks, worldChunk);
     }
+
     return chunk;
 }
 
@@ -213,7 +218,7 @@ void world_block_set_active(World* world, int* location, char active) {
         WorldChunk* worldChunk = (WorldChunk*)chunkNode->data;
         chunk = worldChunk->chunk;
     } else {
-        chunk = chunk_init(NULL, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH);
+        chunk = chunk_init(NULL, world->vulkan, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH);
         WorldChunk* worldChunk = NEW(WorldChunk, 1);
         worldChunk->id = chunkID;
         worldChunk->chunk = chunk;
@@ -257,7 +262,7 @@ void world_block_set_color(World* world, int* location, uint16_t color) {
         WorldChunk* worldChunk = (WorldChunk*)chunkNode->data;
         chunk = worldChunk->chunk;
     } else {
-        chunk = chunk_init(NULL, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH);
+        chunk = chunk_init(NULL, world->vulkan, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH, WORLD_CHUNK_LENGTH);
         WorldChunk* worldChunk = NEW(WorldChunk, 1);
         worldChunk->id = chunkID;
         worldChunk->chunk = chunk;
@@ -271,7 +276,7 @@ void world_block_set_color(World* world, int* location, uint16_t color) {
 }
 
 Chunk* world_copy_chunk(World* world, Box* box) {
-    Chunk* chunk = chunk_init(NULL, box->width, box->height, box->length);
+    Chunk* chunk = chunk_init(NULL, world->vulkan, box->width, box->height, box->length);
     for (int x = 0; x < box->width; x++) {
         for (int y = 0; y < box->height; y++) {
             for (int z = 0; z < box->length; z++) {
@@ -294,7 +299,7 @@ Chunk* world_copy_chunk(World* world, Box* box) {
 }
 
 Chunk* world_cut_chunk(World* world, Box* box) {
-    Chunk* chunk = chunk_init(NULL, box->width, box->height, box->length);
+    Chunk* chunk = chunk_init(NULL, world->vulkan, box->width, box->height, box->length);
     for (int x = 0; x < box->width; x++) {
         for (int y = 0; y < box->height; y++) {
             for (int z = 0; z < box->length; z++) {

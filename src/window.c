@@ -1,10 +1,8 @@
 #include "window.h"
 #include "internal/window.h"
 
-Window* windowReference;
-
 void resize(GLFWwindow* glfwWindow, int width, int height) {
-    window_resize(windowReference, width, height);
+    window_resize((Window*)glfwGetWindowUserPointer(glfwWindow), width, height);
 }
 
 Window* window_init(Window* w, Application* application) {
@@ -19,21 +17,24 @@ Window* window_init(Window* w, Application* application) {
 }
 
 void window_open(Window* window) {
-    if (!glfwInit())
+    if (!glfwInit()) {
         return;
-
-    windowReference = window;
+    }
 
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
     if (!window->glfwWindow)
         glfwTerminate();
 
-    glfwSetWindowSizeCallback(window->glfwWindow, resize);
+    glfwSetWindowUserPointer(window->glfwWindow, window);
 
+    glfwSetWindowSizeCallback(window->glfwWindow, resize);
     glfwMakeContextCurrent(window->glfwWindow);
+    glfwSetFramebufferSizeCallback(window->glfwWindow, resize);
 
     if (window->application->setup)
         window->application->setup(window->application);
@@ -63,6 +64,7 @@ void window_toggle_fullscreen(Window* window) {
         glfwSetWindowMonitor(window->glfwWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     } else {
         glfwSetWindowMonitor(window->glfwWindow, NULL, 0, 0, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT, GLFW_DONT_CARE);
+        window_resize(window, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
     }
 }
 

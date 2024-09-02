@@ -7,6 +7,10 @@
 #include "global.h"
 #include "linked_list.h"
 #include "window.h"
+#include "vulkan_util.h"
+#include "renderer.h"
+
+const extern int MAX_FRAMES_IN_FLIGHT;
 
 struct Panel;
 struct PanelManager;
@@ -33,8 +37,23 @@ typedef struct ActionRegion {
 /* Panel */
 
 typedef struct Panel {
-    unsigned int vbo;
-    unsigned int tex;
+    Vulkan* vulkan;
+    Renderer* renderer;
+
+    union {
+        struct {
+            unsigned int vbo;
+            unsigned int tex;
+        } opengl;
+        struct {
+            VkBuffer vbo;
+            VkDeviceMemory vboDeviceMemory;
+            VkImage texImage;
+            VkDeviceMemory texImageDeviceMemory;
+            VkImageView texImageView;
+            VkDescriptorSet* descriptorSets;
+        } vulkan;
+    } renderState;
 
     cairo_surface_t *surface;
     cairo_t *cr;
@@ -50,7 +69,7 @@ typedef struct Panel {
     LinkedList actionRegions;
 } Panel;
 
-Panel* panel_init(Panel* d, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
+Panel* panel_init(Panel* d, Renderer* renderer, void* owner, void (*drawCallback)(void*), struct PanelManager* manager, unsigned int width, unsigned int height);
 void panel_destroy(Panel* panel);
 
 void panel_add_action_region(Panel* panel, ActionRegion* actionRegion);

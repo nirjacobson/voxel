@@ -6,7 +6,7 @@ void picker_init(Picker* p, World* world, UndoStack* undoStack) {
     picker->world = world;
     picker->undoStack = undoStack;
 
-    box_init(&picker->box);
+    box_init(&picker->box, world->vulkan);
     box_mesh(&picker->mesh, &picker->box);
 
     picker->selection.model = NULL;
@@ -22,6 +22,13 @@ void picker_init(Picker* p, World* world, UndoStack* undoStack) {
 
 void picker_destroy(Picker* picker) {
     mesh_destroy(&picker->mesh);
+    if (picker->selection.present) {
+        mesh_destroy(&picker->selection.mesh);
+    }
+    if (picker->selection.model) {
+        chunk_destroy(picker->selection.model);
+        free(picker->selection.model);
+    }
 }
 
 void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
@@ -117,6 +124,9 @@ void picker_release(Picker* picker, char modifier1, char modifier2) {
 
 void picker_act(Picker* picker, char modifier1, char modifier2) {
     if (picker->action == PICKER_SELECT) {
+        if (picker->selection.present) {
+            mesh_destroy(&picker->selection.mesh);
+        }       
         picker->selection.box = modifier1 ? picker_merge_selections(&picker->selection.box, &picker->box) : picker->box;
         box_mesh(&picker->selection.mesh, &picker->selection.box);
         picker->selection.present = 1;
@@ -136,20 +146,18 @@ void picker_act(Picker* picker, char modifier1, char modifier2) {
     } else if (picker->action == PICKER_EYEDROPPER) {
         Block* block = world_get_block(picker->world, picker->positionEnd);
         picker->color = block_color(block);
-    } else if (picker->action == PICKER_SET || picker->action == PICKER_CLEAR) {
-        if (picker->action == PICKER_SET) {
-            WorldSetRegionCommand* setRegionCommand = world_set_region_command_init(picker->world, &picker->box, picker->color);
-            undo_stack_push(picker->undoStack, &setRegionCommand->command);
-        } else if (picker->action == PICKER_CLEAR) {
-            WorldClearRegionCommand* clearRegionCommand = world_clear_region_command_init(picker->world, &picker->box);
-            undo_stack_push(picker->undoStack, &clearRegionCommand->command);
-        }
+    } else if (picker->action == PICKER_SET) {
+        WorldSetRegionCommand* setRegionCommand = world_set_region_command_init(picker->world, &picker->box, picker->color);
+        undo_stack_push(picker->undoStack, &setRegionCommand->command);
+    } else if (picker->action == PICKER_CLEAR) {
+        WorldClearRegionCommand* clearRegionCommand = world_clear_region_command_init(picker->world, &picker->box);
+        undo_stack_push(picker->undoStack, &clearRegionCommand->command);
     }
 }
 
 Box picker_merge_selections(Box* selectionA, Box* selectionB) {
     Box merged;
-    box_init(&merged);
+    box_init(&merged, selectionA->vulkan);
 
     merged.position[0] = MIN(selectionA->position[0], selectionB->position[0]);
     merged.position[1] = MIN(selectionA->position[1], selectionB->position[1]);

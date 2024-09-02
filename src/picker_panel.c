@@ -66,10 +66,10 @@ cairo_status_t cairo_read_func(void* closure, unsigned char* data, unsigned int 
     return CAIRO_STATUS_READ_ERROR;
 }
 
-PickerPanel* picker_panel_init(PickerPanel* pp, PanelManager* panelManager, Picker* picker) {
+PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager* panelManager, Picker* picker) {
     PickerPanel* pickerPanel = pp ? pp : NEW(PickerPanel, 1);
 
-    panel_init(&pickerPanel->panel, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
+    panel_init(&pickerPanel->panel, renderer, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
 
     GInputStream* inputStream;
     

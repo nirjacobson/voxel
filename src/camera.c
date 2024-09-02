@@ -1,7 +1,9 @@
 #include "camera.h"
 
-Camera* camera_init(Camera* c) {
+Camera* camera_init(Camera* c, Vulkan* vulkan) {
     Camera* camera = c ? c : NEW(Camera, 1);
+
+    camera->vulkan = vulkan;
 
     camera->fov = 60;
     camera->aspect = 1;
@@ -26,6 +28,8 @@ Camera* camera_init(Camera* c) {
     camera->right[0] =  1.0;
     camera->right[1] =  0.0;
     camera->right[2] =  0.0;
+
+    camera_update_projection(camera);
 
     return camera;
 }
@@ -56,7 +60,7 @@ void camera_set_aspect(Camera* camera, float aspect) {
 
 Box* camera_aabb(Box* box, Camera* camera) {
     Box frustum_bb;
-    box_init(&frustum_bb);
+    box_init(&frustum_bb, NULL);
 
     frustum_bb.height = 2 * tan(camera->fov/2.0 * M_PI/180.0) * camera->far;
     frustum_bb.width = frustum_bb.height * camera->aspect;
@@ -85,4 +89,16 @@ Box* camera_aabb(Box* box, Camera* camera) {
     Box* frustum_aabb = box_aabb(box, &frustum_bb);
 
     return frustum_aabb;
+}
+
+void camera_update_projection(Camera* camera) {
+    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+    
+    if (camera->vulkan) {
+        float clipCorrect[16];
+        vulkan_clip_correction_matrix(clipCorrect);
+        mat4_multiply(camera->mat_proj, clipCorrect, camera->mat_proj);
+    }
+
+    mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
 }

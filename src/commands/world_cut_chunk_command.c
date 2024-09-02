@@ -25,7 +25,7 @@ void world_cut_chunk_command_redo(Command* command) {
     WorldCutChunkCommand* worldCutChunkCommand = (WorldCutChunkCommand*)command->parent;
 
     Box regionBefore;
-    box_init(&regionBefore);
+    box_init(&regionBefore, worldCutChunkCommand->world->vulkan);
 
     regionBefore.width = worldCutChunkCommand->chunk->width;
     regionBefore.height = worldCutChunkCommand->chunk->height;
@@ -59,7 +59,7 @@ void world_cut_chunk_command_redo(Command* command) {
     }
 
     Box regionSource;
-    box_init(&regionSource);
+    box_init(&regionSource, worldCutChunkCommand->world->vulkan);
 
     regionSource.width = worldCutChunkCommand->chunk->width;
     regionSource.height = worldCutChunkCommand->chunk->height;

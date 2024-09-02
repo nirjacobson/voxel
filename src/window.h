@@ -10,6 +10,7 @@
 #define MOUSE_RELEASE      0b00
 
 #define GLFW_INCLUDE_ES3
+#define GLFW_INCLUDE_VULKAN
 
 #include <assert.h>
 
@@ -27,6 +28,8 @@ struct Window {
     int height;
 
     Application* application;
+
+    VkSurfaceKHR surface;
 };
 
 typedef struct Window Window;

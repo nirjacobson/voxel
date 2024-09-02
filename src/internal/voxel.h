@@ -6,6 +6,9 @@
 char voxel_process_input(Voxel* voxel);
 void voxel_draw(Voxel* voxel);
 
+void voxel_setup_vulkan(Voxel* voxel);
+void voxel_teardown_vulkan(Voxel* voxel);
+
 void voxel_setup(Application* application);
 void voxel_main(Application* application);
 void voxel_resize(Application* application);

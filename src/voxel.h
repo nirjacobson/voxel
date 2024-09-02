@@ -15,10 +15,13 @@
 #include "fps_panel.h"
 #include "picker_panel.h"
 #include "undo_stack.h"
+#include "vulkan_util.h"
 
 typedef struct {
     Application application;
     Window window;
+
+    Vulkan* vulkan;
 
     Renderer renderer;
 

@@ -24,7 +24,7 @@ void world_copy_chunk_command_redo(Command* command) {
     WorldCopyChunkCommand* worldCopyChunkCommand = (WorldCopyChunkCommand*)command->parent;
 
     Box regionBefore;
-    box_init(&regionBefore);
+    box_init(&regionBefore, worldCopyChunkCommand->world->vulkan);
 
     regionBefore.width = worldCopyChunkCommand->chunk->width;
     regionBefore.height = worldCopyChunkCommand->chunk->height;

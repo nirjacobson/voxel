@@ -10,7 +10,7 @@ typedef struct {
     Mesh mesh;
 } Ground;
 
-Ground* ground_init(Ground* g, int length);
+Ground* ground_init(Ground* g, Vulkan* vulkan, int length);
 void ground_destroy(Ground* ground);
 
 #endif // GROUND_H

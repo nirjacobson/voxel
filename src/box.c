@@ -1,7 +1,9 @@
 #include "box.h"
 
-Box* box_init(Box* b) {
+Box* box_init(Box* b, Vulkan* vulkan) {
     Box* box = b ? b : NEW(Box, 1);
+
+    box->vulkan = vulkan;
 
     box->position[0] = 0;
     box->position[1] = 0;
@@ -80,7 +82,7 @@ Box* box_aabb(Box* boxd, Box* boxs) {
             z[1] = box_vertices[3*i+2];
     }
 
-    Box* aabb = box_init(boxd);
+    Box* aabb = box_init(boxd, boxs->vulkan);
 
     aabb->position[0] = x[0];
     aabb->position[1] = y[0];
@@ -94,7 +96,7 @@ Box* box_aabb(Box* boxd, Box* boxs) {
 }
 
 Mesh* box_mesh(Mesh* m, Box* box) {
-    Mesh* mesh = mesh_init(m);
+    Mesh* mesh = mesh_init(m, box->vulkan);
 
     Quad* leftQuad;
     Quad* topQuad;
