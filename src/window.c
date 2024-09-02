@@ -1,5 +1,6 @@
 #include "window.h"
 #include "internal/window.h"
+#include "voxel.h"
 
 void resize(GLFWwindow* glfwWindow, int width, int height) {
     window_resize((Window*)glfwGetWindowUserPointer(glfwWindow), width, height);
@@ -24,7 +25,12 @@ void window_open(Window* window) {
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    Voxel* voxel = (Voxel*)window->application->owner;
+    voxel_setup_vulkan(voxel);
+    
+    if (voxel->vulkan) {
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    }
 
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
     if (!window->glfwWindow)

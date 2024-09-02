@@ -36,8 +36,8 @@ GLuint shader_create_program(GLuint vertex_shader, GLuint fragment_shader) {
 ShaderProgram3D* shader_program_3D_init(ShaderProgram3D* s) {
     ShaderProgram3D* shaderProgram3D = s ? s : NEW(ShaderProgram3D, 1);
 
-    GBytes* _3D_vert_glsl = g_resources_lookup_data("/src/shaders/3D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _3D_frag_glsl = g_resources_lookup_data("/src/shaders/3D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_vert_glsl = g_resources_lookup_data("/src/shaders/glsl/300/3D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_frag_glsl = g_resources_lookup_data("/src/shaders/glsl/300/3D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __3D_vert_glsl = g_bytes_get_data(_3D_vert_glsl, NULL);
     const guint8* __3D_frag_glsl = g_bytes_get_data(_3D_frag_glsl, NULL);
@@ -100,8 +100,8 @@ void shader_program_3D_use(ShaderProgram3D* shaderProgram3D) {
 ShaderProgram2D* shader_program_2D_init(ShaderProgram2D* s) {
     ShaderProgram2D* shaderProgram2D = s ? s : NEW(ShaderProgram2D, 1);
 
-    GBytes* _2D_vert_glsl = g_resources_lookup_data("/src/shaders/2D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _2D_frag_glsl = g_resources_lookup_data("/src/shaders/2D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_vert_glsl = g_resources_lookup_data("/src/shaders/glsl/300/2D.vert.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_frag_glsl = g_resources_lookup_data("/src/shaders/glsl/300/2D.frag.glsl", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __2D_vert_glsl = g_bytes_get_data(_2D_vert_glsl, NULL);
     const guint8* __2D_frag_glsl = g_bytes_get_data(_2D_frag_glsl, NULL);

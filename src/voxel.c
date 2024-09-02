@@ -214,7 +214,7 @@ void voxel_setup_vulkan(Voxel* voxel) {
 
     if (glfwCreateWindowSurface(vulkan->instance, voxel->window.glfwWindow, NULL, &vulkan->surface) != VK_SUCCESS) {
         printf("failed to create window surface.\n");
-        assert(false);
+        return;
     }
 
     voxel->window.surface = vulkan->surface;

@@ -167,10 +167,10 @@ bool vulkan_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
     return vulkan_queue_family_indices_is_complete(&indices) && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
-void vulkan_create_instance(const char* appName, VkInstance* instance) {
+bool vulkan_create_instance(const char* appName, VkInstance* instance) {
     if (enableValidationLayers && !vulkan_check_validation_layer_support()) {
         printf("validation layers requested, but not available.\n");
-        assert(false);
+        return false;
     }
 
     VkApplicationInfo appInfo = { 0 };
@@ -202,8 +202,10 @@ void vulkan_create_instance(const char* appName, VkInstance* instance) {
 
     if(vkCreateInstance(&createInfo, NULL, instance) != VK_SUCCESS) {
         printf("failed to create Vulkan instance.\n");
-        assert(false);
+        return false;
     }
+
+    return true;
 }
 
 void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPhysicalDevice* physicalDevice) {
@@ -211,7 +213,7 @@ void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPh
     vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
     if (deviceCount == 0) {
         printf("failed to find GPUs with Vulkan support.\n");
-        assert(false);
+        return;
     }
 
     *physicalDevice = VK_NULL_HANDLE;
@@ -292,7 +294,7 @@ void vulkan_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR 
 
     if (vkCreateDevice(physicalDevice, &createInfo, NULL, device) != VK_SUCCESS) {
         printf("failed to create logical device.\n");
-        assert(false);
+        return;
     }
 
     free(queueCreateInfos);
@@ -372,7 +374,7 @@ VkImageView vulkan_create_image_view(VkDevice device, VkImage image, VkFormat fo
     VkImageView imageView;
     if (vkCreateImageView(device, &viewInfo, NULL, &imageView) != VK_SUCCESS) {
         printf("failed to create image view.\n");
-        assert(false);
+        return NULL;
     }
 
     return imageView;
@@ -423,7 +425,7 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
 
     if (vkCreateSwapchainKHR(device, &createInfo, NULL, &swapChain->swapChain) != VK_SUCCESS) {
         printf("failed to create swap chain.\n");
-        assert(false);
+        return;
     }
 
     vkGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, NULL);
@@ -458,7 +460,6 @@ VkFormat vulkan_find_supported_format(VkPhysicalDevice physicalDevice, VkFormat*
     }
 
     printf("failed to find supported format.\n");
-    assert(false);
 
     return -1;
 }
@@ -532,7 +533,7 @@ void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device,
 
     if (vkCreateRenderPass(device, &renderPassInfo, NULL, renderPass) != VK_SUCCESS) {
         printf("failed to create render pass.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -545,7 +546,7 @@ VkShaderModule vulkan_create_shader_module(VkDevice device, const unsigned char*
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) {
         printf("failed to create shader module.\n");
-        assert(false);
+        return NULL;
     }
 
     return shaderModule;
@@ -631,7 +632,7 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, NULL, &pipeline->layout) != VK_SUCCESS) {
         printf("failed to create pipeline layout.\n");
-        assert(false);
+        return;
     }
 
     VkPipelineDepthStencilStateCreateInfo depthStencil = { 0 };
@@ -668,7 +669,7 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
 
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, NULL, &pipeline->pipeline) != VK_SUCCESS) {
         printf("failed to create graphics pipeline.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -682,7 +683,7 @@ void vulkan_create_command_pool(VkPhysicalDevice physicalDevice, VkDevice device
 
     if (vkCreateCommandPool(device, &poolInfo, NULL, commandPool) != VK_SUCCESS) {
         printf("failed to create command pool.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -697,7 +698,6 @@ uint32_t vulkan_find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeF
     }
 
     printf("failed to find suitable memory type.\n");
-    assert(false);
 
     return -1;
 }
@@ -721,7 +721,7 @@ void vulkan_create_image(VkPhysicalDevice physicalDevice, VkDevice device, uint3
 
     if (vkCreateImage(device, &imageInfo, NULL, image) != VK_SUCCESS) {
         printf("failed to create image.\n");
-        assert(false);
+        return;
     }
 
     VkMemoryRequirements memRequirements;
@@ -734,7 +734,7 @@ void vulkan_create_image(VkPhysicalDevice physicalDevice, VkDevice device, uint3
 
     if (vkAllocateMemory(device, &allocInfo, NULL, imageMemory) != VK_SUCCESS) {
         printf("failed to allocate image memory.\n");
-        assert(false);
+        return;
     }
 
     vkBindImageMemory(device, *image, *imageMemory, 0);
@@ -763,7 +763,7 @@ void vulkan_create_sampler(VkPhysicalDevice physicalDevice, VkDevice device, VkS
 
     if (vkCreateSampler(device, &samplerInfo, NULL, sampler) != VK_SUCCESS) {
         printf("failed to create texture sampler.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -776,7 +776,7 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
 
     if (vkCreateBuffer(device, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
         printf("failed to create vertex buffer.\n");
-        assert(false);
+        return;
     }
 
     VkMemoryRequirements memRequirements;
@@ -789,7 +789,7 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
 
     if (vkAllocateMemory(device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
         printf("failed to allocate vertex buffer memory.\n");
-        assert(false);
+        return;
     }
 
     vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
@@ -804,7 +804,7 @@ void vulkan_create_descriptor_set_pool(VkDevice device, VkDescriptorPoolSize* po
 
     if (vkCreateDescriptorPool(device, &poolInfo, NULL, descriptorPool) != VK_SUCCESS) {
         printf("failed to create descriptor pool.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -824,7 +824,7 @@ void vulkan_create_descriptor_sets(VkDevice device, VkDescriptorPool descriptorP
     if (result != VK_SUCCESS) {
         printf("failed to allocate descriptor sets.\n");
         printf("%d\n", result);
-        assert(false);
+        return;
     }
 }
 
@@ -837,7 +837,7 @@ void vulkan_create_command_buffers(VkDevice device, VkCommandPool commandPool, i
 
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) != VK_SUCCESS) {
         printf("failed to allocate command buffers.\n");
-        assert(false);
+        return;
     }
 }
 
@@ -920,7 +920,7 @@ void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPoo
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else {
         printf("unsupported layout transition.\n");
-        assert(false);
+        return;
     }
 
     vkCmdPipelineBarrier(commandBuffer,

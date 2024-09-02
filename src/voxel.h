@@ -40,6 +40,7 @@ typedef struct {
 } Voxel;
 
 Voxel* voxel_init(Voxel* v);
+void voxel_setup_vulkan(Voxel* voxel);
 void voxel_destroy(Voxel* voxel);
 
 void voxel_run(Voxel* voxel);

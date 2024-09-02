@@ -60,7 +60,7 @@ bool vulkan_check_device_extension_support(VkPhysicalDevice device);
 bool vulkan_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR surface);
 int vulkan_validation_layers_count();
 const char** vulkan_validation_layers();
-void vulkan_create_instance(const char* appName, VkInstance* instance);
+bool vulkan_create_instance(const char* appName, VkInstance* instance);
 void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPhysicalDevice* physicalDevice);
 void vulkan_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice* device, VkQueue* graphicsQueue, VkQueue* presentQueue);
 VkSurfaceFormatKHR vulkan_choose_swap_surface_format(SwapChainSupportDetails* supportDetails);

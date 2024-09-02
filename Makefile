@@ -40,13 +40,13 @@ EXEC    = voxel
 ${EXEC}: ${OBJECTS}
 	gcc $^ -o $@ ${LDFLAGS}
 
-build/shaders/%.vert.spv : src/shaders/%.vert.glsl
+build/shaders/%.vert.spv : src/shaders/glsl/450/%.vert.glsl
 	glslc -fshader-stage=vert -c $< -o $@
 
-build/shaders/%.frag.spv : src/shaders/%.frag.glsl
+build/shaders/%.frag.spv : src/shaders/glsl/450/%.frag.glsl
 	glslc -fshader-stage=frag -c $< -o $@
 
-src/resources.c: resources.xml $(foreach SHADER, ${SHADERS}, build/shaders/${SHADER}.spv)
+src/resources.c: resources.xml $(foreach SHADER, ${SHADERS}, src/shaders/glsl/300/${SHADER}.glsl) $(foreach SHADER, ${SHADERS}, build/shaders/${SHADER}.spv)
 	glib-compile-resources --target=$@ --generate-source $<
 
 format:
@@ -62,5 +62,4 @@ build/%.o : src/%.c | build/
 clean:
 	rm -f src/resources.c
 	rm -rf build
-	rm -rf src/shaders/*.spv
 	rm ${EXEC}
