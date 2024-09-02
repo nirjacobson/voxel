@@ -5,6 +5,7 @@
 #include <gio/gio.h>
 
 #include "global.h"
+#include "vulkan_util.h"
 #include "application.h"
 #include "window.h"
 #include "renderer.h"
@@ -15,7 +16,6 @@
 #include "fps_panel.h"
 #include "picker_panel.h"
 #include "undo_stack.h"
-#include "vulkan_util.h"
 
 typedef struct {
     Application application;
@@ -40,7 +40,6 @@ typedef struct {
 } Voxel;
 
 Voxel* voxel_init(Voxel* v);
-void voxel_setup_vulkan(Voxel* voxel);
 void voxel_destroy(Voxel* voxel);
 
 void voxel_run(Voxel* voxel);

@@ -25,16 +25,15 @@ void window_open(Window* window) {
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
 
-    Voxel* voxel = (Voxel*)window->application->owner;
-    voxel_setup_vulkan(voxel);
-    
-    if (voxel->vulkan) {
+    VkInstance vkInst;
+    if (vulkan_create_instance("Voxel", &vkInst) && !getenv("FORCE_OPENGL")) {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     }
 
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);
-    if (!window->glfwWindow)
+    if (!window->glfwWindow) {
         glfwTerminate();
+    }
 
     glfwSetWindowUserPointer(window->glfwWindow, window);
 

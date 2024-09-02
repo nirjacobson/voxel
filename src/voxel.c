@@ -209,8 +209,14 @@ void voxel_draw(Voxel* voxel) {
 void voxel_setup_vulkan(Voxel* voxel) {
     voxel->vulkan = NULL;
 
+    if (getenv("FORCE_OPENGL")) {
+        return;
+    }
+
     Vulkan* vulkan = NEW(Vulkan, 1);
-    vulkan_create_instance("Voxel", &vulkan->instance);
+    if (!vulkan_create_instance("Voxel", &vulkan->instance)) {
+        return;
+    }
 
     if (glfwCreateWindowSurface(vulkan->instance, voxel->window.glfwWindow, NULL, &vulkan->surface) != VK_SUCCESS) {
         printf("failed to create window surface.\n");

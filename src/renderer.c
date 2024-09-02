@@ -514,6 +514,13 @@ void renderer_apply_camera(Renderer* renderer, Camera* camera) {
     renderer_3D_update_camera(renderer, mat);
 
     mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+
+    if (camera->vulkan) {
+        float clipCorrect[16];
+        vulkan_clip_correction_matrix(clipCorrect);
+        mat4_multiply(camera->mat_proj, clipCorrect, camera->mat_proj);
+    }
+
     mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
     renderer_3D_update_projection(renderer, camera->mat_proj);
 }
