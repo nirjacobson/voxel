@@ -9,10 +9,10 @@
     <file>src/shaders/glsl/300/3D.frag.glsl</file>
     <file>src/shaders/glsl/300/2D.vert.glsl</file>
     <file>src/shaders/glsl/300/2D.frag.glsl</file>
-    <file>build/shaders/3D.vert.spv</file>
-    <file>build/shaders/3D.frag.spv</file>
-    <file>build/shaders/2D.vert.spv</file>
-    <file>build/shaders/2D.frag.spv</file>
+    <file>build/shaders/spir-v/3D.vert.spv</file>
+    <file>build/shaders/spir-v/3D.frag.spv</file>
+    <file>build/shaders/spir-v/2D.vert.spv</file>
+    <file>build/shaders/spir-v/2D.frag.spv</file>
     <file>img/color-dropper-natural.png</file>
     <file>img/color-dropper-selected.png</file>
     <file>img/dialog.png</file>
