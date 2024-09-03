@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/">
+    <file>src/shaders/glsl/120/3D.vert.glsl</file>
+    <file>src/shaders/glsl/120/3D.frag.glsl</file>
+    <file>src/shaders/glsl/120/2D.vert.glsl</file>
+    <file>src/shaders/glsl/120/2D.frag.glsl</file>
     <file>src/shaders/glsl/300/3D.vert.glsl</file>
     <file>src/shaders/glsl/300/3D.frag.glsl</file>
     <file>src/shaders/glsl/300/2D.vert.glsl</file>
