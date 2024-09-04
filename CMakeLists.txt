@@ -6,16 +6,27 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNODEBUG")
 
+set(WIN32_ARM OFF)
+
 if (LINUX)
     include_directories("/usr/include/glib-2.0")
     include_directories("/usr/lib64/glib-2.0/include/")
 elseif (WIN32)
-    include_directories("C:/Program Files/cairo/include/glib-2.0")
-    include_directories("C:/Program Files/cairo/lib/glib-2.0/include")
-    include_directories("C:/Program Files/glfw/include")
-    include_directories("C:/VulkanSDK/1.3.290.0/Include")
-    include_directories("C:/Program Files/cairo/include")
-    include_directories("C:/Program Files/glew/include")
+    if (WIN32_ARM)
+        include_directories("C:/Program Files (Arm)/cairo/include/glib-2.0")
+        include_directories("C:/Program Files (Arm)/cairo/lib/glib-2.0/include")
+        include_directories("C:/Program Files (Arm)/glfw/include")
+        include_directories("C:/VulkanSDK/1.3.290.0/Include")
+        include_directories("C:/Program Files (Arm)/cairo/include")
+        include_directories("C:/Program Files (Arm)/glew/include")
+    else()
+        include_directories("C:/Program Files/cairo/include/glib-2.0")
+        include_directories("C:/Program Files/cairo/lib/glib-2.0/include")
+        include_directories("C:/Program Files/glfw/include")
+        include_directories("C:/VulkanSDK/1.3.290.0/Include")
+        include_directories("C:/Program Files/cairo/include")
+        include_directories("C:/Program Files/glew/include")
+    endif()
 endif()
 
 find_program(GLSLC NAMES glslc REQUIRED)
@@ -97,12 +108,18 @@ add_custom_command(
         img/select-selected.png
         img/stamp-natural.png
         img/stamp-selected.png
+        res/voxel.png
 )
 
 add_custom_target(
     Voxel-Resource
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${GRESOURCE_C}
 )
+
+if (WIN32)
+    enable_language("RC")
+    set(WIN32_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/res/voxel.rc)
+endif()
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/src)
 
@@ -185,22 +202,41 @@ set(PROJECT_SOURCES
 add_executable(Voxel
     ${PROJECT_SOURCES}
     ${CMAKE_CURRENT_BINARY_DIR}/${GRESOURCE_C}
+    ${WIN32_RESOURCES}
 )
 
 add_dependencies(Voxel-Resource Voxel-SPIRV)
 add_dependencies(Voxel Voxel-Resource)
 
+if (WIN32)
+    set_target_properties(Voxel PROPERTIES
+        LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+endif()
+
 if (LINUX)
     target_link_libraries(Voxel PRIVATE vulkan GLEW GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
 elseif (WIN32)
-    target_link_libraries(Voxel PRIVATE
-        "C:/Program Files/glew/lib/glew32.lib"
-        "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/GlU32.Lib"
-        "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/OpenGL32.Lib"
-        "C:/Program Files/glfw/lib/glfw3dll.lib"
-        "C:/Program Files/cairo/lib/gio-2.0.lib"
-        "C:/Program Files/cairo/lib/gobject-2.0.lib"
-        "C:/Program Files/cairo/lib/glib-2.0.lib"
-        "C:/Program Files/cairo/lib/cairo.lib"
-    )
+    if (WIN32_ARM)
+        target_link_libraries(Voxel PRIVATE
+            "C:/Program Files (Arm)/glew/lib/glew32.lib"
+            "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/arm64/GlU32.Lib"
+            "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/arm64/OpenGL32.Lib"
+            "C:/Program Files (Arm)/glfw/lib/glfw3dll.lib"
+            "C:/Program Files (Arm)/cairo/lib/gio-2.0.lib"
+            "C:/Program Files (Arm)/cairo/lib/gobject-2.0.lib"
+            "C:/Program Files (Arm)/cairo/lib/glib-2.0.lib"
+            "C:/Program Files (Arm)/cairo/lib/cairo.lib"
+        )
+    else()
+        target_link_libraries(Voxel PRIVATE
+            "C:/Program Files/glew/lib/glew32.lib"
+            "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/GlU32.Lib"
+            "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/OpenGL32.Lib"
+            "C:/Program Files/glfw/lib/glfw3dll.lib"
+            "C:/Program Files/cairo/lib/gio-2.0.lib"
+            "C:/Program Files/cairo/lib/gobject-2.0.lib"
+            "C:/Program Files/cairo/lib/glib-2.0.lib"
+            "C:/Program Files/cairo/lib/cairo.lib"
+        )
+    endif()
 endif()

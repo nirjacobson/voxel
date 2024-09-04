@@ -17,6 +17,37 @@ Window* window_init(Window* w, Application* application) {
     return window;
 }
 
+cairo_status_t cairo_read(void* closure, unsigned char* data, unsigned int length) {
+    unsigned int read_len = g_input_stream_read((GInputStream*)closure, data, length, (void*)NULL, (GError**)NULL);
+
+    if (read_len == length) {
+        return CAIRO_STATUS_SUCCESS;
+    }
+
+    return CAIRO_STATUS_READ_ERROR;
+}
+
+void window_set_icon(Window* window) {
+    GInputStream* inputStream = g_resources_open_stream("/res/voxel.png", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    cairo_surface_t* surface  = cairo_image_surface_create_from_png_stream(cairo_read, (void*)inputStream);
+    unsigned char* pixels = cairo_image_surface_get_data(surface);
+    GLFWimage image = {
+        .width = cairo_image_surface_get_width(surface),
+        .height = cairo_image_surface_get_height(surface),
+        .pixels = pixels
+    };
+
+    for (int i = 0; i < image.width * image.height * 4; i+=4) {
+        unsigned char temp = pixels[i];
+        pixels[i] = pixels[i + 2];
+        pixels[i + 2] = temp;
+    }
+
+    glfwSetWindowIcon(window->glfwWindow, 1, &image);
+
+    cairo_surface_destroy(surface);
+}
+
 void window_open(Window* window) {
     if (!glfwInit()) {
         return;
@@ -44,6 +75,8 @@ void window_open(Window* window) {
     if (!window->glfwWindow) {
         glfwTerminate();
     }
+
+    window_set_icon(window);
 
     glfwSetWindowUserPointer(window->glfwWindow, window);
 

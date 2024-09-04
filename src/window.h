@@ -15,6 +15,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cairo/cairo.h>
 
 #include "global.h"
 #include "application.h"
