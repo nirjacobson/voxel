@@ -191,7 +191,7 @@ add_dependencies(Voxel-Resource Voxel-SPIRV)
 add_dependencies(Voxel Voxel-Resource)
 
 if (LINUX)
-    target_link_libraries(Voxel PRIVATE vulkan GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
+    target_link_libraries(Voxel PRIVATE vulkan GLEW GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
 elseif (WIN32)
     target_link_libraries(Voxel PRIVATE
         "C:/Program Files/glew/lib/glew32.lib"

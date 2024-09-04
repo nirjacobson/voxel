@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include "chunk.h"
 
 #ifndef F_OK

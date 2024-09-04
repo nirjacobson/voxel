@@ -10,6 +10,10 @@
     #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef _WIN32
+#include <math.h>
+#endif
+
 float mat2_determinate(float* mat2s);
 
 float* mat3_sub(float* mat2d, float* mat3s, unsigned int i);

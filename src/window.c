@@ -26,8 +26,18 @@ void window_open(Window* window) {
     window->height = WINDOW_DEFAULT_HEIGHT;
 
     bool vulkan = glfwVulkanSupported() && !getenv("FORCE_OPENGL");
+
     if (vulkan) {
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        Vulkan vulk;
+        vulkan = vulkan && vulkan_create_instance("Voxel", &vulk.instance);
+
+        if (vulkan) {
+            PFN_vkDestroyInstance pfnDestroyInstance =
+                (PFN_vkDestroyInstance)glfwGetInstanceProcAddress(vulk.instance, "vkDestroyInstance");
+            pfnDestroyInstance(vulk.instance, NULL);
+
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        }
     }
 
     window->glfwWindow = glfwCreateWindow(window->width, window->height, "Voxel", NULL, NULL);

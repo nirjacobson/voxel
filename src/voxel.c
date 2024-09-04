@@ -249,7 +249,7 @@ void voxel_setup_vulkan(Voxel* voxel) {
     }
 
     Vulkan* vulkan = NEW(Vulkan, 1);
-    if (!vulkan_create_instance("Voxel", &vulkan->instance)) {\
+    if (!vulkan_create_instance("Voxel", &vulkan->instance)) {
         printf("failed to create Vulkan instance.\n");
         printf("Using OpenGL.\n");
         return;

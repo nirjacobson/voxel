@@ -16,7 +16,11 @@ BPTree* bp_tree_init(BPTree* bt, const char* name) {
 
     char filename[16];
     sprintf(filename, "%s.vxl", name);
+#ifndef _WIN32
     if (access(filename, F_OK) == -1) {
+#else
+    if (_access(filename, F_OK) == -1) {
+#endif
         bpTree->file = fopen(filename, "w+b");
     } else {
         bpTree->file = fopen(filename, "r+b");
