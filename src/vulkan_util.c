@@ -28,12 +28,16 @@ const char** vulkan_validation_layers() {
 }
 
 bool vulkan_check_validation_layer_support() {
+    
+    PFN_vkEnumerateInstanceLayerProperties pfnEnumerateInstanceLayerProperties = 
+        (PFN_vkEnumerateInstanceLayerProperties)glfwGetInstanceProcAddress(NULL, "vkEnumerateInstanceLayerProperties");
+
     uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, NULL);
+    pfnEnumerateInstanceLayerProperties(&layerCount, NULL);
 
     VkLayerProperties* availableLayers = NEW(VkLayerProperties, layerCount);
 
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
+    pfnEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 
     int validationLayersCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
     bool layerFound = false;
@@ -66,11 +70,14 @@ QueueFamilyIndices vulkan_find_queue_families(VkPhysicalDevice device, VkSurface
     indices.graphicsFamily = -1;
     indices.presentFamily = -1;
 
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties pfnGetPhysicalDeviceQueueFamilyProperties =
+        (PFN_vkGetPhysicalDeviceQueueFamilyProperties) glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceQueueFamilyProperties");
+
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, NULL);
+    pfnGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, NULL);
 
     VkQueueFamilyProperties* queueFamilies = NEW(VkQueueFamilyProperties, queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
+    pfnGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
     for (int i = 0; i < queueFamilyCount; i++) {
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -78,7 +85,9 @@ QueueFamilyIndices vulkan_find_queue_families(VkPhysicalDevice device, VkSurface
         }
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        PFN_vkGetPhysicalDeviceSurfaceSupportKHR pfnGetPhysicalDeviceSurfaceSupportKHR =
+            (PFN_vkGetPhysicalDeviceSurfaceSupportKHR) glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceSurfaceSupportKHR");
+        pfnGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
         if (presentSupport) {
             indices.presentFamily = i;
@@ -97,22 +106,31 @@ QueueFamilyIndices vulkan_find_queue_families(VkPhysicalDevice device, VkSurface
 SwapChainSupportDetails vulkan_query_swap_chain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
     SwapChainSupportDetails details = { 0 };
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR pfnGetPhysicalDeviceSurfaceCapabilitiesKHR =
+        (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+    
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR pfnGetPhysicalDeviceSurfaceFormatsKHR =
+        (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR pfnGetPhysicalDeviceSurfacePresentModesKHR =
+        (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceSurfacePresentModesKHR");
+
+    pfnGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, NULL);
+    pfnGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, NULL);
 
     if (formatCount != 0) {
         details.formats = NEW(VkSurfaceFormatKHR, formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats);
+        pfnGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats);
     }
 
     uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, NULL);
+    pfnGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, NULL);
 
     if (presentModeCount != 0) {
         details.presentModes = NEW(VkPresentModeKHR, presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes);
+        pfnGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes);
     }
 
     details.numFormats = formatCount;
@@ -123,10 +141,14 @@ SwapChainSupportDetails vulkan_query_swap_chain_support(VkPhysicalDevice device,
 
 bool vulkan_check_device_extension_support(VkPhysicalDevice device) {
     uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, NULL);
+
+    PFN_vkEnumerateDeviceExtensionProperties pfnEnumerateDeviceExtensionProperties =
+        (PFN_vkEnumerateDeviceExtensionProperties)glfwGetInstanceProcAddress(NULL, "vkEnumerateDeviceExtensionProperties");
+
+    pfnEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, NULL);
 
     VkExtensionProperties* availableExtensions = NEW(VkExtensionProperties, extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, availableExtensions);
+    pfnEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, availableExtensions);
 
     int deviceExtensionCount = sizeof(deviceExtensions) / sizeof(deviceExtensions[0]);
     for (int i = 0; i < deviceExtensionCount; i++) {
@@ -161,8 +183,11 @@ bool vulkan_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
         free(swapChainSupport.presentModes);
     }
 
+    PFN_vkGetPhysicalDeviceFeatures pfnGetPhysicalDeviceFeatures =
+        (PFN_vkGetPhysicalDeviceFeatures)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceFeatures");
+
     VkPhysicalDeviceFeatures supportedFeatures;
-    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+    pfnGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
     return vulkan_queue_family_indices_is_complete(&indices) && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
@@ -200,7 +225,10 @@ bool vulkan_create_instance(const char* appName, VkInstance* instance) {
         createInfo.enabledLayerCount = 0;
     }
 
-    if(vkCreateInstance(&createInfo, NULL, instance) != VK_SUCCESS) {
+    PFN_vkCreateInstance pfnCreateInstance =
+        (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
+
+    if(pfnCreateInstance(&createInfo, NULL, instance) != VK_SUCCESS) {
         printf("failed to create Vulkan instance.\n");
         return false;
     }
@@ -209,8 +237,11 @@ bool vulkan_create_instance(const char* appName, VkInstance* instance) {
 }
 
 void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPhysicalDevice* physicalDevice) {
+    PFN_vkEnumeratePhysicalDevices pfnEnumeratePhysicalDevices =
+        (PFN_vkEnumeratePhysicalDevices)glfwGetInstanceProcAddress(instance, "vkEnumeratePhysicalDevices");
+    
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
+    pfnEnumeratePhysicalDevices(instance, &deviceCount, NULL);
     if (deviceCount == 0) {
         printf("failed to find GPUs with Vulkan support.\n");
         return;
@@ -219,7 +250,7 @@ void vulkan_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, VkPh
     *physicalDevice = VK_NULL_HANDLE;
 
     VkPhysicalDevice* devices = NEW(VkPhysicalDevice, deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
+    pfnEnumeratePhysicalDevices(instance, &deviceCount, devices);
 
     for (int i = 0; i < deviceCount; i++) {
         if (vulkan_is_device_suitable(devices[i], surface)) {
@@ -292,15 +323,21 @@ void vulkan_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR 
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(physicalDevice, &createInfo, NULL, device) != VK_SUCCESS) {
+    PFN_vkCreateDevice pfnCreateDevice =
+        (PFN_vkCreateDevice)glfwGetInstanceProcAddress(NULL, "vkCreateDevice");
+
+    if (pfnCreateDevice(physicalDevice, &createInfo, NULL, device) != VK_SUCCESS) {
         printf("failed to create logical device.\n");
         return;
     }
 
     free(queueCreateInfos);
 
-    vkGetDeviceQueue(*device, indices.graphicsFamily, 0, graphicsQueue);
-    vkGetDeviceQueue(*device, indices.presentFamily, 0, presentQueue);
+    PFN_vkGetDeviceQueue pfnGetDeviceQueue =
+        (PFN_vkGetDeviceQueue)glfwGetInstanceProcAddress(NULL, "vkGetDeviceQueue");
+
+    pfnGetDeviceQueue(*device, indices.graphicsFamily, 0, graphicsQueue);
+    pfnGetDeviceQueue(*device, indices.presentFamily, 0, presentQueue);
 }
 
 VkSurfaceFormatKHR vulkan_choose_swap_surface_format(SwapChainSupportDetails* supportDetails) {
@@ -371,8 +408,11 @@ VkImageView vulkan_create_image_view(VkDevice device, VkImage image, VkFormat fo
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
+    PFN_vkCreateImageView pfnCreateImageView =
+        (PFN_vkCreateImageView)glfwGetInstanceProcAddress(NULL, "vkCreateImageView");
+
     VkImageView imageView;
-    if (vkCreateImageView(device, &viewInfo, NULL, &imageView) != VK_SUCCESS) {
+    if (pfnCreateImageView(device, &viewInfo, NULL, &imageView) != VK_SUCCESS) {
         printf("failed to create image view.\n");
         return NULL;
     }
@@ -423,15 +463,21 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(device, &createInfo, NULL, &swapChain->swapChain) != VK_SUCCESS) {
+    PFN_vkCreateSwapchainKHR pfnCreateSwapchainKHR =
+        (PFN_vkCreateSwapchainKHR)glfwGetInstanceProcAddress(NULL, "vkCreateSwapchainKHR");
+
+    if (pfnCreateSwapchainKHR(device, &createInfo, NULL, &swapChain->swapChain) != VK_SUCCESS) {
         printf("failed to create swap chain.\n");
         return;
     }
 
-    vkGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, NULL);
+    PFN_vkGetSwapchainImagesKHR pfnGetSwapchainImagesKHR =
+        (PFN_vkGetSwapchainImagesKHR)glfwGetInstanceProcAddress(NULL, "vkGetSwapchainImagesKHR");
+
+    pfnGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, NULL);
     swapChain->images = NEW(VkImage, imageCount);
     swapChain->imageCount = imageCount;
-    vkGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, swapChain->images);
+    pfnGetSwapchainImagesKHR(device, swapChain->swapChain, &imageCount, swapChain->images);
 
     swapChain->imageFormat = surfaceFormat.format;
     swapChain->extent = extent;
@@ -448,9 +494,12 @@ void vulkan_create_swap_chain(VkPhysicalDevice physicalDevice, VkDevice device, 
 }
 
 VkFormat vulkan_find_supported_format(VkPhysicalDevice physicalDevice, VkFormat* candidates, int count, VkImageTiling tiling, VkFormatFeatureFlags features) {
+    PFN_vkGetPhysicalDeviceFormatProperties pfnGetPhysicalDeviceFormatProperties =
+        (PFN_vkGetPhysicalDeviceFormatProperties)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceFormatProperties");
+    
     for (int i = 0; i < count; i++) {
         VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(physicalDevice, candidates[i], &props);
+        pfnGetPhysicalDeviceFormatProperties(physicalDevice, candidates[i], &props);
 
         if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
             return candidates[i];
@@ -531,7 +580,10 @@ void vulkan_create_render_pass(VkPhysicalDevice physicalDevice, VkDevice device,
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, NULL, renderPass) != VK_SUCCESS) {
+    PFN_vkCreateRenderPass pfnCreateRenderPass =
+        (PFN_vkCreateRenderPass)glfwGetInstanceProcAddress(NULL, "vkCreateRenderPass");
+
+    if (pfnCreateRenderPass(device, &renderPassInfo, NULL, renderPass) != VK_SUCCESS) {
         printf("failed to create render pass.\n");
         return;
     }
@@ -543,8 +595,11 @@ VkShaderModule vulkan_create_shader_module(VkDevice device, const unsigned char*
     createInfo.codeSize = len;
     createInfo.pCode = (uint32_t*)src;
 
+    PFN_vkCreateShaderModule pfnCreateShaderModule =
+        (PFN_vkCreateShaderModule)glfwGetInstanceProcAddress(NULL, "vkCreateShaderModule");
+
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) {
+    if (pfnCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) {
         printf("failed to create shader module.\n");
         return NULL;
     }
@@ -630,7 +685,10 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = pushConstants;
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, NULL, &pipeline->layout) != VK_SUCCESS) {
+    PFN_vkCreatePipelineLayout pfnCreatePipelineLayout =
+        (PFN_vkCreatePipelineLayout)glfwGetInstanceProcAddress(NULL, "vkCreatePipelineLayout");
+
+    if (pfnCreatePipelineLayout(device, &pipelineLayoutInfo, NULL, &pipeline->layout) != VK_SUCCESS) {
         printf("failed to create pipeline layout.\n");
         return;
     }
@@ -667,7 +725,10 @@ void vulkan_create_pipeline(VkDevice device, VkPipelineShaderStageCreateInfo* ve
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, NULL, &pipeline->pipeline) != VK_SUCCESS) {
+    PFN_vkCreateGraphicsPipelines pfnCreateGraphicsPipelines =
+        (PFN_vkCreateGraphicsPipelines)glfwGetInstanceProcAddress(NULL, "vkCreateGraphicsPipelines");
+
+    if (pfnCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, NULL, &pipeline->pipeline) != VK_SUCCESS) {
         printf("failed to create graphics pipeline.\n");
         return;
     }
@@ -681,15 +742,21 @@ void vulkan_create_command_pool(VkPhysicalDevice physicalDevice, VkDevice device
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 
-    if (vkCreateCommandPool(device, &poolInfo, NULL, commandPool) != VK_SUCCESS) {
+    PFN_vkCreateCommandPool pfnCreateCommandPool =
+        (PFN_vkCreateCommandPool)glfwGetInstanceProcAddress(NULL, "vkCreateCommandPool");
+
+    if (pfnCreateCommandPool(device, &poolInfo, NULL, commandPool) != VK_SUCCESS) {
         printf("failed to create command pool.\n");
         return;
     }
 }
 
 uint32_t vulkan_find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    PFN_vkGetPhysicalDeviceMemoryProperties pfnGetPhysicalDeviceMemoryProperties =
+        (PFN_vkGetPhysicalDeviceMemoryProperties)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceMemoryProperties");
+    
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+    pfnGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties ) {
@@ -719,30 +786,45 @@ void vulkan_create_image(VkPhysicalDevice physicalDevice, VkDevice device, uint3
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(device, &imageInfo, NULL, image) != VK_SUCCESS) {
+    PFN_vkCreateImage pfnCreateImage =
+        (PFN_vkCreateImage)glfwGetInstanceProcAddress(NULL, "vkCreateImage");
+
+    if (pfnCreateImage(device, &imageInfo, NULL, image) != VK_SUCCESS) {
         printf("failed to create image.\n");
         return;
     }
 
+    PFN_vkGetImageMemoryRequirements pfnGetImageMemoryRequirements =
+        (PFN_vkGetImageMemoryRequirements)glfwGetInstanceProcAddress(NULL, "vkGetImageMemoryRequirements");
+
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device, *image, &memRequirements);
+    pfnGetImageMemoryRequirements(device, *image, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo = { 0 };
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = vulkan_find_memory_type(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(device, &allocInfo, NULL, imageMemory) != VK_SUCCESS) {
+    PFN_vkAllocateMemory pfnAllocateMemory =
+        (PFN_vkAllocateMemory)glfwGetInstanceProcAddress(NULL, "vkAllocateMemory");
+
+    if (pfnAllocateMemory(device, &allocInfo, NULL, imageMemory) != VK_SUCCESS) {
         printf("failed to allocate image memory.\n");
         return;
     }
 
-    vkBindImageMemory(device, *image, *imageMemory, 0);
+    PFN_vkBindImageMemory pfnBindImageMemory =
+        (PFN_vkBindImageMemory)glfwGetInstanceProcAddress(NULL, "vkBindImageMemory");
+
+    pfnBindImageMemory(device, *image, *imageMemory, 0);
 }
 
 void vulkan_create_sampler(VkPhysicalDevice physicalDevice, VkDevice device, VkSampler* sampler) {
+    PFN_vkGetPhysicalDeviceProperties pfnGetPhysicalDeviceProperties =
+        (PFN_vkGetPhysicalDeviceProperties)glfwGetInstanceProcAddress(NULL, "vkGetPhysicalDeviceProperties");
+    
     VkPhysicalDeviceProperties properties = { 0 };
-    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    pfnGetPhysicalDeviceProperties(physicalDevice, &properties);
 
     VkSamplerCreateInfo samplerInfo = { 0 };
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -761,7 +843,10 @@ void vulkan_create_sampler(VkPhysicalDevice physicalDevice, VkDevice device, VkS
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    if (vkCreateSampler(device, &samplerInfo, NULL, sampler) != VK_SUCCESS) {
+    PFN_vkCreateSampler pfnCreateSampler =
+        (PFN_vkCreateSampler)glfwGetInstanceProcAddress(NULL, "vkCreateSampler");
+
+    if (pfnCreateSampler(device, &samplerInfo, NULL, sampler) != VK_SUCCESS) {
         printf("failed to create texture sampler.\n");
         return;
     }
@@ -774,25 +859,37 @@ void vulkan_create_buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateBuffer(device, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
+    PFN_vkCreateBuffer pfnCreateBuffer =
+        (PFN_vkCreateBuffer)glfwGetInstanceProcAddress(NULL, "vkCreateBuffer");
+
+    if (pfnCreateBuffer(device, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
         printf("failed to create vertex buffer.\n");
         return;
     }
 
+    PFN_vkGetBufferMemoryRequirements pfnGetBufferMemoryRequirements =
+        (PFN_vkGetBufferMemoryRequirements)glfwGetInstanceProcAddress(NULL, "vkGetBufferMemoryRequirements");
+
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
+    pfnGetBufferMemoryRequirements(device, *buffer, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo = { 0 };
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = vulkan_find_memory_type(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
+    PFN_vkAllocateMemory pfnAllocateMemory =
+        (PFN_vkAllocateMemory)glfwGetInstanceProcAddress(NULL, "vkAllocateMemory");
+
+    if (pfnAllocateMemory(device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
         printf("failed to allocate vertex buffer memory.\n");
         return;
     }
 
-    vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
+    PFN_vkBindBufferMemory pfnBindBufferMemory =
+        (PFN_vkBindBufferMemory)glfwGetInstanceProcAddress(NULL, "vkBindBufferMemory");
+
+    pfnBindBufferMemory(device, *buffer, *bufferMemory, 0);
 }
 
 void vulkan_create_descriptor_set_pool(VkDevice device, VkDescriptorPoolSize* poolSizes, int numPoolSizes, VkDescriptorPool* descriptorPool, uint32_t maxSets) {
@@ -802,7 +899,10 @@ void vulkan_create_descriptor_set_pool(VkDevice device, VkDescriptorPoolSize* po
     poolInfo.pPoolSizes = poolSizes;
     poolInfo.maxSets = maxSets;
 
-    if (vkCreateDescriptorPool(device, &poolInfo, NULL, descriptorPool) != VK_SUCCESS) {
+    PFN_vkCreateDescriptorPool pfnCreateDescriptorPool =
+        (PFN_vkCreateDescriptorPool)glfwGetInstanceProcAddress(NULL, "vkCreateDescriptorPool");
+
+    if (pfnCreateDescriptorPool(device, &poolInfo, NULL, descriptorPool) != VK_SUCCESS) {
         printf("failed to create descriptor pool.\n");
         return;
     }
@@ -819,8 +919,11 @@ void vulkan_create_descriptor_sets(VkDevice device, VkDescriptorPool descriptorP
     allocInfo.descriptorSetCount = (uint32_t)count;
     allocInfo.pSetLayouts = layouts;
 
+    PFN_vkAllocateDescriptorSets pfnAllocateDescriptorSets =
+        (PFN_vkAllocateDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkAllocateDescriptorSets");
+
     *descriptorSets = NEW(VkDescriptorSet, count);
-    VkResult result = vkAllocateDescriptorSets(device, &allocInfo, *descriptorSets);
+    VkResult result = pfnAllocateDescriptorSets(device, &allocInfo, *descriptorSets);
     if (result != VK_SUCCESS) {
         printf("failed to allocate descriptor sets.\n");
         printf("%d\n", result);
@@ -835,7 +938,10 @@ void vulkan_create_command_buffers(VkDevice device, VkCommandPool commandPool, i
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = count;
 
-    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) != VK_SUCCESS) {
+    PFN_vkAllocateCommandBuffers pfnAllocateCommandBuffers =
+        (PFN_vkAllocateCommandBuffers)glfwGetInstanceProcAddress(NULL, "vkAllocateCommandBuffers");
+
+    if (pfnAllocateCommandBuffers(device, &allocInfo, commandBuffers) != VK_SUCCESS) {
         printf("failed to allocate command buffers.\n");
         return;
     }
@@ -848,30 +954,47 @@ VkCommandBuffer vulkan_begin_single_time_commands(VkDevice device, VkCommandPool
     allocInfo.commandPool = commandPool;
     allocInfo.commandBufferCount = 1;
 
+    PFN_vkAllocateCommandBuffers pfnAllocateCommandBuffers =
+        (PFN_vkAllocateCommandBuffers)glfwGetInstanceProcAddress(NULL, "vkAllocateCommandBuffers");
+
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+    pfnAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
     VkCommandBufferBeginInfo beginInfo= { 0 };
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    PFN_vkBeginCommandBuffer pfnBeginCommandBuffer =
+        (PFN_vkBeginCommandBuffer)glfwGetInstanceProcAddress(NULL, "vkBeginCommandBuffer");
+
+    pfnBeginCommandBuffer(commandBuffer, &beginInfo);
 
     return commandBuffer;
 }
 
 void vulkan_end_single_time_commands(VkCommandBuffer commandBuffer, VkDevice device, VkQueue queue, VkCommandPool commandPool) {
-    vkEndCommandBuffer(commandBuffer);
+    PFN_vkEndCommandBuffer pfnEndCommandBuffer =
+        (PFN_vkEndCommandBuffer)glfwGetInstanceProcAddress(NULL, "vkEndCommandBuffer");
+    
+    pfnEndCommandBuffer(commandBuffer);
 
     VkSubmitInfo submitInfo = { 0 };
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(queue);
+    PFN_vkQueueSubmit pfnQueueSubmit =
+        (PFN_vkQueueSubmit)glfwGetInstanceProcAddress(NULL, "vkQueueSubmit");
+    PFN_vkQueueWaitIdle pfnQueueWaitIdle =
+        (PFN_vkQueueWaitIdle)glfwGetInstanceProcAddress(NULL, "vkQueueWaitIdle");
 
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    pfnQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+    pfnQueueWaitIdle(queue);
+
+    PFN_vkFreeCommandBuffers pfnFreeCommandBuffers =
+        (PFN_vkFreeCommandBuffers)glfwGetInstanceProcAddress(NULL, "vkFreeCommandBuffers");
+
+    pfnFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
 void vulkan_copy_buffer(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -881,7 +1004,11 @@ void vulkan_copy_buffer(VkDevice device, VkQueue queue, VkCommandPool commandPoo
     copyRegion.srcOffset = 0;
     copyRegion.dstOffset = 0;
     copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    PFN_vkCmdCopyBuffer pfnCmdCopyBuffer =
+        (PFN_vkCmdCopyBuffer)glfwGetInstanceProcAddress(NULL, "vkCmdCopyBuffer");
+
+    pfnCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     vulkan_end_single_time_commands(commandBuffer, device, queue, commandPool);
 }
@@ -923,7 +1050,10 @@ void vulkan_transition_image_layout(VkDevice device, VkQueue queue, VkCommandPoo
         return;
     }
 
-    vkCmdPipelineBarrier(commandBuffer,
+    PFN_vkCmdPipelineBarrier pfnCmdPipelineBarrier =
+        (PFN_vkCmdPipelineBarrier)glfwGetInstanceProcAddress(NULL, "vkCmdPipelineBarrier");
+
+    pfnCmdPipelineBarrier(commandBuffer,
                          sourceStage, destinationStage,
                          0,
                          0, NULL,
@@ -953,7 +1083,10 @@ void vulkan_copy_buffer_to_image(VkDevice device, VkQueue queue, VkCommandPool c
     region.imageExtent.height = height;
     region.imageExtent.depth = 1;
 
-    vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    PFN_vkCmdCopyBufferToImage pfnCmdCopyBufferToImage =
+        (PFN_vkCmdCopyBufferToImage)glfwGetInstanceProcAddress(NULL, "vkCmdCopyBufferToImage");
+
+    pfnCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     vulkan_end_single_time_commands(commandBuffer, device, queue, commandPool);
 }

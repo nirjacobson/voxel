@@ -1,6 +1,40 @@
 #include "voxel.h"
 #include "internal/voxel.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+int gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+    // until 00:00:00 January 1, 1970 
+    static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime( &system_time );
+    SystemTimeToFileTime( &system_time, &file_time );
+    time =  ((uint64_t)file_time.dwLowDateTime )      ;
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec  = (long) ((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+    return 0;
+}
+#define	timersub(a, b, result)						    \
+  do {									                \
+    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;		\
+    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;	\
+    if ((result)->tv_usec < 0) {					    \
+      --(result)->tv_sec;						        \
+      (result)->tv_usec += 1000000;					    \
+    }									                \
+  } while (0)
+
+#endif
+
 extern const bool enableValidationLayers;
 
 extern GResource* resources_get_resource();
@@ -29,8 +63,9 @@ char voxel_process_input(Voxel* voxel) {
 
     static int tab = 0;
 
-    if (window_key_is_pressed(&voxel->window, GLFW_KEY_ESCAPE))
+    if (window_key_is_pressed(&voxel->window, GLFW_KEY_ESCAPE)) {
         return 0;
+    }
 
     mouseX[1] = mouseX[0];
     mouseY[1] = mouseY[0];
@@ -142,7 +177,7 @@ char voxel_process_input(Voxel* voxel) {
 
         if (panel) {
             GLuint action = (mouseButtons[0] & MOUSE_BUTTON_LEFT) ? MOUSE_PRESS : MOUSE_RELEASE;
-            panel_action(panel, action, mouseX[0] - panel->position[0], mouseY[0] - panel->position[1]);
+            panel_action(panel, action, mouseX[0], mouseY[0]);
         } else if (mouseButtons[0] & MOUSE_BUTTON_LEFT) {
             char modifier1 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SHIFT);
             char modifier2 = window_key_is_pressed(&voxel->window, GLFW_KEY_LEFT_SUPER);
@@ -190,7 +225,6 @@ void voxel_draw(Voxel* voxel) {
         renderer_render_panels(&voxel->renderer, &voxel->panelManager.panels);
     } else {
         linked_list_foreach(&voxel->panelManager.panels, texture_panel, voxel);
-    
         renderer_vulkan_render(&voxel->renderer, &voxel->world, &voxel->camera, &voxel->picker, &voxel->panelManager.panels);       
     }
     struct timeval oldFrameTime = voxel->frameTime;
@@ -209,17 +243,21 @@ void voxel_draw(Voxel* voxel) {
 void voxel_setup_vulkan(Voxel* voxel) {
     voxel->vulkan = NULL;
 
-    if (getenv("FORCE_OPENGL")) {
+    if (!glfwVulkanSupported() || getenv("FORCE_OPENGL")) {
+        printf("Using OpenGL.\n");
         return;
     }
 
     Vulkan* vulkan = NEW(Vulkan, 1);
-    if (!vulkan_create_instance("Voxel", &vulkan->instance)) {
+    if (!vulkan_create_instance("Voxel", &vulkan->instance)) {\
+        printf("failed to create Vulkan instance.\n");
+        printf("Using OpenGL.\n");
         return;
     }
 
     if (glfwCreateWindowSurface(vulkan->instance, voxel->window.glfwWindow, NULL, &vulkan->surface) != VK_SUCCESS) {
         printf("failed to create window surface.\n");
+        printf("Using OpenGL.\n");
         return;
     }
 
@@ -233,13 +271,24 @@ void voxel_setup_vulkan(Voxel* voxel) {
     vulkan_create_command_pool(vulkan->physicalDevice, vulkan->device, vulkan->surface, &vulkan->commandPool);
 
     voxel->vulkan = vulkan;
+
+    printf("Using Vulkan.\n");
 }
 
 void voxel_teardown_vulkan(Voxel* voxel) {
-    vkDestroyCommandPool(voxel->vulkan->device, voxel->vulkan->commandPool, NULL);
-    vkDestroyDevice(voxel->vulkan->device, NULL);
-    vkDestroySurfaceKHR(voxel->vulkan->instance, voxel->window.surface, NULL);
-    vkDestroyInstance(voxel->vulkan->instance, NULL);
+    PFN_vkDestroyCommandPool pfnDestroyCommandPool =
+        (PFN_vkDestroyCommandPool)glfwGetInstanceProcAddress(NULL, "vkDestroyCommandPool");
+    PFN_vkDestroyDevice pfnDestroyDevice =
+        (PFN_vkDestroyDevice)glfwGetInstanceProcAddress(NULL, "vkDestroyDevice");
+    PFN_vkDestroySurfaceKHR pfnDestroySurfaceKHR =
+        (PFN_vkDestroySurfaceKHR)glfwGetInstanceProcAddress(NULL, "vkDestroySurfaceKHR");
+    PFN_vkDestroyInstance pfnDestroyInstance =
+        (PFN_vkDestroyInstance)glfwGetInstanceProcAddress(voxel->vulkan->instance, "vkDestroyInstance");
+
+    pfnDestroyCommandPool(voxel->vulkan->device, voxel->vulkan->commandPool, NULL);
+    pfnDestroyDevice(voxel->vulkan->device, NULL);
+    pfnDestroySurfaceKHR(voxel->vulkan->instance, voxel->window.surface, NULL);
+    pfnDestroyInstance(voxel->vulkan->instance, NULL);
 }
 
 void voxel_setup(Application* application) {
@@ -250,11 +299,9 @@ void voxel_setup(Application* application) {
     voxel_setup_vulkan(voxel);
 
     renderer_init(&voxel->renderer, &voxel->window, voxel->vulkan);
+
     camera_init(&voxel->camera, voxel->vulkan);
-
     camera_move(&voxel->camera, Y, 2);
-
-    voxel_resize(application);
 
     world_init(&voxel->world, voxel->vulkan, "cubes");
 
@@ -263,7 +310,12 @@ void voxel_setup(Application* application) {
     panel_manager_init(&voxel->panelManager);
 
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
-    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
 
     picker_panel_init(&voxel->pickerPanel, &voxel->renderer, &voxel->panelManager, &voxel->picker);
 
@@ -278,8 +330,9 @@ void voxel_main(Application* application) {
     while (!glfwWindowShouldClose(application->window->glfwWindow))
     {
         glfwPollEvents();
-        if (!voxel_process_input(voxel))
+        if (!voxel_process_input(voxel)) {
             break;
+        }
 
         voxel_draw(voxel);
 
@@ -292,7 +345,11 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, ((application->window->height / yscale) - 30) );
     camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
 
     if (!voxel->vulkan) {
@@ -306,7 +363,10 @@ void voxel_teardown(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
     if (voxel->vulkan) {
-        vkDeviceWaitIdle(voxel->vulkan->device);
+        PFN_vkDeviceWaitIdle pfnDeviceWaitIdle =
+            (PFN_vkDeviceWaitIdle)glfwGetInstanceProcAddress(NULL, "vkDeviceWaitIdle");
+
+        pfnDeviceWaitIdle(voxel->vulkan->device);
     }
 
     undo_stack_destroy(&voxel->undoStack);

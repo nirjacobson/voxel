@@ -1,7 +1,10 @@
 #ifndef VOXEL_H
 #define VOXEL_H
 
-#include <sys/time.h>
+#ifdef _WIN32
+#include <winsock.h>
+#endif
+
 #include <gio/gio.h>
 
 #include "global.h"

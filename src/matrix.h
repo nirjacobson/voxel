@@ -3,9 +3,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "global.h"
+
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 float mat2_determinate(float* mat2s);
 

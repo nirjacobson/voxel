@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <GLES3/gl3.h>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include "global.h"
 #include "linked_list.h"
 #include "vulkan_util.h"

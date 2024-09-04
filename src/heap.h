@@ -2,9 +2,12 @@
 #define HEAP_H
 
 #include <stdio.h>
-#include <unistd.h>
 
 #include "chunk.h"
+
+#ifndef F_OK
+#define F_OK    0
+#endif
 
 typedef struct {
     FILE* file;

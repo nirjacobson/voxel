@@ -25,8 +25,8 @@ void window_open(Window* window) {
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
 
-    VkInstance vkInst;
-    if (vulkan_create_instance("Voxel", &vkInst) && !getenv("FORCE_OPENGL")) {
+    bool vulkan = glfwVulkanSupported() && !getenv("FORCE_OPENGL");
+    if (vulkan) {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     }
 
@@ -40,6 +40,13 @@ void window_open(Window* window) {
     glfwSetWindowSizeCallback(window->glfwWindow, resize);
     glfwMakeContextCurrent(window->glfwWindow);
     glfwSetFramebufferSizeCallback(window->glfwWindow, resize);
+
+    if (!vulkan) {
+        glewExperimental = GL_TRUE;
+        if (glewInit() != GLEW_OK) {
+            printf("GLEW::Error : failed to initialize GLEW\n");
+        }
+    }
 
     if (window->application->setup)
         window->application->setup(window->application);

@@ -2,11 +2,21 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Voxel VERSION 0.1 LANGUAGES C)
 
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNODEBUG")
 
-include_directories("/usr/include/glib-2.0")
-include_directories("/usr/lib64/glib-2.0/include/")
+if (LINUX)
+    include_directories("/usr/include/glib-2.0")
+    include_directories("/usr/lib64/glib-2.0/include/")
+elseif (WIN32)
+    include_directories("C:/Program Files/cairo/include/glib-2.0")
+    include_directories("C:/Program Files/cairo/lib/glib-2.0/include")
+    include_directories("C:/Program Files/glfw/include")
+    include_directories("C:/VulkanSDK/1.3.290.0/Include")
+    include_directories("C:/Program Files/cairo/include")
+    include_directories("C:/Program Files/glew/include")
+endif()
 
 find_program(GLSLC NAMES glslc REQUIRED)
 
@@ -180,4 +190,17 @@ add_executable(Voxel
 add_dependencies(Voxel-Resource Voxel-SPIRV)
 add_dependencies(Voxel Voxel-Resource)
 
-target_link_libraries(Voxel PRIVATE vulkan GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
+if (LINUX)
+    target_link_libraries(Voxel PRIVATE vulkan GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
+elseif (WIN32)
+    target_link_libraries(Voxel PRIVATE
+        "C:/Program Files/glew/lib/glew32.lib"
+        "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/GlU32.Lib"
+        "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/OpenGL32.Lib"
+        "C:/Program Files/glfw/lib/glfw3dll.lib"
+        "C:/Program Files/cairo/lib/gio-2.0.lib"
+        "C:/Program Files/cairo/lib/gobject-2.0.lib"
+        "C:/Program Files/cairo/lib/glib-2.0.lib"
+        "C:/Program Files/cairo/lib/cairo.lib"
+    )
+endif()

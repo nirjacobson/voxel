@@ -64,7 +64,10 @@ void record_mesh(void* ptr, void* rendererPtr) {
     color[2] /= 255.0f;
 
     // Color
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
+
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, mesh, MESH_FILL);
 }
@@ -92,9 +95,16 @@ void renderer_2D_record_panel(Renderer* renderer, Panel* panel) {
     VkBuffer vertexBuffers[] = { panel->renderState.vulkan.vbo };
     VkDeviceSize offsets[] = { 0 };
 
-    vkCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline2D.pipeline.layout, 0, 1, &panel->renderState.vulkan.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
-    vkCmdBindVertexBuffers(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0, 1, vertexBuffers, offsets);
-    vkCmdDraw(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 4, 1, 0, 0);
+    PFN_vkCmdBindDescriptorSets pfnCmdBindDescriptorSets =
+        (PFN_vkCmdBindDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkCmdBindDescriptorSets");
+    PFN_vkCmdBindVertexBuffers pfnCmdBindVertexBuffers =
+        (PFN_vkCmdBindVertexBuffers)glfwGetInstanceProcAddress(NULL, "vkCmdBindVertexBuffers");
+    PFN_vkCmdDraw pfnCmdDraw =
+        (PFN_vkCmdDraw)glfwGetInstanceProcAddress(NULL, "vkCmdDraw");
+
+    pfnCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline2D.pipeline.layout, 0, 1, &panel->renderState.vulkan.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
+    pfnCmdBindVertexBuffers(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0, 1, vertexBuffers, offsets);
+    pfnCmdDraw(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 4, 1, 0, 0);
 }
 
 void renderer_3D_create_descriptor_set_layout(Renderer* renderer, VkDescriptorSetLayout* dsLayout) {
@@ -110,7 +120,10 @@ void renderer_3D_create_descriptor_set_layout(Renderer* renderer, VkDescriptorSe
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &mcpLayoutBinding;
 
-    if (vkCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
+    PFN_vkCreateDescriptorSetLayout pfnCreateDescriptorSetLayout =
+        (PFN_vkCreateDescriptorSetLayout)glfwGetInstanceProcAddress(NULL, "vkCreateDescriptorSetLayout");
+
+    if (pfnCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
         printf("failed to create descriptor set layout.\n");
         assert(false);
     }
@@ -154,7 +167,10 @@ void renderer_setup_framebuffers(Renderer* renderer) {
         frameBufferInfo.height = renderer->renderState.vulkan.swapChain.extent.height;
         frameBufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(renderer->vulkan->device, &frameBufferInfo, NULL, &renderer->renderState.vulkan.swapChain.frameBuffers[i]) != VK_SUCCESS) {
+        PFN_vkCreateFramebuffer pfnCreateFramebuffer =
+            (PFN_vkCreateFramebuffer)glfwGetInstanceProcAddress(NULL, "vkCreateFramebuffer");
+
+        if (pfnCreateFramebuffer(renderer->vulkan->device, &frameBufferInfo, NULL, &renderer->renderState.vulkan.swapChain.frameBuffers[i]) != VK_SUCCESS) {
             printf("failed to create framebuffer.\n");
             assert(false);
         }
@@ -254,8 +270,8 @@ void renderer_3D_create_pipeline(Renderer* renderer) {
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline3D.pipeline.descriptorSetLayout);
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline3D.pipelineLine.descriptorSetLayout);
 
-    GBytes* _3D_vert_spv = g_resources_lookup_data("/build/shaders/3D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _3D_frag_spv = g_resources_lookup_data("/build/shaders/3D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_vert_spv = g_resources_lookup_data("/build/shaders/spir-v/3D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_frag_spv = g_resources_lookup_data("/build/shaders/spir-v/3D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __3D_vert_spv = g_bytes_get_data(_3D_vert_spv, NULL);
     gsize __3D_vert_spv_len = g_bytes_get_size(_3D_vert_spv);
@@ -310,8 +326,11 @@ void renderer_3D_create_pipeline(Renderer* renderer) {
                            VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
                            &renderer->renderState.vulkan.pipeline3D.pipelineLine);
 
-    vkDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
-    vkDestroyShaderModule(renderer->vulkan->device, vertShaderModule, NULL);
+    PFN_vkDestroyShaderModule pfnDestroyShaderModule =
+        (PFN_vkDestroyShaderModule)glfwGetInstanceProcAddress(NULL, "vkDestroyShaderModule");
+
+    pfnDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
+    pfnDestroyShaderModule(renderer->vulkan->device, vertShaderModule, NULL);
 
     free(attributeDescriptions);
 }
@@ -329,7 +348,10 @@ void renderer_2D_create_descriptor_set_layout(Renderer* renderer, VkDescriptorSe
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &samplerLayoutBinding;
 
-    if (vkCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
+    PFN_vkCreateDescriptorSetLayout pfnCreateDescriptorSetLayout =
+        (PFN_vkCreateDescriptorSetLayout)glfwGetInstanceProcAddress(NULL, "vkCreateDescriptorSetLayout");
+
+    if (pfnCreateDescriptorSetLayout(renderer->vulkan->device, &layoutInfo, NULL, dsLayout) != VK_SUCCESS) {
         printf("failed to create descriptor set layout.\n");
         assert(false);
     }
@@ -366,8 +388,8 @@ void renderer_2D_get_attribute_descriptions(VkVertexInputAttributeDescription** 
 void renderer_2D_create_pipeline(Renderer* renderer) {
     renderer_2D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline2D.pipeline.descriptorSetLayout);
 
-    GBytes* _2D_vert_spv = g_resources_lookup_data("/build/shaders/2D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _2D_frag_spv = g_resources_lookup_data("/build/shaders/2D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_vert_spv = g_resources_lookup_data("/build/shaders/spir-v/2D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_frag_spv = g_resources_lookup_data("/build/shaders/spir-v/2D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __2D_vert_spv = g_bytes_get_data(_2D_vert_spv, NULL);
     gsize __2D_vert_spv_len = g_bytes_get_size(_2D_vert_spv);
@@ -412,8 +434,11 @@ void renderer_2D_create_pipeline(Renderer* renderer) {
                            VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                            &renderer->renderState.vulkan.pipeline2D.pipeline);
 
-    vkDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
-    vkDestroyShaderModule(renderer->vulkan->device, vertShaderModule, NULL);
+    PFN_vkDestroyShaderModule pfnDestroyShaderModule =
+        (PFN_vkDestroyShaderModule)glfwGetInstanceProcAddress(NULL, "vkDestroyShaderModule");
+
+    pfnDestroyShaderModule(renderer->vulkan->device, fragShaderModule, NULL);
+    pfnDestroyShaderModule(renderer->vulkan->device, vertShaderModule, NULL);
 
     free(attributeDescriptions);
 }
@@ -423,37 +448,67 @@ void renderer_destroy(Renderer* renderer) {
         shader_program_2D_destroy(&renderer->renderState.opengl.shaderProgram2D);
         shader_program_3D_destroy(&renderer->renderState.opengl.shaderProgram3D);
     } else {
-        vkDestroySampler(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.sampler, NULL);
+        PFN_vkDestroySampler pfnDestroySampler =
+            (PFN_vkDestroySampler)glfwGetInstanceProcAddress(NULL, "vkDestroySampler");
+        PFN_vkUnmapMemory pfnUnmapMemory =
+            (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+        pfnDestroySampler(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.sampler, NULL);
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkUnmapMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i]);
-            vkDestroyBuffer(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffers[i], NULL);
-            vkFreeMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i], NULL);
+            pfnUnmapMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i]);
+            pfnDestroyBuffer(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffers[i], NULL);
+            pfnFreeMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i], NULL);
         }
         free(renderer->renderState.vulkan.pipeline3D.descriptorSets);
 
-        vkFreeCommandBuffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->renderState.vulkan.commandBuffers);
+        PFN_vkFreeCommandBuffers pfnFreeCommandBuffers =
+            (PFN_vkFreeCommandBuffers)glfwGetInstanceProcAddress(NULL, "vkFreeCommandBuffers");
+
+        pfnFreeCommandBuffers(renderer->vulkan->device, renderer->vulkan->commandPool, MAX_FRAMES_IN_FLIGHT, renderer->renderState.vulkan.commandBuffers);
         free(renderer->renderState.vulkan.commandBuffers);
 
-        vkDestroyDescriptorPool(renderer->vulkan->device, renderer->renderState.vulkan.descriptorPool, NULL);
-        vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.descriptorSetLayout, NULL);
-        vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.descriptorSetLayout, NULL);
-        vkDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.descriptorSetLayout, NULL);
+        PFN_vkDestroyDescriptorPool pfnDestroyDescriptorPool =
+            (PFN_vkDestroyDescriptorPool)glfwGetInstanceProcAddress(NULL, "vkDestroyDescriptorPool");
+        PFN_vkDestroyDescriptorSetLayout pfnDestroyDescriptorSetLayout =
+            (PFN_vkDestroyDescriptorSetLayout)glfwGetInstanceProcAddress(NULL, "vkDestroyDescriptorSetLayout");
 
-        vkDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.pipeline, NULL);
-        vkDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.layout, NULL);
-        vkDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.pipeline, NULL);
-        vkDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.layout, NULL);
-        vkDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.pipeline, NULL);
-        vkDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.layout, NULL);
+        pfnDestroyDescriptorPool(renderer->vulkan->device, renderer->renderState.vulkan.descriptorPool, NULL);
+        pfnDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.descriptorSetLayout, NULL);
+        pfnDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.descriptorSetLayout, NULL);
+        pfnDestroyDescriptorSetLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.descriptorSetLayout, NULL);
 
-        vkDestroyRenderPass(renderer->vulkan->device, renderer->renderState.vulkan.renderPass, NULL);
+        PFN_vkDestroyPipeline pfnDestroyPipeline =
+            (PFN_vkDestroyPipeline)glfwGetInstanceProcAddress(NULL, "vkDestroyPipeline");
+        PFN_vkDestroyPipelineLayout pfnDestroyPipelineLayout =
+            (PFN_vkDestroyPipelineLayout)glfwGetInstanceProcAddress(NULL, "vkDestroyPipelineLayout");
+
+        pfnDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.pipeline, NULL);
+        pfnDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline2D.pipeline.layout, NULL);
+        pfnDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.pipeline, NULL);
+        pfnDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipeline.layout, NULL);
+        pfnDestroyPipeline(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.pipeline, NULL);
+        pfnDestroyPipelineLayout(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.pipelineLine.layout, NULL);
+
+        PFN_vkDestroyRenderPass pfnDestroyRenderPass =
+            (PFN_vkDestroyRenderPass)glfwGetInstanceProcAddress(NULL, "vkDestroyRenderPass");
+
+        pfnDestroyRenderPass(renderer->vulkan->device, renderer->renderState.vulkan.renderPass, NULL);
 
         renderer_cleanup_swap_chain(renderer);
 
+        PFN_vkDestroySemaphore pfnDestroySemaphore =
+            (PFN_vkDestroySemaphore)glfwGetInstanceProcAddress(NULL, "vkDestroySemaphore");
+        PFN_vkDestroyFence pfnDestroyFence =
+            (PFN_vkDestroyFence)glfwGetInstanceProcAddress(NULL, "vkDestroyFence");
+
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(renderer->vulkan->device, renderer->renderState.vulkan.imageAvailableSemaphores[i], NULL);
-            vkDestroySemaphore(renderer->vulkan->device, renderer->renderState.vulkan.renderFinishedSemaphores[i], NULL);
-            vkDestroyFence(renderer->vulkan->device, renderer->renderState.vulkan.inFlightFences[i], NULL);
+            pfnDestroySemaphore(renderer->vulkan->device, renderer->renderState.vulkan.imageAvailableSemaphores[i], NULL);
+            pfnDestroySemaphore(renderer->vulkan->device, renderer->renderState.vulkan.renderFinishedSemaphores[i], NULL);
+            pfnDestroyFence(renderer->vulkan->device, renderer->renderState.vulkan.inFlightFences[i], NULL);
         }
     }
 }
@@ -465,8 +520,12 @@ void renderer_clear(Renderer* renderer) {
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
     glViewport(0, 0, width, height);
 
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
     float mat[16];
-    mat4_orthographic(mat, 0, width, 0, height);
+    mat4_orthographic(mat, 0, width / xscale, 0, height / yscale);
     renderer_2D_update_projection(renderer, mat);
     camera_set_aspect(camera, (float)width / height);
     renderer_apply_camera(renderer, camera);
@@ -508,21 +567,23 @@ void renderer_3D_update_sun_position(Renderer* renderer, float* position) {
 }
 
 void renderer_apply_camera(Renderer* renderer, Camera* camera) {
-    float mat[16];
-    mat4_multiply(mat, camera->mat_view, camera->mat_model);
-    mat4_inverse(mat, mat);
-    renderer_3D_update_camera(renderer, mat);
+    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->_near, camera->_far);
 
-    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+    if (!renderer->vulkan) {
+        float mat[16];
+        mat4_multiply(mat, camera->mat_view, camera->mat_model);
+        mat4_inverse(mat, mat);
+        renderer_3D_update_camera(renderer, mat);
 
-    if (camera->vulkan) {
+        renderer_3D_update_projection(renderer, camera->mat_proj);
+        mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
+    } else {
         float clipCorrect[16];
         vulkan_clip_correction_matrix(clipCorrect);
         mat4_multiply(camera->mat_proj, clipCorrect, camera->mat_proj);
+        renderer_3D_update_uniforms(renderer, camera);
+        mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
     }
-
-    mat4_inverse(camera->mat_proj_inv, camera->mat_proj);
-    renderer_3D_update_projection(renderer, camera->mat_proj);
 }
 
 void renderer_3D_use(Renderer* renderer) {
@@ -640,7 +701,10 @@ void renderer_vulkan_resize(Renderer* renderer) {
 
 void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position) {
     // World position
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(float[3]), position);
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
+
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(float[3]), position);
 
     linked_list_foreach(&chunk->meshes, record_mesh, renderer);
 }
@@ -648,6 +712,9 @@ void renderer_3D_record_chunk(Renderer* renderer, Chunk* chunk, float* position)
 void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
     float mat[16];
     float vec[3];
+
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
 
     if (picker->selection.model) {
         mat4_rotate(mat, NULL, (M_PI/2) * picker->selection.rotation, Y);
@@ -677,33 +744,38 @@ void renderer_3D_record_picker(Renderer* renderer, Picker* picker) {
         }
 
         // Model matrix
-        vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
+        pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
 
         renderer_3D_record_chunk(renderer, picker->selection.model, picker->box.position);
     }
 
-    vkCmdBindPipeline(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipelineLine.pipeline);
-    vkCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipelineLine.layout, 0, 1, &renderer->renderState.vulkan.pipeline3D.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
+    PFN_vkCmdBindPipeline pfnCmdBindPipeline =
+        (PFN_vkCmdBindPipeline)glfwGetInstanceProcAddress(NULL, "vkCmdBindPipeline");
+    PFN_vkCmdBindDescriptorSets pfnCmdBindDescriptorSets =
+        (PFN_vkCmdBindDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkCmdBindDescriptorSets");
+
+    pfnCmdBindPipeline(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipelineLine.pipeline);
+    pfnCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipelineLine.layout, 0, 1, &renderer->renderState.vulkan.pipeline3D.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
 
     if (picker->selection.present) {
         float color[] = { 0, 1, 1 };
 
         // World position
-        vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->selection.box.position),  picker->selection.box.position);
+        pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->selection.box.position),  picker->selection.box.position);
         // Color
-        vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
+        pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
         renderer_3D_record_mesh(renderer, &picker->selection.mesh, MESH_LINE);
     }
 
     mat4_identity(mat);
     // Model matrix
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
     // World position
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->box.position),  picker->box.position);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(picker->box.position),  picker->box.position);
     // Color
     float color[] = { 1, 1, 0 };
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &picker->mesh, MESH_LINE);
 }
@@ -719,6 +791,9 @@ void renderer_3D_create_uniform_buffers(Renderer* renderer) {
     renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory = NEW(VkDeviceMemory, MAX_FRAMES_IN_FLIGHT);
     renderer->renderState.vulkan.pipeline3D.mcpBuffersMapped = NEW(void*, MAX_FRAMES_IN_FLIGHT);
 
+    PFN_vkMapMemory pfnMapMemory =
+        (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vulkan_create_buffer(renderer->vulkan->physicalDevice,
                              renderer->vulkan->device, bufferSize,
@@ -726,7 +801,7 @@ void renderer_3D_create_uniform_buffers(Renderer* renderer) {
                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                              &renderer->renderState.vulkan.pipeline3D.mcpBuffers[i],
                              &renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i]);
-        vkMapMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i], 0, bufferSize, 0, &renderer->renderState.vulkan.pipeline3D.mcpBuffersMapped[i]);
+        pfnMapMemory(renderer->vulkan->device, renderer->renderState.vulkan.pipeline3D.mcpBuffersMemory[i], 0, bufferSize, 0, &renderer->renderState.vulkan.pipeline3D.mcpBuffersMapped[i]);
     }
 }
 
@@ -742,6 +817,9 @@ void renderer_create_descriptor_pool(Renderer* renderer) {
 
 void renderer_3D_create_descriptor_sets(Renderer* renderer) {
     vulkan_create_descriptor_sets(renderer->vulkan->device, renderer->renderState.vulkan.descriptorPool, MAX_FRAMES_IN_FLIGHT, renderer->renderState.vulkan.pipeline3D.pipeline.descriptorSetLayout, &renderer->renderState.vulkan.pipeline3D.descriptorSets);
+
+    PFN_vkUpdateDescriptorSets pfnUpdateDescriptorSets =
+        (PFN_vkUpdateDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkUpdateDescriptorSets");
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         VkDescriptorBufferInfo bufferInfo = { 0 };
@@ -760,7 +838,7 @@ void renderer_3D_create_descriptor_sets(Renderer* renderer) {
         descriptorWrite.pImageInfo = NULL;
         descriptorWrite.pTexelBufferView = NULL;
 
-        vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
+        pfnUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
 }
 
@@ -781,10 +859,15 @@ void renderer_create_sync_objects(Renderer* renderer) {
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+    PFN_vkCreateSemaphore pfnCreateSemaphore =
+        (PFN_vkCreateSemaphore)glfwGetInstanceProcAddress(NULL, "vkCreateSemaphore");
+    PFN_vkCreateFence pfnCreateFence =
+        (PFN_vkCreateFence)glfwGetInstanceProcAddress(NULL, "vkCreateFence");
+
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderState.vulkan.imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderState.vulkan.renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                vkCreateFence(renderer->vulkan->device, &fenceInfo, NULL, &renderer->renderState.vulkan.inFlightFences[i]) != VK_SUCCESS) {
+        if (pfnCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderState.vulkan.imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                pfnCreateSemaphore(renderer->vulkan->device, &semaphoreInfo, NULL, &renderer->renderState.vulkan.renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                pfnCreateFence(renderer->vulkan->device, &fenceInfo, NULL, &renderer->renderState.vulkan.inFlightFences[i]) != VK_SUCCESS) {
             printf("failed to create sync objects.\n");
             assert(false);
         }
@@ -792,17 +875,29 @@ void renderer_create_sync_objects(Renderer* renderer) {
 }
 
 void renderer_cleanup_swap_chain(Renderer* renderer) {
-    vkDestroyImageView(renderer->vulkan->device, renderer->renderState.vulkan.depthImageView, NULL);
-    vkDestroyImage(renderer->vulkan->device, renderer->renderState.vulkan.depthImage, NULL);
-    vkFreeMemory(renderer->vulkan->device, renderer->renderState.vulkan.depthImageMemory, NULL);
+    PFN_vkDestroyImageView pfnDestroyImageView =
+        (PFN_vkDestroyImageView)glfwGetInstanceProcAddress(NULL, "vkDestroyImageView");
+    PFN_vkDestroyImage pfnDestroyImage =
+        (PFN_vkDestroyImage)glfwGetInstanceProcAddress(NULL, "vkDestroyImage");
+    PFN_vkFreeMemory pfnFreeMemory =
+        (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+    PFN_vkDestroyFramebuffer pfnDestroyFramebuffer =
+        (PFN_vkDestroyFramebuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyFramebuffer");
+    PFN_vkDestroySwapchainKHR pfnDestroySwapchainKHR =
+        (PFN_vkDestroySwapchainKHR)glfwGetInstanceProcAddress(NULL, "vkDestroySwapchainKHR");
+
+    pfnDestroyImageView(renderer->vulkan->device, renderer->renderState.vulkan.depthImageView, NULL);
+    pfnDestroyImage(renderer->vulkan->device, renderer->renderState.vulkan.depthImage, NULL);
+    pfnFreeMemory(renderer->vulkan->device, renderer->renderState.vulkan.depthImageMemory, NULL);
     for (int i = 0; i < renderer->renderState.vulkan.swapChain.imageCount; i++) {
-        vkDestroyFramebuffer(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.frameBuffers[i], NULL);
+        pfnDestroyFramebuffer(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.frameBuffers[i], NULL);
     }
     for (int i = 0; i < renderer->renderState.vulkan.swapChain.imageCount; i++) {
-        vkDestroyImageView(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.imageViews[i], NULL);
+        pfnDestroyImageView(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.imageViews[i], NULL);
     }
     free(renderer->renderState.vulkan.swapChain.frameBuffers);
-    vkDestroySwapchainKHR(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.swapChain, NULL);
+    pfnDestroySwapchainKHR(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.swapChain, NULL);
 }
 
 void renderer_recreate_swap_chain(Renderer* renderer) {
@@ -813,7 +908,10 @@ void renderer_recreate_swap_chain(Renderer* renderer) {
         glfwWaitEvents();
     }
 
-    vkDeviceWaitIdle(renderer->vulkan->device);
+    PFN_vkDeviceWaitIdle pfnDeviceWaitIdle =
+        (PFN_vkDeviceWaitIdle)glfwGetInstanceProcAddress(NULL, "vkDeviceWaitIdle");
+
+    pfnDeviceWaitIdle(renderer->vulkan->device);
 
     renderer_cleanup_swap_chain(renderer);
 
@@ -833,10 +931,15 @@ void renderer_3D_update_uniforms(Renderer* renderer, Camera* camera) {
 }
 
 void renderer_vulkan_render(Renderer* renderer, World* world, Camera* camera, Picker* picker, LinkedList* panels) {
-    vkWaitForFences(renderer->vulkan->device, 1, &renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame], VK_TRUE, UINT64_MAX);
+    PFN_vkWaitForFences pfnWaitForFences =
+        (PFN_vkWaitForFences)glfwGetInstanceProcAddress(NULL, "vkWaitForFences");
+    PFN_vkAcquireNextImageKHR pfnAcquireNextImageKHR =
+        (PFN_vkAcquireNextImageKHR)glfwGetInstanceProcAddress(NULL, "vkAcquireNextImageKHR");
+
+    pfnWaitForFences(renderer->vulkan->device, 1, &renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.swapChain, UINT64_MAX, renderer->renderState.vulkan.imageAvailableSemaphores[renderer->renderState.vulkan.currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = pfnAcquireNextImageKHR(renderer->vulkan->device, renderer->renderState.vulkan.swapChain.swapChain, UINT64_MAX, renderer->renderState.vulkan.imageAvailableSemaphores[renderer->renderState.vulkan.currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         renderer_recreate_swap_chain(renderer);
@@ -846,9 +949,14 @@ void renderer_vulkan_render(Renderer* renderer, World* world, Camera* camera, Pi
         assert(false);
     }
 
-    vkResetFences(renderer->vulkan->device, 1, &renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame]);
+    PFN_vkResetFences pfnResetFences =
+        (PFN_vkResetFences)glfwGetInstanceProcAddress(NULL, "vkResetFences");
+    PFN_vkResetCommandBuffer pfnResetCommandBuffer =
+        (PFN_vkResetCommandBuffer)glfwGetInstanceProcAddress(NULL, "vkResetCommandBuffer");
 
-    vkResetCommandBuffer(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0);
+    pfnResetFences(renderer->vulkan->device, 1, &renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame]);
+
+    pfnResetCommandBuffer(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0);
     renderer_record_command_buffer(renderer, renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], imageIndex, world, camera, picker, panels);
 
     renderer_3D_update_uniforms(renderer, camera);
@@ -867,7 +975,12 @@ void renderer_vulkan_render(Renderer* renderer, World* world, Camera* camera, Pi
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(renderer->renderState.vulkan.graphicsQueue, 1, &submitInfo, renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame]) != VK_SUCCESS) {
+    PFN_vkQueueSubmit pfnQueueSubmit =
+        (PFN_vkQueueSubmit)glfwGetInstanceProcAddress(NULL, "vkQueueSubmit");
+    PFN_vkQueuePresentKHR pfnQueuePresentKHR =
+        (PFN_vkQueuePresentKHR)glfwGetInstanceProcAddress(NULL, "vkQueuePresentKHR");
+
+    if (pfnQueueSubmit(renderer->renderState.vulkan.graphicsQueue, 1, &submitInfo, renderer->renderState.vulkan.inFlightFences[renderer->renderState.vulkan.currentFrame]) != VK_SUCCESS) {
         printf("failed to submit draw command buffer.\n");
         assert(false);
     }
@@ -883,7 +996,7 @@ void renderer_vulkan_render(Renderer* renderer, World* world, Camera* camera, Pi
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = NULL;
 
-    result = vkQueuePresentKHR(renderer->renderState.vulkan.presentQueue, &presentInfo);
+    result = pfnQueuePresentKHR(renderer->renderState.vulkan.presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || renderer->renderState.vulkan.framebufferResized) {
         renderer->renderState.vulkan.framebufferResized = false;
@@ -902,7 +1015,10 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     beginInfo.flags = 0;
     beginInfo.pInheritanceInfo = NULL;
 
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+    PFN_vkBeginCommandBuffer pfnBeginCommandBuffer =
+        (PFN_vkBeginCommandBuffer)glfwGetInstanceProcAddress(NULL, "vkBeginCommandBuffer");
+
+    if (pfnBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
         printf("failed to begin recording command buffer.\n");
         assert(false);
     }
@@ -925,7 +1041,13 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     renderPassInfo.clearValueCount =(uint32_t)(sizeof(clearValues) / sizeof(clearValues[0]));
     renderPassInfo.pClearValues = clearValues;
 
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    PFN_vkCmdBeginRenderPass pfnCmdBeginRenderPass =
+        (PFN_vkCmdBeginRenderPass)glfwGetInstanceProcAddress(NULL, "vkCmdBeginRenderPass");
+
+    pfnCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    PFN_vkCmdSetViewport pfnCmdSetViewport =
+        (PFN_vkCmdSetViewport)glfwGetInstanceProcAddress(NULL, "vkCmdSetViewport");
 
     VkViewport viewport = { 0 };
     viewport.x = 0.0f;
@@ -934,40 +1056,60 @@ void renderer_record_command_buffer(Renderer* renderer, VkCommandBuffer commandB
     viewport.height = (float)renderer->renderState.vulkan.swapChain.extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+    pfnCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    PFN_vkCmdSetScissor pfnCmdSetScissor =
+        (PFN_vkCmdSetScissor)glfwGetInstanceProcAddress(NULL, "vkCmdSetScissor");
 
     VkRect2D scissor = { 0 };
     scissor.offset.x = 0;
     scissor.offset.y = 0;
     scissor.extent = renderer->renderState.vulkan.swapChain.extent;
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+    pfnCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
     renderer_3D_record(renderer, world, camera, picker);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline2D.pipeline.pipeline);
+    PFN_vkCmdBindPipeline pfnCmdBindPipeline =
+        (PFN_vkCmdBindPipeline)glfwGetInstanceProcAddress(NULL, "vkCmdBindPipeline");
+
+    pfnCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline2D.pipeline.pipeline);
 
     renderer_2D_record(renderer, panels);
 
-    vkCmdEndRenderPass(commandBuffer);
+    PFN_vkCmdEndRenderPass pfnCmdEndRenderPass =
+        (PFN_vkCmdEndRenderPass)glfwGetInstanceProcAddress(NULL, "vkCmdEndRenderPass");
+    PFN_vkEndCommandBuffer pfnEndCommandBuffer =
+        (PFN_vkEndCommandBuffer)glfwGetInstanceProcAddress(NULL, "vkEndCommandBuffer");
 
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+    pfnCmdEndRenderPass(commandBuffer);
+
+    if (pfnEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         printf("failed to record command buffer.\n");
         assert(false);
     }
 }
 
 void renderer_3D_record_mesh(Renderer* renderer, Mesh* mesh, char mode) {
+    PFN_vkCmdBindVertexBuffers pfnCmdBindVertexBuffers =
+        (PFN_vkCmdBindVertexBuffers)glfwGetInstanceProcAddress(NULL, "vkCmdBindVertexBuffers");
+    PFN_vkCmdBindIndexBuffer pfnCmdBindIndexBuffer =
+        (PFN_vkCmdBindIndexBuffer)glfwGetInstanceProcAddress(NULL, "vkCmdBindIndexBuffer");
+    PFN_vkCmdDrawIndexed pfnCmdDrawIndexed =
+        (PFN_vkCmdDrawIndexed)glfwGetInstanceProcAddress(NULL, "vkCmdDrawIndexed");
+
     VkBuffer vertexBuffers[] = { mesh->renderState.vulkan.vbo };
     VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], mesh->renderState.vulkan.ebo, 0, VK_INDEX_TYPE_UINT16);
+    pfnCmdBindVertexBuffers(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], 0, 1, vertexBuffers, offsets);
+    pfnCmdBindIndexBuffer(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], mesh->renderState.vulkan.ebo, 0, VK_INDEX_TYPE_UINT16);
     int elementsPerQuad = (mode == MESH_FILL) ? 4 : 5;
     for (int i = 0; i < mesh->quads.size; i++) {
-        vkCmdDrawIndexed(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], elementsPerQuad, 1, elementsPerQuad * i, 0, 0);
+        pfnCmdDrawIndexed(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], elementsPerQuad, 1, elementsPerQuad * i, 0, 0);
     }
 }
 
 void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camera) {
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
 
     float worldPosition[] = {
         camera->mat_view[12],
@@ -980,29 +1122,37 @@ void renderer_3D_record_ground(Renderer* renderer, Ground* ground, Camera* camer
         192.0f/255
     };
     // World position
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(worldPosition), worldPosition);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 64, sizeof(worldPosition), worldPosition);
     // Color
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 80, sizeof(color), color);
 
     renderer_3D_record_mesh(renderer, &ground->mesh, MESH_FILL);
 }
 
 void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker* picker) {
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
+
     // Model matrix
     float mat4[16];
     mat4_identity(mat4);
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat4), mat4);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat4), mat4);
 
     // Sun position
     float vec3[] = { 100, 100, 100 };
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 96, sizeof(vec3), vec3);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 96, sizeof(vec3), vec3);
 
     // Ambient
     float ambient = 0.2;
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 112, sizeof(ambient), &ambient);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline3D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 112, sizeof(ambient), &ambient);
 
-    vkCmdBindPipeline(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipeline.pipeline);
-    vkCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipeline.layout, 0, 1, &renderer->renderState.vulkan.pipeline3D.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
+    PFN_vkCmdBindPipeline pfnCmdBindPipeline =
+        (PFN_vkCmdBindPipeline)glfwGetInstanceProcAddress(NULL, "vkCmdBindPipeline");
+    PFN_vkCmdBindDescriptorSets pfnCmdBindDescriptorSets =
+        (PFN_vkCmdBindDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkCmdBindDescriptorSets");
+
+    pfnCmdBindPipeline(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipeline.pipeline);
+    pfnCmdBindDescriptorSets(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->renderState.vulkan.pipeline3D.pipeline.layout, 0, 1, &renderer->renderState.vulkan.pipeline3D.descriptorSets[renderer->renderState.vulkan.currentFrame], 0, NULL);
 
     renderer_3D_record_ground(renderer, &world->ground, camera);
 
@@ -1012,17 +1162,24 @@ void renderer_3D_record(Renderer* renderer, World* world, Camera* camera, Picker
 }
 
 void renderer_2D_record(Renderer* renderer, LinkedList* panels) {
+    PFN_vkCmdPushConstants pfnCmdPushConstants =
+        (PFN_vkCmdPushConstants)glfwGetInstanceProcAddress(NULL, "vkCmdPushConstants");
+
     // Projection
     int width = 0, height = 0;
     glfwGetFramebufferSize(renderer->window->glfwWindow, &width, &height);
+
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
     float clipCorrect[16];
     vulkan_clip_correction_matrix(clipCorrect);
 
     float mat[16];
-    mat4_orthographic(mat, 0, width, 0, height);
+    mat4_orthographic(mat, 0, width / xscale, 0, height / yscale);
     mat4_multiply(mat, clipCorrect, mat);
-    vkCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
+    pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);
 
     linked_list_foreach(panels, record_panel, renderer);
 }
@@ -1047,6 +1204,9 @@ void renderer_create_descriptor_sets(Renderer* renderer, VkImageView imageView, 
         descriptorWrite.pImageInfo = &imageInfo;
         descriptorWrite.pTexelBufferView = NULL;
 
-        vkUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
+        PFN_vkUpdateDescriptorSets pfnUpdateDescriptorSets =
+            (PFN_vkUpdateDescriptorSets)glfwGetInstanceProcAddress(NULL, "vkUpdateDescriptorSets");
+
+        pfnUpdateDescriptorSets(renderer->vulkan->device, 1, &descriptorWrite, 0, NULL);
     }
 }

@@ -27,8 +27,8 @@ Panel* panel_init(Panel* d, Renderer* renderer, void* owner, void (*drawCallback
     panel->renderer = renderer;
     panel->vulkan = renderer->vulkan;
 
-    panel->position[0] = 10;
-    panel->position[1] = 10;
+    panel->position[0] = 16;
+    panel->position[1] = 16;
 
     panel->width = width;
     panel->height = height;
@@ -70,12 +70,21 @@ void panel_destroy(Panel* panel) {
     } else {
         free(panel->renderState.vulkan.descriptorSets);
 
-        vkDestroyImageView(panel->vulkan->device, panel->renderState.vulkan.texImageView, NULL);
-        vkDestroyImage(panel->vulkan->device, panel->renderState.vulkan.texImage, NULL);
-        vkFreeMemory(panel->vulkan->device, panel->renderState.vulkan.texImageDeviceMemory, NULL);
+        PFN_vkDestroyImageView pfnDestroyImageView =
+            (PFN_vkDestroyImageView)glfwGetInstanceProcAddress(NULL, "vkDestroyImageView");
+        PFN_vkDestroyImage pfnDestroyImage =
+            (PFN_vkDestroyImage)glfwGetInstanceProcAddress(NULL, "vkDestroyImage");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
 
-        vkDestroyBuffer(panel->vulkan->device, panel->renderState.vulkan.vbo, NULL);
-        vkFreeMemory(panel->vulkan->device, panel->renderState.vulkan.vboDeviceMemory, NULL);
+        pfnDestroyImageView(panel->vulkan->device, panel->renderState.vulkan.texImageView, NULL);
+        pfnDestroyImage(panel->vulkan->device, panel->renderState.vulkan.texImage, NULL);
+        pfnFreeMemory(panel->vulkan->device, panel->renderState.vulkan.texImageDeviceMemory, NULL);
+
+        pfnDestroyBuffer(panel->vulkan->device, panel->renderState.vulkan.vbo, NULL);
+        pfnFreeMemory(panel->vulkan->device, panel->renderState.vulkan.vboDeviceMemory, NULL);
     }
 
     linked_list_destroy(&panel->actionRegions, free);
@@ -89,6 +98,13 @@ void panel_add_action_region(Panel* panel, ActionRegion* actionRegion) {
 }
 
 void panel_action(Panel* panel, char action, unsigned int x, unsigned int y) {
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    x = x / xscale - panel->position[0];
+    y = y / yscale - panel->position[1];
+
     if (action == MOUSE_PRESS) {
         panel->manager->active_panel = panel;
     }
@@ -142,19 +158,36 @@ void panel_set_position(Panel* panel, int x, int y) {
         VkDeviceMemory stagingBufferMemory;
         vulkan_create_buffer(panel->vulkan->physicalDevice, panel->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
+        PFN_vkMapMemory pfnMapMemory =
+            (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+        PFN_vkUnmapMemory pfnUnmapMemory =
+            (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+
         void* data;
-        vkMapMemory(panel->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        pfnMapMemory(panel->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertex_data, (size_t)bufferSize);
-        vkUnmapMemory(panel->vulkan->device, stagingBufferMemory);
+        pfnUnmapMemory(panel->vulkan->device, stagingBufferMemory);
 
         vulkan_copy_buffer(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, stagingBuffer, panel->renderState.vulkan.vbo, bufferSize);
 
-        vkDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
-        vkFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+        pfnDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
+        pfnFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
     }
 }
 
 void panel_translate(Panel* panel, int x, int y) {
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    x /= xscale;
+    y /= yscale;
+
     int tx = panel->position[0] + x;
     int ty = panel->position[1] + y;
     panel_set_position(panel, tx, ty);
@@ -177,17 +210,27 @@ void panel_texture(Panel* panel) {
         VkDeviceMemory stagingBufferMemory;
         vulkan_create_buffer(panel->vulkan->physicalDevice, panel->vulkan->device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
     
+        PFN_vkMapMemory pfnMapMemory =
+            (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+        PFN_vkUnmapMemory pfnUnmapMemory =
+            (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+
         void* data;
-        vkMapMemory(panel->vulkan->device, stagingBufferMemory, 0, imageSize, 0, &data);
+        pfnMapMemory(panel->vulkan->device, stagingBufferMemory, 0, imageSize, 0, &data);
         memcpy(data, pixels, (size_t)(imageSize));
-        vkUnmapMemory(panel->vulkan->device, stagingBufferMemory);
+        pfnUnmapMemory(panel->vulkan->device, stagingBufferMemory);
     
         vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->renderState.vulkan.texImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
         vulkan_copy_buffer_to_image(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, stagingBuffer, panel->renderState.vulkan.texImage, panel->width, panel->height);
         vulkan_transition_image_layout(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, panel->renderState.vulkan.texImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     
-        vkDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
-        vkFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+        pfnDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
+        pfnFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
     }
 }
 
@@ -205,16 +248,26 @@ void panel_create_vulkan_resources(Panel* panel) {
     VkDeviceMemory stagingBufferMemory;
     vulkan_create_buffer(panel->vulkan->physicalDevice, panel->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
+    PFN_vkMapMemory pfnMapMemory =
+        (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+    PFN_vkUnmapMemory pfnUnmapMemory =
+        (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+
     void* data;
-    vkMapMemory(panel->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    pfnMapMemory(panel->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertex_data, (size_t)bufferSize);
-    vkUnmapMemory(panel->vulkan->device, stagingBufferMemory);
+    pfnUnmapMemory(panel->vulkan->device, stagingBufferMemory);
 
     vulkan_create_buffer(panel->vulkan->physicalDevice, panel->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &panel->renderState.vulkan.vbo, &panel->renderState.vulkan.vboDeviceMemory);
     vulkan_copy_buffer(panel->vulkan->device, panel->vulkan->commandQueue, panel->vulkan->commandPool, stagingBuffer, panel->renderState.vulkan.vbo, bufferSize);
 
-    vkDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
-    vkFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
+    PFN_vkDestroyBuffer pfnDestroyBuffer =
+        (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+    PFN_vkFreeMemory pfnFreeMemory =
+        (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+    pfnDestroyBuffer(panel->vulkan->device, stagingBuffer, NULL);
+    pfnFreeMemory(panel->vulkan->device, stagingBufferMemory, NULL);
 
     // Texture
     bufferSize = panel->width * panel->height * 4;
@@ -249,6 +302,13 @@ void panel_manager_add_panel(PanelManager* panelManager, Panel* panel) {
 }
 
 Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsigned int y) {
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    x /= xscale;
+    y /= yscale;
+
     unsigned int coords[2] = { x, y };
     LinkedListNode* node = linked_list_find(&panelManager->panels, coords, coords_over_panel);
 

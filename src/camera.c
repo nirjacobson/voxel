@@ -7,8 +7,8 @@ Camera* camera_init(Camera* c, Vulkan* vulkan) {
 
     camera->fov = 60;
     camera->aspect = 1;
-    camera->near = 1.0;
-    camera->far = 100.0;
+    camera->_near = 1.0;
+    camera->_far = 100.0;
 
     mat4_identity(camera->mat_model);
     mat4_identity(camera->mat_view);
@@ -62,9 +62,9 @@ Box* camera_aabb(Box* box, Camera* camera) {
     Box frustum_bb;
     box_init(&frustum_bb, NULL);
 
-    frustum_bb.height = 2 * tan(camera->fov/2.0 * M_PI/180.0) * camera->far;
+    frustum_bb.height = 2 * tan(camera->fov/2.0 * M_PI/180.0) * camera->_far;
     frustum_bb.width = frustum_bb.height * camera->aspect;
-    frustum_bb.length = camera->far;
+    frustum_bb.length = camera->_far;
 
     vec3_transform(frustum_bb.position, camera->mat_model, frustum_bb.position);
     vec3_transform(frustum_bb.position, camera->mat_view, frustum_bb.position);
@@ -92,7 +92,7 @@ Box* camera_aabb(Box* box, Camera* camera) {
 }
 
 void camera_update_projection(Camera* camera) {
-    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->near, camera->far);
+    mat4_perspective(camera->mat_proj, camera->fov, camera->aspect, camera->_near, camera->_far);
     
     if (camera->vulkan) {
         float clipCorrect[16];

@@ -79,12 +79,20 @@ void mesh_destroy(Mesh* mesh) {
         glDeleteBuffers(1, &mesh->renderState.opengl.ebo);
         glDeleteBuffers(1, &mesh->renderState.opengl.vbo);
     } else {
-        vkQueueWaitIdle(mesh->vulkan->commandQueue);
+        PFN_vkQueueWaitIdle pfnQueueWaitIdle =
+            (PFN_vkQueueWaitIdle)glfwGetInstanceProcAddress(NULL, "vkQueueWaitIdle");
 
-        vkDestroyBuffer(mesh->vulkan->device, mesh->renderState.vulkan.ebo, NULL);
-        vkFreeMemory(mesh->vulkan->device, mesh->renderState.vulkan.eboDeviceMemory, NULL);
-        vkDestroyBuffer(mesh->vulkan->device, mesh->renderState.vulkan.vbo, NULL);
-        vkFreeMemory(mesh->vulkan->device, mesh->renderState.vulkan.vboDeviceMemory, NULL);
+        pfnQueueWaitIdle(mesh->vulkan->commandQueue);
+
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+
+        pfnDestroyBuffer(mesh->vulkan->device, mesh->renderState.vulkan.ebo, NULL);
+        pfnFreeMemory(mesh->vulkan->device, mesh->renderState.vulkan.eboDeviceMemory, NULL);
+        pfnDestroyBuffer(mesh->vulkan->device, mesh->renderState.vulkan.vbo, NULL);
+        pfnFreeMemory(mesh->vulkan->device, mesh->renderState.vulkan.vboDeviceMemory, NULL);
     }
 
     linked_list_destroy(&mesh->quads, free);
@@ -138,21 +146,33 @@ void mesh_buffer(Mesh* mesh, char mode) {
         VkDeviceMemory stagingBufferMemory;
         vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
+        PFN_vkMapMemory pfnMapMemory =
+            (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+        PFN_vkUnmapMemory pfnUnmapMemory =
+            (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+
         void* data;
-        vkMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        pfnMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertex_data, bufferSize);
-        vkUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
+        pfnUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
 
         vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->renderState.vulkan.vbo, &mesh->renderState.vulkan.vboDeviceMemory);
         vulkan_copy_buffer(mesh->vulkan->device, mesh->vulkan->commandQueue, mesh->vulkan->commandPool, stagingBuffer, mesh->renderState.vulkan.vbo, bufferSize);
 
-        vkDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
-        vkFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+        PFN_vkQueueWaitIdle pfnQueueWaitIdle =
+            (PFN_vkQueueWaitIdle)glfwGetInstanceProcAddress(NULL, "vkQueueWaitIdle");
+
+        pfnDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
+        pfnFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
 
         if (mesh->renderState.vulkan.haveBuffers) {
-            vkQueueWaitIdle(mesh->vulkan->commandQueue);
-            vkDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
-            vkFreeMemory(mesh->vulkan->device, oldMemory, NULL);
+            pfnQueueWaitIdle(mesh->vulkan->commandQueue);
+            pfnDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
+            pfnFreeMemory(mesh->vulkan->device, oldMemory, NULL);
         }
     }
 
@@ -169,21 +189,33 @@ void mesh_buffer(Mesh* mesh, char mode) {
         VkDeviceMemory stagingBufferMemory;
         vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
     
+        PFN_vkMapMemory pfnMapMemory =
+            (PFN_vkMapMemory)glfwGetInstanceProcAddress(NULL, "vkMapMemory");
+        PFN_vkUnmapMemory pfnUnmapMemory =
+            (PFN_vkUnmapMemory)glfwGetInstanceProcAddress(NULL, "vkUnmapMemory");
+
         void* data;
-        vkMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        pfnMapMemory(mesh->vulkan->device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, elements, bufferSize);
-        vkUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
+        pfnUnmapMemory(mesh->vulkan->device, stagingBufferMemory);
     
         vulkan_create_buffer(mesh->vulkan->physicalDevice, mesh->vulkan->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->renderState.vulkan.ebo, &mesh->renderState.vulkan.eboDeviceMemory);
         vulkan_copy_buffer(mesh->vulkan->device, mesh->vulkan->commandQueue, mesh->vulkan->commandPool, stagingBuffer, mesh->renderState.vulkan.ebo, bufferSize);
     
-        vkDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
-        vkFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
+        PFN_vkDestroyBuffer pfnDestroyBuffer =
+            (PFN_vkDestroyBuffer)glfwGetInstanceProcAddress(NULL, "vkDestroyBuffer");
+        PFN_vkFreeMemory pfnFreeMemory =
+            (PFN_vkFreeMemory)glfwGetInstanceProcAddress(NULL, "vkFreeMemory");
+        PFN_vkQueueWaitIdle pfnQueueWaitIdle =
+            (PFN_vkQueueWaitIdle)glfwGetInstanceProcAddress(NULL, "vkQueueWaitIdle");
+
+        pfnDestroyBuffer(mesh->vulkan->device, stagingBuffer, NULL);
+        pfnFreeMemory(mesh->vulkan->device, stagingBufferMemory, NULL);
     
         if (mesh->renderState.vulkan.haveBuffers) {
-            vkQueueWaitIdle(mesh->vulkan->commandQueue);
-            vkDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
-            vkFreeMemory(mesh->vulkan->device, oldMemory, NULL);
+            pfnQueueWaitIdle(mesh->vulkan->commandQueue);
+            pfnDestroyBuffer(mesh->vulkan->device, oldBuffer, NULL);
+            pfnFreeMemory(mesh->vulkan->device, oldMemory, NULL);
         }
     }
 

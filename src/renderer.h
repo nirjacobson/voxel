@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <gio/gio.h>
+#include <GL/glew.h>
 
 #include "shader.h"
 #include "matrix.h"

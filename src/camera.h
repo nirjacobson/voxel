@@ -12,8 +12,8 @@ typedef struct {
     Vulkan* vulkan;
     float fov;
     float aspect;
-    float near;
-    float far;
+    float _near;
+    float _far;
 
     float position[3];
     float forward[3];

@@ -39,10 +39,10 @@ void picker_update(Picker* picker, Camera* camera, float mouseX, float mouseY) {
     ray[3] = 1.0;
 
     // undivide by W
-    vec4_scale(ray, ray, camera->near);
+    vec4_scale(ray, ray, camera->_near);
 
     vec4_transform(ray, camera->mat_proj_inv, ray);
-    ray[2] = -camera->near; // for accuracy
+    ray[2] = -camera->_near; // for accuracy
     ray[3] =  0;
 
     vec4_transform(ray, camera->mat_model, ray);

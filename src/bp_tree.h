@@ -1,11 +1,14 @@
 #ifndef BP_TREE_H
 #define BP_TREE_H
 
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "chunk.h"
+
+#ifndef F_OK
+#define F_OK    0
+#endif
 
 typedef struct {
     FILE* file;
