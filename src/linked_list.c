@@ -98,7 +98,7 @@ void linked_list_insert_ordered(LinkedList* list, void* data, int (*comparison)(
 
     newNode->data = data;
 
-    LinkedListNode* node;
+    LinkedListNode* node = NULL;
     for (node = list->head; node; node = node->next) {
         if (comparison(data, node->data) < 0) {
             if (node == list->head) {
@@ -122,10 +122,11 @@ void linked_list_insert_ordered(LinkedList* list, void* data, int (*comparison)(
     }
 }
 
-
 void linked_list_foreach(LinkedList* list, void (*visitor)(void*, void*), void* userData) {
     LinkedListNode* node = list->head;
-    for (; node; node = node->next) {
+    LinkedListNode* nextNode;
+    for (; node; node = nextNode) {
+        nextNode = node->next;
         visitor(node->data, userData);
     }
 }
