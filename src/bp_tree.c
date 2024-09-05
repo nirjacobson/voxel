@@ -14,8 +14,13 @@ int compare_keys(ChunkID* keyA, ChunkID* keyB) {
 BPTree* bp_tree_init(BPTree* bt, const char* name) {
     BPTree* bpTree = bt ? bt : NEW(BPTree, 1);
 
-    char filename[16];
-    sprintf(filename, "%s.vxl", name);
+    char filename[128];
+#ifdef _WIN32
+    sprintf(filename, "%s%s%s%s.vxl", getenv("HOMEDRIVE"), getenv("HOMEPATH"), "/", name);
+#else
+    sprintf(filename, "%s%s%s.vxl", getenv("HOME"), "/", name);
+#endif
+
 #ifndef _WIN32
     if (access(filename, F_OK) == -1) {
 #else

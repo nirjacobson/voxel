@@ -249,10 +249,10 @@ elseif (APPLE)
     target_link_libraries(Voxel PRIVATE
         "/usr/local/lib/libGLEW.dylib"
         "/usr/local/lib/libglfw.dylib"
-        "/usr/local/cairo/lib/libgio-2.0.dylib"
-        "/usr/local/cairo/lib/libgobject-2.0.dylib"
-        "/usr/local/cairo/lib/libglib-2.0.dylib"
-        "/usr/local/cairo/lib/libcairo.dylib"
+        "/usr/local/cairo/libgio-2.0.0.dylib"
+        "/usr/local/cairo/libgobject-2.0.0.dylib"
+        "/usr/local/cairo/libglib-2.0.0.dylib"
+        "/usr/local/cairo/libcairo.2.dylib"
     )
     target_link_libraries(Voxel LINK_PUBLIC "-framework OpenGL")
 endif()
