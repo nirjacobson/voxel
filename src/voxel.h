@@ -5,7 +5,7 @@
 #include <winsock.h>
 #endif
 
-#ifdef __APPLE__
+#ifndef _WIN32
 #include <sys/time.h>
 #endif
 

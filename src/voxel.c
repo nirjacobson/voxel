@@ -349,10 +349,6 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-    GLFWmonitor* primary = glfwGetPrimaryMonitor();
-    float xscale, yscale;
-    glfwGetMonitorContentScale(primary, &xscale, &yscale);
-
 #ifdef __APPLE__
     fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
 #else
