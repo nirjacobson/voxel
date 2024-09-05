@@ -311,11 +311,15 @@ void voxel_setup(Application* application) {
 
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
 
+#ifdef __APPLE__
+    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+#else
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
     glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
     fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
+#endif
 
     picker_panel_init(&voxel->pickerPanel, &voxel->renderer, &voxel->panelManager, &voxel->picker);
 
@@ -349,7 +353,16 @@ void voxel_resize(Application* application) {
     float xscale, yscale;
     glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, ((application->window->height / yscale) - 30) );
+#ifdef __APPLE__
+    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+#else
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
+#endif
+
     camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
 
     if (!voxel->vulkan) {

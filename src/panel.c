@@ -98,12 +98,17 @@ void panel_add_action_region(Panel* panel, ActionRegion* actionRegion) {
 }
 
 void panel_action(Panel* panel, char action, unsigned int x, unsigned int y) {
+#ifndef __APPLE__
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
     glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
     x = x / xscale - panel->position[0];
     y = y / yscale - panel->position[1];
+#else
+    x -= panel->position[0];
+    y -= panel->position[1];
+#endif
 
     if (action == MOUSE_PRESS) {
         panel->manager->active_panel = panel;
@@ -181,12 +186,14 @@ void panel_set_position(Panel* panel, int x, int y) {
 }
 
 void panel_translate(Panel* panel, int x, int y) {
+#ifndef __APPLE__
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
     glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
     x /= xscale;
     y /= yscale;
+#endif
 
     int tx = panel->position[0] + x;
     int ty = panel->position[1] + y;
@@ -302,12 +309,14 @@ void panel_manager_add_panel(PanelManager* panelManager, Panel* panel) {
 }
 
 Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsigned int y) {
+#ifndef __APPLE__
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
     glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
     x /= xscale;
     y /= yscale;
+#endif
 
     unsigned int coords[2] = { x, y };
     LinkedListNode* node = linked_list_find(&panelManager->panels, coords, coords_over_panel);

@@ -215,8 +215,24 @@ bool vulkan_create_instance(const char* appName, VkInstance* instance) {
 
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
+    const char** allExtensions = glfwExtensions;
+    uint32_t allExtensionsCount = glfwExtensionCount;
+
+#ifdef __APPLE__
+    allExtensionsCount++;
+    allExtensions = NEW(const char*, allExtensionsCount);
+
+    for (int i = 0; i < glfwExtensionCount; i++) {
+        allExtensions[i] = glfwExtensions[i];
+    }
+
+    allExtensions[glfwExtensionCount] = "VK_KHR_portability_enumeration";
+
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
+
+    createInfo.enabledExtensionCount = allExtensionsCount;
+    createInfo.ppEnabledExtensionNames = (const char* const *)allExtensions;
 
     if (enableValidationLayers) {
         createInfo.enabledLayerCount = vulkan_validation_layers_count();
@@ -230,8 +246,16 @@ bool vulkan_create_instance(const char* appName, VkInstance* instance) {
 
     if(pfnCreateInstance(&createInfo, NULL, instance) != VK_SUCCESS) {
         printf("failed to create Vulkan instance.\n");
+
+#ifdef __APPLE__
+        free(allExtensions);
+#endif
         return false;
     }
+
+#ifdef __APPLE__
+    free(allExtensions);
+#endif
 
     return true;
 }

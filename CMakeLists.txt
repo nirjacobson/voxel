@@ -5,7 +5,7 @@ project(Voxel VERSION 0.1 LANGUAGES C)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNODEBUG")
-
+set(CMAKE_OSX_ARCHITECTURES x86_64 arm64)
 set(WIN32_ARM OFF)
 
 if (LINUX)
@@ -27,6 +27,12 @@ elseif (WIN32)
         include_directories("C:/Program Files/cairo/include")
         include_directories("C:/Program Files/glew/include")
     endif()
+elseif (APPLE)
+    include_directories("/usr/local/include")
+    include_directories("/Users/nir/VulkanSDK/1.3.290.0/macOS/include")
+    include_directories("/opt/homebrew/include/glib-2.0")
+    include_directories("/opt/homebrew/lib/glib-2.0/include")
+    include_directories("/opt/homebrew/include/")
 endif()
 
 find_program(GLSLC NAMES glslc REQUIRED)
@@ -214,7 +220,7 @@ if (WIN32)
 endif()
 
 if (LINUX)
-    target_link_libraries(Voxel PRIVATE vulkan GLEW GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
+    target_link_libraries(Voxel PRIVATE GLEW GL glfw cairo gio-2.0 gobject-2.0 glib-2.0 m)
 elseif (WIN32)
     if (WIN32_ARM)
         target_link_libraries(Voxel PRIVATE
@@ -239,4 +245,14 @@ elseif (WIN32)
             "C:/Program Files/cairo/lib/cairo.lib"
         )
     endif()
+elseif (APPLE)
+    target_link_libraries(Voxel PRIVATE
+        "/usr/local/lib/libGLEW.dylib"
+        "/usr/local/lib/libglfw.dylib"
+        "/usr/local/cairo/lib/libgio-2.0.dylib"
+        "/usr/local/cairo/lib/libgobject-2.0.dylib"
+        "/usr/local/cairo/lib/libglib-2.0.dylib"
+        "/usr/local/cairo/lib/libcairo.dylib"
+    )
+    target_link_libraries(Voxel LINK_PUBLIC "-framework OpenGL")
 endif()

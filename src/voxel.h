@@ -5,6 +5,10 @@
 #include <winsock.h>
 #endif
 
+#ifdef __APPLE__
+#include <sys/time.h>
+#endif
+
 #include <gio/gio.h>
 
 #include "global.h"
