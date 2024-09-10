@@ -518,20 +518,32 @@ void renderer_clear(Renderer* renderer) {
 }
 
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
-#ifdef __APPLE__
+#ifndef _WIN32
+    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+        glViewport(0, 0, width, height);
 
-    GLFWmonitor* primary = glfwGetPrimaryMonitor();
-    float xscale, yscale;
-    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-    glViewport(0, 0, width * xscale, height * yscale);
+        float mat[16];
+        mat4_orthographic(mat, 0, width / xscale, 0, height / yscale);
+        renderer_2D_update_projection(renderer, mat);
+        camera_set_aspect(camera, (float)width / height);
+        renderer_apply_camera(renderer, camera);
+    } else {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-    float mat[16];
-    mat4_orthographic(mat, 0, width, 0, height);
-    renderer_2D_update_projection(renderer, mat);
-    camera_set_aspect(camera, (float)width / height);
-    renderer_apply_camera(renderer, camera);
+        glViewport(0, 0, width * xscale, height * yscale);
 
+        float mat[16];
+        mat4_orthographic(mat, 0, width, 0, height);
+        renderer_2D_update_projection(renderer, mat);
+        camera_set_aspect(camera, (float)width / height);
+        renderer_apply_camera(renderer, camera);
+    }
 #else
     glViewport(0, 0, width, height);
 
@@ -1193,6 +1205,7 @@ void renderer_2D_record(Renderer* renderer, LinkedList* panels) {
     vulkan_clip_correction_matrix(clipCorrect);
 
     float mat[16];
+
     mat4_orthographic(mat, 0, width / xscale, 0, height / yscale);
     mat4_multiply(mat, clipCorrect, mat);
     pfnCmdPushConstants(renderer->renderState.vulkan.commandBuffers[renderer->renderState.vulkan.currentFrame], renderer->renderState.vulkan.pipeline2D.pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(mat), mat);

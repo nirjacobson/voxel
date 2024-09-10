@@ -311,8 +311,16 @@ void voxel_setup(Application* application) {
 
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
 
-#ifdef __APPLE__
-    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+#ifndef _WIN32
+    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+        fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
+    } else {
+        fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+    }
 #else
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
@@ -349,8 +357,16 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-#ifdef __APPLE__
-    fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+#ifndef _WIN32
+    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+        fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
+    } else {
+        fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
+    }
 #else
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     float xscale, yscale;
