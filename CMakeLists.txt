@@ -44,14 +44,14 @@ set(SPIRV_SOURCES
     src/shaders/glsl/450/2D.frag.glsl
 )
 
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/shaders/spir-v)
+make_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/spir-v)
 set(SPIRV_BIN)
 
 foreach(SPIRV_SOURCE IN LISTS SPIRV_SOURCES)
     cmake_path(GET SPIRV_SOURCE FILENAME SPIRV_NAME)
     string(REGEX REPLACE "\\.[^.]*$" "" SPIRV_NAME ${SPIRV_NAME})
     string(CONCAT SPIRV_NAME  ${SPIRV_NAME} ".spv")
-    set(SPIRV_OUT shaders/spir-v/${SPIRV_NAME})
+    set(SPIRV_OUT src/shaders/spir-v/${SPIRV_NAME})
     string(FIND ${SPIRV_NAME} "vert" SPIRV_NAME_VERT)
     if(SPIRV_NAME_VERT GREATER_EQUAL 0)
         set(SPIRV_STAGE "vert")
@@ -59,17 +59,17 @@ foreach(SPIRV_SOURCE IN LISTS SPIRV_SOURCES)
         set(SPIRV_STAGE "frag")
     endif()
     add_custom_command(
-        OUTPUT ${SPIRV_OUT}
+        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${SPIRV_OUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${GLSLC}
         ARGS
             -fshader-stage=${SPIRV_STAGE}
             -c ${SPIRV_SOURCE}
-            -o ${CMAKE_CURRENT_BINARY_DIR}/${SPIRV_OUT}
+            -o ${CMAKE_CURRENT_SOURCE_DIR}/${SPIRV_OUT}
         VERBATIM
         MAIN_DEPENDENCY ${SPIRV_SOURCE}
     )
-    list(APPEND SPIRV_BIN ${CMAKE_CURRENT_BINARY_DIR}/${SPIRV_OUT})
+    list(APPEND SPIRV_BIN ${CMAKE_CURRENT_SOURCE_DIR}/${SPIRV_OUT})
 endforeach()
 
 add_custom_target(

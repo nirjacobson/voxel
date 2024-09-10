@@ -270,8 +270,8 @@ void renderer_3D_create_pipeline(Renderer* renderer) {
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline3D.pipeline.descriptorSetLayout);
     renderer_3D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline3D.pipelineLine.descriptorSetLayout);
 
-    GBytes* _3D_vert_spv = g_resources_lookup_data("/build/shaders/spir-v/3D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _3D_frag_spv = g_resources_lookup_data("/build/shaders/spir-v/3D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_vert_spv = g_resources_lookup_data("/src/shaders/spir-v/3D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _3D_frag_spv = g_resources_lookup_data("/src/shaders/spir-v/3D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __3D_vert_spv = g_bytes_get_data(_3D_vert_spv, NULL);
     gsize __3D_vert_spv_len = g_bytes_get_size(_3D_vert_spv);
@@ -388,8 +388,8 @@ void renderer_2D_get_attribute_descriptions(VkVertexInputAttributeDescription** 
 void renderer_2D_create_pipeline(Renderer* renderer) {
     renderer_2D_create_descriptor_set_layout(renderer, &renderer->renderState.vulkan.pipeline2D.pipeline.descriptorSetLayout);
 
-    GBytes* _2D_vert_spv = g_resources_lookup_data("/build/shaders/spir-v/2D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    GBytes* _2D_frag_spv = g_resources_lookup_data("/build/shaders/spir-v/2D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_vert_spv = g_resources_lookup_data("/src/shaders/spir-v/2D.vert.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    GBytes* _2D_frag_spv = g_resources_lookup_data("/src/shaders/spir-v/2D.frag.spv", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
     const guint8* __2D_vert_spv = g_bytes_get_data(_2D_vert_spv, NULL);
     gsize __2D_vert_spv_len = g_bytes_get_size(_2D_vert_spv);
