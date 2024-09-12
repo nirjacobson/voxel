@@ -106,7 +106,8 @@ void panel_action(Panel* panel, char action, unsigned int x, unsigned int y) {
     x = x / xscale - panel->position[0];
     y = y / yscale - panel->position[1];
 #else
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
@@ -201,8 +202,9 @@ void panel_translate(Panel* panel, int x, int y) {
 
     x /= xscale;
     y /= yscale;
-#endif
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+#else
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
@@ -210,6 +212,7 @@ void panel_translate(Panel* panel, int x, int y) {
         x /= xscale;
         y /= yscale;
     }
+#endif
 
     int tx = panel->position[0] + x;
     int ty = panel->position[1] + y;
@@ -332,9 +335,9 @@ Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsi
 
     x /= xscale;
     y /= yscale;
-#endif
-
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+#else
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
@@ -342,7 +345,7 @@ Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsi
         x /= xscale;
         y /= yscale;
     }
-
+#endif
     unsigned int coords[2] = { x, y };
     LinkedListNode* node = linked_list_find(&panelManager->panels, coords, coords_over_panel);
 

@@ -312,7 +312,8 @@ void voxel_setup(Application* application) {
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
 
 #ifndef _WIN32
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
@@ -358,7 +359,8 @@ void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
 #ifndef _WIN32
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);

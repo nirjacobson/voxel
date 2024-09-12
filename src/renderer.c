@@ -519,7 +519,8 @@ void renderer_clear(Renderer* renderer) {
 
 void renderer_resize(Renderer* renderer, int width, int height, Camera* camera) {
 #ifndef _WIN32
-    if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
         glViewport(0, 0, width, height);
 
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
