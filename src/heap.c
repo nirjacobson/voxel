@@ -1,7 +1,7 @@
 #include "heap.h"
 #include "internal/heap.h"
 
-Heap* heap_init(Heap* h, const char* name) {
+Heap* heap_init(Heap* h, const char* name, bool* new) {
     Heap* heap = h ? h : NEW(Heap, 1);
 
     char filename[128];
@@ -17,8 +17,10 @@ Heap* heap_init(Heap* h, const char* name) {
     if (_access(filename, F_OK) == -1) {
 #endif
         heap->file = fopen(filename, "w+b");
+        *new = true;
     } else {
         heap->file = fopen(filename, "r+b");
+        *new = false;
     }
 
     fseek(heap->file, 0, SEEK_END);

@@ -53,12 +53,12 @@ int compare_world_chunks(void* worldChunkAPtr, void* worldChunkBPtr) {
 
 /* World */
 
-World* world_init(World* world, Vulkan* vulkan, const char* name) {
+World* world_init(World* world, Vulkan* vulkan, const char* name, bool* new) {
     World* w = world ? world : NEW(World, 1);
 
     w->vulkan = vulkan;
 
-    chunk_dao_init(&w->chunkDAO, name);
+    chunk_dao_init(&w->chunkDAO, name, new);
 
     linked_list_init(&w->chunks);
 

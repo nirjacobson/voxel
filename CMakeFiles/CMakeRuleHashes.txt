@@ -1,0 +1,8 @@
+# Hashes of file build rules.
+102cb1b44d3c75880e85c94bc56e1683 CMakeFiles/Voxel-Resource
+102cb1b44d3c75880e85c94bc56e1683 CMakeFiles/Voxel-SPIRV
+548a00e076c39999447bcaf8a6fea378 src/resources.c
+79275a4e55a2b58e4bf396f52767c3da src/shaders/spir-v/2D.frag.spv
+4410d282cc903f13e1f8be3d83c4f24f src/shaders/spir-v/2D.vert.spv
+9385d4bd3a3d76583a936f28a0c291a3 src/shaders/spir-v/3D.frag.spv
+b9fb2b58bb3958e51bf7323bf01b2a96 src/shaders/spir-v/3D.vert.spv

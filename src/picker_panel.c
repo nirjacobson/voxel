@@ -1,6 +1,8 @@
 #include "picker_panel.h"
 #include "internal/picker_panel.h"
 
+#include "voxel.h"
+
 /* Action region callbacks */
 
 void picker_panel_titlebar_press(ActionRegionArgs* args) {
@@ -54,6 +56,20 @@ void picker_panel_move_button_press(ActionRegionArgs* args) {
     picker_set_action(pickerPanel->picker, PICKER_MOVE);
 }
 
+void picker_panel_question_button_press(ActionRegionArgs* args) {
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
+    pickerPanel->question_highlighted = true;
+    picker_panel_draw_question_button(pickerPanel);
+}
+
+void picker_panel_question_button_release(ActionRegionArgs* args) {
+    PickerPanel* pickerPanel = (PickerPanel*)args->panel->owner;
+    pickerPanel->question_highlighted = false;
+    picker_panel_draw_question_button(pickerPanel);
+
+    voxel_show_instructions_panel(pickerPanel->voxel);
+}
+
 /* PickerPanel */
 
 cairo_status_t cairo_read_func(void* closure, unsigned char* data, unsigned int length) {
@@ -66,7 +82,7 @@ cairo_status_t cairo_read_func(void* closure, unsigned char* data, unsigned int 
     return CAIRO_STATUS_READ_ERROR;
 }
 
-PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager* panelManager, Picker* picker) {
+PickerPanel* picker_panel_init(PickerPanel* pp, Voxel* voxel, Renderer* renderer, PanelManager* panelManager, Picker* picker) {
     PickerPanel* pickerPanel = pp ? pp : NEW(PickerPanel, 1);
 
     panel_init(&pickerPanel->panel, renderer, pickerPanel, picker_panel_draw, panelManager, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
@@ -74,7 +90,6 @@ PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager
     GInputStream* inputStream;
     
     const char* paths[] = {
-        "/img/dialog.png",
         "/img/pencil-natural.png",
         "/img/pencil-selected.png",
         "/img/eraser-natural.png",
@@ -90,7 +105,6 @@ PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager
     };
 
     cairo_surface_t** surfaces[] = {
-        &pickerPanel->background_surface,
         &pickerPanel->pencil_button_surface_natural,
         &pickerPanel->pencil_button_surface_selected,
         &pickerPanel->eraser_button_surface_natural,
@@ -113,6 +127,7 @@ PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager
     }
 
     pickerPanel->picker = picker;
+    pickerPanel->voxel = voxel;
 
     pickerPanel->picker->color = 0;
 
@@ -125,6 +140,9 @@ PickerPanel* picker_panel_init(PickerPanel* pp, Renderer* renderer, PanelManager
     picker_panel_add_select_button_action_region(pickerPanel);
     picker_panel_add_stamp_button_action_region(pickerPanel);
     picker_panel_add_move_button_action_region(pickerPanel);
+    picker_panel_add_question_button_action_region(pickerPanel);
+
+    pickerPanel->question_highlighted = false;
 
     return pickerPanel;
 }
@@ -142,13 +160,22 @@ void picker_panel_destroy(PickerPanel* pickerPanel) {
     cairo_surface_destroy(pickerPanel->eraser_button_surface_natural);
     cairo_surface_destroy(pickerPanel->pencil_button_surface_selected);
     cairo_surface_destroy(pickerPanel->pencil_button_surface_natural);
-    cairo_surface_destroy(pickerPanel->background_surface);
     panel_destroy(&pickerPanel->panel);
 }
 
 void picker_panel_draw_background(PickerPanel* pickerPanel) {
-    cairo_set_source_surface(pickerPanel->panel.cr, pickerPanel->background_surface, 0, 0);
-    cairo_paint(pickerPanel->panel.cr);
+    cairo_set_source_rgb(pickerPanel->panel.cr, 0.75, 0.75, 0.75);
+    cairo_rectangle(pickerPanel->panel.cr, 0, 0, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
+    cairo_fill(pickerPanel->panel.cr);
+    cairo_set_source_rgb(pickerPanel->panel.cr, 0, 0, 0);
+    cairo_rectangle(pickerPanel->panel.cr, 0, 0, PICKER_PANEL_WIDTH, PICKER_PANEL_HEIGHT);
+    cairo_stroke(pickerPanel->panel.cr);
+}
+
+void picker_panel_draw_titlebar(PickerPanel* pickerPanel) {
+    cairo_set_source_rgb(pickerPanel->panel.cr, 33.0f/255.0f, 0, 206.0f/255.0f);
+    cairo_rectangle(pickerPanel->panel.cr, 4, 4, PICKER_PANEL_WIDTH - 8, 16);
+    cairo_fill(pickerPanel->panel.cr);
 }
 
 void picker_panel_draw_bluebar(PickerPanel* pickerPanel) {
@@ -302,13 +329,44 @@ void picker_panel_draw_buttons(PickerPanel* pickerPanel) {
     picker_panel_draw_move_button(pickerPanel);
 }
 
+void picker_panel_draw_question_button(PickerPanel* pickerPanel) {
+    if (pickerPanel->question_highlighted) {
+        cairo_set_source_rgb(pickerPanel->panel.cr, 0, 0, 0);
+        cairo_set_line_width(pickerPanel->panel.cr, 0.75);
+        cairo_arc(pickerPanel->panel.cr, PALETTE_X - 24 + 8, PICKER_PANEL_HEIGHT - 24 + 8, 8, 0, 2 * M_PI);
+        cairo_fill(pickerPanel->panel.cr);
+        cairo_set_source_rgb(pickerPanel->panel.cr, 1, 1, 1);
+        cairo_arc(pickerPanel->panel.cr, PALETTE_X - 24 + 8, PICKER_PANEL_HEIGHT - 24 + 8, 8, 0, 2 * M_PI);
+        cairo_stroke(pickerPanel->panel.cr);
+
+        cairo_select_font_face(pickerPanel->panel.cr, "Cantarell Regular", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_size(pickerPanel->panel.cr, 12);
+
+        cairo_move_to(pickerPanel->panel.cr, PALETTE_X - 19, PICKER_PANEL_HEIGHT - 11);
+        cairo_show_text(pickerPanel->panel.cr, "?");
+    } else {
+        cairo_set_source_rgb(pickerPanel->panel.cr, 0, 0, 0);
+        cairo_set_line_width(pickerPanel->panel.cr, 0.75);
+        cairo_arc(pickerPanel->panel.cr, PALETTE_X - 24 + 8, PICKER_PANEL_HEIGHT - 24 + 8, 8, 0, 2 * M_PI);
+        cairo_stroke(pickerPanel->panel.cr);
+
+        cairo_select_font_face(pickerPanel->panel.cr, "Cantarell Regular", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_size(pickerPanel->panel.cr, 12);
+
+        cairo_move_to(pickerPanel->panel.cr, PALETTE_X - 19, PICKER_PANEL_HEIGHT - 11);
+        cairo_show_text(pickerPanel->panel.cr, "?");
+    }
+}
+
 void picker_panel_draw(void* pickerPanelPtr) {
     PickerPanel* pickerPanel = (PickerPanel*)pickerPanelPtr;
 
     picker_panel_draw_background(pickerPanel);
+    picker_panel_draw_titlebar(pickerPanel);
     picker_panel_draw_bluebar(pickerPanel);
     picker_panel_draw_palette(pickerPanel);
     picker_panel_draw_buttons(pickerPanel);
+    picker_panel_draw_question_button(pickerPanel);
 }
 
 void picker_panel_add_titlebar_action_region(PickerPanel* pickerPanel) {
@@ -415,5 +473,17 @@ void picker_panel_add_move_button_action_region(PickerPanel* pickerPanel) {
     actionRegion->height = BUTTON_HEIGHT;
     actionRegion->action_press = picker_panel_move_button_press;
     actionRegion->action_release = NULL;
+    panel_add_action_region(&pickerPanel->panel, actionRegion);
+}
+
+void picker_panel_add_question_button_action_region(PickerPanel* pickerPanel) {
+    ActionRegion* actionRegion = NEW(ActionRegion, 1);
+
+    actionRegion->position[0] = PALETTE_X - 24;
+    actionRegion->position[1] = PICKER_PANEL_HEIGHT - 24;
+    actionRegion->width = 16;
+    actionRegion->height = 16;
+    actionRegion->action_press = picker_panel_question_button_press;
+    actionRegion->action_release = picker_panel_question_button_release;
     panel_add_action_region(&pickerPanel->panel, actionRegion);
 }

@@ -103,7 +103,6 @@ add_custom_command(
         ${SPIRV_BIN}
         img/color-dropper-natural.png
         img/color-dropper-selected.png
-        img/dialog.png
         img/eraser-natural.png
         img/eraser-selected.png
         img/move-natural.png
@@ -141,6 +140,7 @@ set(PROJECT_SOURCES
     src/block.h
     src/chunk_dao.c
     src/picker_panel.c
+    src/instructions_panel.c
     src/vulkan_util.h
     src/chunk.h
     src/camera.h
@@ -157,6 +157,7 @@ set(PROJECT_SOURCES
     src/heap.c
     src/box.c
     src/picker_panel.h
+    src/instructions_panel.h
     src/undo_stack.c
     src/heap.h
     src/fps_panel.h
@@ -168,6 +169,7 @@ set(PROJECT_SOURCES
     src/internal/mesh.h
     src/internal/world.h
     src/internal/picker_panel.h
+    src/internal/instructions_panel.h
     src/internal/heap.h
     src/internal/fps_panel.h
     src/internal/shader.h

@@ -17,7 +17,7 @@ typedef struct {
     FILE* file;
 } Heap;
 
-Heap* heap_init(Heap* h, const char* name);
+Heap* heap_init(Heap* h, const char* name, bool* new);
 void heap_destroy(Heap* heap);
 
 unsigned long heap_insert(Heap* heap, Chunk* chunk);

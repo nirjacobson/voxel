@@ -93,6 +93,10 @@ void panel_destroy(Panel* panel) {
     cairo_surface_destroy(panel->surface);
 }
 
+void panel_hide(Panel* panel) {
+    panel_manager_remove_panel(panel->manager, panel);
+}
+
 void panel_add_action_region(Panel* panel, ActionRegion* actionRegion) {
     linked_list_insert(&panel->actionRegions, actionRegion);
 }
@@ -325,6 +329,18 @@ void panel_manager_destroy(PanelManager* panelManager) {
 void panel_manager_add_panel(PanelManager* panelManager, Panel* panel) {
     linked_list_insert(&panelManager->panels, panel);
     panel->manager = panelManager;
+}
+
+char pointers_equal(void* a, void* b) {
+    return a == b;
+}
+
+void panel_manager_remove_panel(PanelManager* panelManager, Panel* panel) {
+    LinkedListNode* node = linked_list_find(&panelManager->panels, panel, pointers_equal);
+
+    if (node) {
+        linked_list_remove(&panelManager->panels, node, NULL);
+    }
 }
 
 Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsigned int y) {

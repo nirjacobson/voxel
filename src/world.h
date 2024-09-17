@@ -24,7 +24,7 @@ typedef struct {
     Ground ground;
 } World;
 
-World* world_init(World* world, Vulkan* vulkan, const char* name);
+World* world_init(World* world, Vulkan* vulkan, const char* name, bool* new);
 void world_destroy(World* world);
 
 Block* world_get_block(World* world, int* location);

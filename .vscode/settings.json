@@ -12,6 +12,11 @@
         "string_view": "c",
         "vulkan_util.h": "c",
         "math.h": "c",
-        "shader.h": "c"
+        "shader.h": "c",
+        "instructions_panel.h": "c",
+        "picker_panel.h": "c",
+        "chunk_dao.h": "c",
+        "picker.h": "c",
+        "panel.h": "c"
     }
 }

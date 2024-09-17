@@ -80,6 +80,8 @@ void panel_translate(Panel* panel, int x, int y);
 
 void panel_texture(Panel* panel);
 
+void panel_hide(Panel* panel);
+
 /* PanelManager */
 
 typedef struct PanelManager {
@@ -91,6 +93,7 @@ typedef struct PanelManager {
 PanelManager* panel_manager_init(PanelManager* pm);
 void panel_manager_destroy(PanelManager* panelManager);
 void panel_manager_add_panel(PanelManager* panelManager, Panel* panel);
+void panel_manager_remove_panel(PanelManager* panelManager, Panel* panel);
 Panel* panel_manager_find_panel(PanelManager* panelManager, unsigned int x, unsigned int y);
 
 #endif // PANEL_H

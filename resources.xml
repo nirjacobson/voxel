@@ -15,7 +15,6 @@
     <file>src/shaders/spir-v/2D.frag.spv</file>
     <file>img/color-dropper-natural.png</file>
     <file>img/color-dropper-selected.png</file>
-    <file>img/dialog.png</file>
     <file>img/eraser-natural.png</file>
     <file>img/eraser-selected.png</file>
     <file>img/move-natural.png</file>
@@ -26,6 +25,7 @@
     <file>img/select-selected.png</file>
     <file>img/stamp-natural.png</file>
     <file>img/stamp-selected.png</file>
+    <file>img/instructions.png</file>
     <file>res/voxel.png</file>
   </gresource>
 </gresources>

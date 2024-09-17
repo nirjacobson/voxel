@@ -1,0 +1,5 @@
+/Users/nir/GitHub/Voxel/CMakeFiles/Voxel-SPIRV.dir
+/Users/nir/GitHub/Voxel/CMakeFiles/Voxel-Resource.dir
+/Users/nir/GitHub/Voxel/CMakeFiles/Voxel.dir
+/Users/nir/GitHub/Voxel/CMakeFiles/edit_cache.dir
+/Users/nir/GitHub/Voxel/CMakeFiles/rebuild_cache.dir

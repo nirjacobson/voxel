@@ -41,6 +41,9 @@ void picker_panel_select_button_press(ActionRegionArgs* args);
 void picker_panel_stamp_button_press(ActionRegionArgs* args);
 void picker_panel_move_button_press(ActionRegionArgs* args);
 
+void picker_panel_question_button_press(ActionRegionArgs* args);
+void picker_panel_question_button_release(ActionRegionArgs* args);
+
 /* PickerPanel */
 
 void picker_panel_draw_background(PickerPanel* pickerPanel);
@@ -55,6 +58,8 @@ void picker_panel_draw_select_button(PickerPanel* pickerPanel);
 void picker_panel_draw_stamp_button(PickerPanel* pickerPanel);
 void picker_panel_draw_move_button(PickerPanel* pickerPanel);
 void picker_panel_draw_buttons(PickerPanel* pickerPanel);
+
+void picker_panel_draw_question_button(PickerPanel* pickerPanel);
 void picker_panel_draw(void* pickerPanelPtr);
 
 void picker_panel_add_titlebar_action_region(PickerPanel* pickerPanel);
@@ -66,5 +71,7 @@ void picker_panel_add_dropper_button_action_region(PickerPanel* pickerPanel);
 void picker_panel_add_select_button_action_region(PickerPanel* pickerPanel);
 void picker_panel_add_stamp_button_action_region(PickerPanel* pickerPanel);
 void picker_panel_add_move_button_action_region(PickerPanel* pickerPanel);
+
+void picker_panel_add_question_button_action_region(PickerPanel* pickerPanel);
 
 #endif // PICKER_PANEL_INTERNAL_H

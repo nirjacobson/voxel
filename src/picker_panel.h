@@ -6,10 +6,11 @@
 #include "panel.h"
 #include "picker.h"
 
+typedef struct Voxel Voxel;
+
 typedef struct {
     Panel panel;
 
-    cairo_surface_t* background_surface;
     cairo_surface_t* pencil_button_surface_natural;
     cairo_surface_t* pencil_button_surface_selected;
     cairo_surface_t* eraser_button_surface_natural;
@@ -23,10 +24,13 @@ typedef struct {
     cairo_surface_t* move_button_surface_natural;
     cairo_surface_t* move_button_surface_selected;
 
+    bool question_highlighted;
+
+    Voxel* voxel;
     Picker* picker;
 } PickerPanel;
 
-PickerPanel* picker_panel_init(PickerPanel* td, Renderer* renderer, PanelManager* panelManager, Picker* picker);
+PickerPanel* picker_panel_init(PickerPanel* td, Voxel* voxel, Renderer* renderer, PanelManager* panelManager, Picker* picker);
 void picker_panel_destroy(PickerPanel* pickerPanel);
 
 #endif // PICKER_PANEL_H

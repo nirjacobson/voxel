@@ -1,9 +1,9 @@
 #include "chunk_dao.h"
 
-ChunkDAO* chunk_dao_init(ChunkDAO* cd, const char* worldName) {
+ChunkDAO* chunk_dao_init(ChunkDAO* cd, const char* worldName, bool* new) {
     ChunkDAO* chunkDAO = cd ? cd : NEW(ChunkDAO, 1);
 
-    heap_init(&chunkDAO->heap, worldName);
+    heap_init(&chunkDAO->heap, worldName, new);
     bp_tree_init(&chunkDAO->bptree, worldName);
 
     return chunkDAO;

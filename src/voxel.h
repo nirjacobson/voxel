@@ -22,9 +22,10 @@
 #include "panel.h"
 #include "fps_panel.h"
 #include "picker_panel.h"
+#include "instructions_panel.h"
 #include "undo_stack.h"
 
-typedef struct {
+typedef struct Voxel {
     Application application;
     Window window;
 
@@ -40,6 +41,7 @@ typedef struct {
 
     FPSPanel fpsPanel;
     PickerPanel pickerPanel;
+    InstructionsPanel instrPanel;
 
     UndoStack undoStack;
 
@@ -48,6 +50,8 @@ typedef struct {
 
 Voxel* voxel_init(Voxel* v);
 void voxel_destroy(Voxel* voxel);
+
+void voxel_show_instructions_panel(Voxel* voxel);
 
 void voxel_run(Voxel* voxel);
 

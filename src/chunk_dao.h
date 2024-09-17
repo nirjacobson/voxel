@@ -9,7 +9,7 @@ typedef struct {
     Heap heap;
 } ChunkDAO;
 
-ChunkDAO* chunk_dao_init(ChunkDAO* cd, const char* worldName);
+ChunkDAO* chunk_dao_init(ChunkDAO* cd, const char* worldName, bool* new);
 void chunk_dao_destroy(ChunkDAO* chunkDAO);
 
 void chunk_dao_save(ChunkDAO* chunkDAO, ChunkID* chunkID, Chunk* chunk);
