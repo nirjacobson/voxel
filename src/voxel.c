@@ -64,7 +64,7 @@ void voxel_show_instructions_panel(Voxel* voxel) {
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-        instructions_panel_set_position(&voxel->instrPanel, ((application->window->width/2) - (voxel->instrPanel.width/2)) / xscale, ((application->window->height/2) - (voxel->instrPanel.height/2)) / yscale);
+        instructions_panel_set_position(&voxel->instrPanel, ((voxel->window.width/2) - (voxel->instrPanel.width/2)) / xscale, ((voxel->window.height/2) - (voxel->instrPanel.height/2)) / yscale);
 #else
         const char* sessionType = getenv("XDG_SESSION_TYPE");
         if (sessionType && strcmp(sessionType, "x11") == 0) {
