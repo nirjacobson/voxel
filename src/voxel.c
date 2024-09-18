@@ -64,7 +64,7 @@ void voxel_show_instructions_panel(Voxel* voxel) {
         float xscale, yscale;
         glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-        instructions_panel_set_position(&voxel->instrPanel, ((voxel->window.width/2) - (voxel->instrPanel.width/2)) / xscale, ((voxel->window.height/2) - (voxel->instrPanel.height/2)) / yscale);
+        instructions_panel_set_position(&voxel->instrPanel, (voxel->window.width/(2*xscale)) - (voxel->instrPanel.width/2), (voxel->window.height/(2*yscale)) - (voxel->instrPanel.height/2));
 #else
         const char* sessionType = getenv("XDG_SESSION_TYPE");
         if (sessionType && strcmp(sessionType, "x11") == 0) {
@@ -72,7 +72,7 @@ void voxel_show_instructions_panel(Voxel* voxel) {
             float xscale, yscale;
             glfwGetMonitorContentScale(primary, &xscale, &yscale);
 
-            instructions_panel_set_position(&voxel->instrPanel, ((voxel->window.width/2) - (voxel->instrPanel.width/2)) / xscale, ((voxel->window.height/2) - (voxel->instrPanel.height/2)) / yscale);
+            instructions_panel_set_position(&voxel->instrPanel, (voxel->window.width/(2*xscale)) - (voxel->instrPanel.width/2), (voxel->window.height/(2*yscale)) - (voxel->instrPanel.height/2));
         } else {
             instructions_panel_set_position(&voxel->instrPanel, (voxel->window.width/2) - (voxel->instrPanel.width/2), (voxel->window.height/2) - (voxel->instrPanel.height/2));
         }
@@ -337,11 +337,9 @@ void voxel_setup(Application* application) {
 
     picker_init(&voxel->picker, &voxel->world, &voxel->undoStack);
 
-    panel_manager_init(&voxel->panelManager);
-
     undo_stack_init(&voxel->undoStack);
 
-    voxel_resize(application);
+    panel_manager_init(&voxel->panelManager);
 
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
 
@@ -372,7 +370,7 @@ void voxel_setup(Application* application) {
         panel_manager_remove_panel(&voxel->panelManager, &voxel->instrPanel.panel);
     } else {
 #ifdef _WIN32
-        instructions_panel_set_position(&voxel->instrPanel, ((application->window->width/2) - (voxel->instrPanel.width/2)) / xscale, ((application->window->height/2) - (voxel->instrPanel.height/2)) / yscale);
+        instructions_panel_set_position(&voxel->instrPanel, (voxel->window.width/(2*xscale)) - (voxel->instrPanel.width/2), (voxel->window.height/(2*yscale)) - (voxel->instrPanel.height/2));
 #else
         const char* sessionType = getenv("XDG_SESSION_TYPE");
         if (sessionType && strcmp(sessionType, "x11") == 0) {
@@ -380,12 +378,14 @@ void voxel_setup(Application* application) {
             float xscale, yscale;
             glfwGetMonitorContentScale(primary, &xscale, &yscale);
             
-            instructions_panel_set_position(&voxel->instrPanel, ((application->window->width/2) - (voxel->instrPanel.width/2)) / xscale, ((application->window->height/2) - (voxel->instrPanel.height/2)) / yscale);
+            instructions_panel_set_position(&voxel->instrPanel, (voxel->window.width/(2*xscale)) - (voxel->instrPanel.width/2), (voxel->window.height/(2*yscale)) - (voxel->instrPanel.height/2));
         } else {
             instructions_panel_set_position(&voxel->instrPanel, (application->window->width/2) - (voxel->instrPanel.width/2), (application->window->height/2) - (voxel->instrPanel.height/2));
         }
 #endif
     }
+
+    voxel_resize(application);
 }
 
 void voxel_main(Application* application) {
