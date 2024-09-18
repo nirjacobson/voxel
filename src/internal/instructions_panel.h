@@ -6,15 +6,15 @@
 #define PENCIL_BUTTON_X                    8
 #define PENCIL_BUTTON_Y                   24
 #define COLOR_DROPPER_BUTTON_X             8
-#define COLOR_DROPPER_BUTTON_Y            74
+#define COLOR_DROPPER_BUTTON_Y            82
 #define ERASER_BUTTON_X                    8
-#define ERASER_BUTTON_Y                  124
+#define ERASER_BUTTON_Y                  136
 #define SELECT_BUTTON_X                  185
 #define SELECT_BUTTON_Y                   24
 #define STAMP_BUTTON_X                   185
-#define STAMP_BUTTON_Y                    74
+#define STAMP_BUTTON_Y                    82
 #define MOVE_BUTTON_X                    185
-#define MOVE_BUTTON_Y                    124
+#define MOVE_BUTTON_Y                    136
 
 /* Action region callbacks */
 
