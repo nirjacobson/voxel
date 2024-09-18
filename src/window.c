@@ -56,6 +56,25 @@ void window_open(Window* window) {
     window->width = WINDOW_DEFAULT_WIDTH;
     window->height = WINDOW_DEFAULT_HEIGHT;
 
+#ifdef _WIN32
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    window->width *= xscale;
+    window->height *= yscale;
+#else
+    const char* sessionType = getenv("XDG_SESSION_TYPE");
+    if (sessionType && strcmp(sessionType, "x11") == 0) {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+        window->width *= xscale;
+        window->height *= yscale;
+    }
+#endif
+
     bool vulkan = glfwVulkanSupported() && !getenv("FORCE_OPENGL");
 
     if (vulkan) {
@@ -118,8 +137,29 @@ void window_toggle_fullscreen(Window* window) {
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         glfwSetWindowMonitor(window->glfwWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     } else {
-        glfwSetWindowMonitor(window->glfwWindow, NULL, 0, 0, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT, GLFW_DONT_CARE);
-        window_resize(window, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+        int width = WINDOW_DEFAULT_WIDTH;
+        int height = WINDOW_DEFAULT_HEIGHT;
+
+#ifdef _WIN32
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        float xscale, yscale;
+        glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+        width *= xscale;
+        height *= yscale;
+#else
+        const char* sessionType = getenv("XDG_SESSION_TYPE");
+        if (sessionType && strcmp(sessionType, "x11") == 0) {
+            GLFWmonitor* primary = glfwGetPrimaryMonitor();
+            float xscale, yscale;
+            glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+            width *= xscale;
+            height *= yscale;
+        }
+#endif
+        glfwSetWindowMonitor(window->glfwWindow, NULL, 0, 0, width, height, GLFW_DONT_CARE);
+        window_resize(window, width, height);
     }
 }
 

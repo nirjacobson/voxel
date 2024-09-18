@@ -339,6 +339,10 @@ void voxel_setup(Application* application) {
 
     panel_manager_init(&voxel->panelManager);
 
+    undo_stack_init(&voxel->undoStack);
+
+    voxel_resize(application);
+
     fps_panel_init(&voxel->fpsPanel, &voxel->renderer, &voxel->panelManager);
 
 #ifdef _WIN32
@@ -382,10 +386,6 @@ void voxel_setup(Application* application) {
         }
 #endif
     }
-
-    undo_stack_init(&voxel->undoStack);
-
-    voxel_resize(application);
 }
 
 void voxel_main(Application* application) {
@@ -409,7 +409,13 @@ void voxel_main(Application* application) {
 void voxel_resize(Application* application) {
     Voxel* voxel = (Voxel*)application->owner;
 
-#ifndef _WIN32
+#ifdef _WIN32
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    float xscale, yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
+
+    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
+#else
     const char* sessionType = getenv("XDG_SESSION_TYPE");
     if (sessionType && strcmp(sessionType, "x11") == 0) {
         GLFWmonitor* primary = glfwGetPrimaryMonitor();
@@ -420,12 +426,6 @@ void voxel_resize(Application* application) {
     } else {
         fps_panel_set_position(&voxel->fpsPanel, 16, application->window->height - 30);
     }
-#else
-    GLFWmonitor* primary = glfwGetPrimaryMonitor();
-    float xscale, yscale;
-    glfwGetMonitorContentScale(primary, &xscale, &yscale);
-
-    fps_panel_set_position(&voxel->fpsPanel, 16 / xscale, (application->window->height / yscale) - 30);
 #endif
 
     camera_set_aspect(&voxel->camera, (float)application->window->width / application->window->height);
